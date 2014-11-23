@@ -10,5 +10,8 @@ minimal npm installer for swagger-ui asset files with no external dependencies
 - dist/
   - directory of swagger-ui asset files
   - copied from https://github.com/swagger-api/swagger-ui/tree/master/dist
+- index.js
+  - main package file
+  - copied from https://github.com/swagger-api/swagger-ui/blob/master/index.js
 - package.json
   - npm config file
