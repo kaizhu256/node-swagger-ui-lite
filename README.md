@@ -1,6 +1,6 @@
 swagger-ui-lite [![NPM](https://img.shields.io/npm/v/swagger-ui-lite.svg?style=flat-square)](https://www.npmjs.org/package/swagger-ui-lite)
 ===============
-minimal npm installer for swagger-ui asset files with zero external dependencies
+minimal npm installer for swagger-ui asset files with zero npm dependencies
 
 
 
@@ -12,6 +12,11 @@ minimal npm installer for swagger-ui asset files with zero external dependencies
     - ./swagger-ui.html
     - ./swagger-ui.rollup.css
     - ./swagger-ui.rollup.js
+
+
+
+# npm-dependencies
+- none
 
 
 

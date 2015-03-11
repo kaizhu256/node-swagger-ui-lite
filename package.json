@@ -1,11 +1,19 @@
 {
-  "author": "kai zhu <kaizhu256@gmail.com>",
-  "name": "swagger-ui-lite",
-  "description": "minimal npm installer for swagger-ui asset files with zero external dependencies",
-  "license": "Apache 2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kaizhu256/node-swagger-ui-lite"
-  },
-  "version": "2.1.8-M1-2015-03-11-a"
+    "author": "kai zhu <kaizhu256@gmail.com>",
+    "name": "swagger-ui-lite",
+    "description": "minimal npm installer for swagger-ui asset files with zero npm dependencies",
+    "keywords": [
+        "browser",
+        "lightweight",
+        "lite",
+        "swagger",
+        "swagger-ui",
+        "web"
+    ],
+    "license": "Apache 2.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kaizhu256/node-swagger-ui-lite"
+    },
+    "version": "2.1.8-M1-2015-03-11-b"
 }
