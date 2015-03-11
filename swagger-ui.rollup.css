@@ -1,3 +1,166 @@
+/* http://petstore.swagger.io/css/typography.css */
+
+
+
+/* droid-sans-regular - latin */
+@font-face {
+  font-family: 'Droid Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../fonts/droid-sans-v6-latin-regular.eot'); /* IE9 Compat Modes */
+  src: local('Droid Sans'), local('DroidSans'),
+       url('../fonts/droid-sans-v6-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('../fonts/droid-sans-v6-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+       url('../fonts/droid-sans-v6-latin-regular.woff') format('woff'), /* Modern Browsers */
+       url('../fonts/droid-sans-v6-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('../fonts/droid-sans-v6-latin-regular.svg#DroidSans') format('svg'); /* Legacy iOS */
+}
+/* droid-sans-700 - latin */
+@font-face {
+  font-family: 'Droid Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: url('../fonts/droid-sans-v6-latin-700.eot'); /* IE9 Compat Modes */
+  src: local('Droid Sans Bold'), local('DroidSans-Bold'),
+       url('../fonts/droid-sans-v6-latin-700.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('../fonts/droid-sans-v6-latin-700.woff2') format('woff2'), /* Super Modern Browsers */
+       url('../fonts/droid-sans-v6-latin-700.woff') format('woff'), /* Modern Browsers */
+       url('../fonts/droid-sans-v6-latin-700.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('../fonts/droid-sans-v6-latin-700.svg#DroidSans') format('svg'); /* Legacy iOS */
+}
+
+
+
+/* http://petstore.swagger.io/css/reset.css */
+/* http://meyerweb.com/eric/tools/css/reset/ v2.0 | 20110126 */
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+  display: block;
+}
+body {
+  line-height: 1;
+}
+ol,
+ul {
+  list-style: none;
+}
+blockquote,
+q {
+  quotes: none;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+
+
+/* http://petstore.swagger.io/css/screen.css */
 /* Original style from softwaremaniacs.org (c) Ivan Sagalaev <Maniac@SoftwareManiacs.Org> */
 .swagger-section pre code {
   display: block;
@@ -294,7 +457,13 @@
 .swagger-section .swagger-ui-wrap .message-fail {
   color: #cc0000;
 }
-.swagger-section .swagger-ui-wrap .info_contact {
+.swagger-section .swagger-ui-wrap .info_url {
+  padding-bottom: 5px;
+}
+.swagger-section .swagger-ui-wrap .info_email {
+  padding-bottom: 5px;
+}
+.swagger-section .swagger-ui-wrap .info_name {
   padding-bottom: 5px;
 }
 .swagger-section .swagger-ui-wrap .info_description {
@@ -390,6 +559,32 @@
 .swagger-section .swagger-ui-wrap .model-signature .description .stronger {
   font-weight: bold;
   color: #000;
+}
+.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper {
+  border-spacing: 0;
+  position: absolute;
+  background-color: #ffffff;
+  border: 1px solid #bbbbbb;
+  display: none;
+  font-size: 11px;
+  max-width: 400px;
+  line-height: 30px;
+  color: black;
+  padding: 5px;
+  margin-left: 10px;
+}
+.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper th {
+  text-align: center;
+  background-color: #eeeeee;
+  border: 1px solid #bbbbbb;
+  font-size: 11px;
+  color: #666666;
+  font-weight: bold;
+  padding: 5px;
+  line-height: 15px;
+}
+.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper .optionName {
+  font-weight: bold;
 }
 .swagger-section .swagger-ui-wrap .model-signature .propName {
   font-weight: bold;
