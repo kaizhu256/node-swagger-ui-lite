@@ -2,6 +2,19 @@ swagger-ui-lite [![NPM](https://img.shields.io/npm/v/swagger-ui-lite.svg?style=f
 ===============
 minimal npm installer for swagger-ui asset files with zero external dependencies
 
+
+
+# quickstart
+1. npm install swagger-ui-lite
+2. cd ./node_modules/swagger-ui-lite
+3. open ./swagger-ui.html in a browser
+4. hack these files to suit your need
+    - ./swagger-ui.html
+    - ./swagger-ui.rollup.css
+    - ./swagger-ui.rollup.js
+
+
+
 # package-listing
 - .gitignore
 - README.md
@@ -19,4 +32,9 @@ minimal npm installer for swagger-ui asset files with zero external dependencies
 - swagger-ui.rollup.js
     - derived from http://petstore.swagger.io/lib/*
 - throbber.gif
-    - derived from http://petstore.swagger.io/images/logo_small.png
+    - derived from http://petstore.swagger.io/images/throbber.gif
+
+
+
+# todo
+    - none
