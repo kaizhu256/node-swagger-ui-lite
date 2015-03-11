@@ -1,17 +1,22 @@
 swagger-ui-lite [![NPM](https://img.shields.io/npm/v/swagger-ui-lite.svg?style=flat-square)](https://www.npmjs.org/package/swagger-ui-lite)
 ===============
-minimal npm installer for swagger-ui asset files with no external dependencies
+minimal npm installer for swagger-ui asset files with zero external dependencies
 
-## package content
+# package-listing
 - .gitignore
-  - git ignore file
 - README.md
-  - readme file
-- dist/
-  - directory of swagger-ui asset files
-  - copied from https://github.com/swagger-api/swagger-ui/tree/master/dist
+- explorer_icons.png
+    - derived from http://petstore.swagger.io/images/explorer_icons.png
 - index.js
-  - main package file
-  - copied from https://github.com/swagger-api/swagger-ui/blob/master/index.js
+    - derived from https://github.com/swagger-api/swagger-ui/blob/master/index.js
+- logo_small.png
+    - derived from http://petstore.swagger.io/images/logo_small.png
 - package.json
-  - npm config file
+- swagger-ui.html
+    - derived from http://petstore.swagger.io/index.html
+- swagger-ui.rollup.css
+    - derived from http://petstore.swagger.io/css/*
+- swagger-ui.rollup.js
+    - derived from http://petstore.swagger.io/lib/*
+- throbber.gif
+    - derived from http://petstore.swagger.io/images/logo_small.png
