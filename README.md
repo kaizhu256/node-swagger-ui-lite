@@ -1,6 +1,7 @@
 swagger-ui-lite [![NPM](https://img.shields.io/npm/v/swagger-ui-lite.svg?style=flat-square)](https://www.npmjs.org/package/swagger-ui-lite)
 ===============
 minimal npm installer for swagger-ui asset files with zero npm dependencies
+![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/screen-capture.png)
 
 
 
@@ -27,7 +28,7 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
     - minimal nodejs module that exports __dirname
 - package.json
 - swagger-ui.html
-    - copy of [http://petstore.swagger.io/index.html](http://petstore.swagger.io/index.html)
+    - hack of [http://petstore.swagger.io/index.html](http://petstore.swagger.io/index.html)
 - swagger-ui.rollup.css
     - rollup of [http://petstore.swagger.io/css/](http://petstore.swagger.io/css/)
 - swagger-ui.rollup.js
