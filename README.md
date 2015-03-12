@@ -1,6 +1,7 @@
 swagger-ui-lite [![NPM](https://img.shields.io/npm/v/swagger-ui-lite.svg?style=flat-square)](https://www.npmjs.org/package/swagger-ui-lite)
 ===============
 minimal npm installer for swagger-ui asset files with zero npm dependencies
+
 ![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/screen-capture.png)
 
 
