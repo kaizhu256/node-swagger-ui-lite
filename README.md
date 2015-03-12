@@ -27,17 +27,17 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
     - minimal nodejs module that exports __dirname
 - package.json
 - swagger-ui.html
-    - copy of http://petstore.swagger.io/index.html
+    - copy of [http://petstore.swagger.io/index.html](http://petstore.swagger.io/index.html)
 - swagger-ui.rollup.css
-    - rollup of http://petstore.swagger.io/css/*
+    - rollup of [http://petstore.swagger.io/css/](http://petstore.swagger.io/css/)
 - swagger-ui.rollup.js
-    - rollup of http://petstore.swagger.io/lib/*
+    - rollup of [http://petstore.swagger.io/lib/](http://petstore.swagger.io/lib/)
 - swagger-ui.explorer_icons.png
-    - copy of http://petstore.swagger.io/images/explorer_icons.png
+    - copy of [http://petstore.swagger.io/images/explorer_icons.png](http://petstore.swagger.io/images/explorer_icons.png)
 - swagger-ui.logo_small.png
-    - copy of http://petstore.swagger.io/images/logo_small.png
+    - copy of [http://petstore.swagger.io/images/logo_small.png](http://petstore.swagger.io/images/logo_small.png)
 - swagger-ui.throbber.gif
-    - copy of http://petstore.swagger.io/images/throbber.gif
+    - copy of [http://petstore.swagger.io/images/throbber.gif](http://petstore.swagger.io/images/throbber.gif)
 
 
 
