@@ -23,25 +23,102 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
 
 
 # package-listing
-- .gitignore
-- README.md
-- index.js
-    - minimal nodejs module that exports __dirname
-- package.json
-- swagger-ui.html
-    - hack of [http://petstore.swagger.io/index.html](http://petstore.swagger.io/index.html)
-- swagger-ui.rollup.css
-    - rollup of [http://petstore.swagger.io/css/](http://petstore.swagger.io/css/)
-- swagger-ui.rollup.js
-    - rollup of [http://petstore.swagger.io/lib/](http://petstore.swagger.io/lib/)
-- swagger-ui.explorer_icons.png
-    - copy of [http://petstore.swagger.io/images/explorer_icons.png](http://petstore.swagger.io/images/explorer_icons.png)
-- swagger-ui.logo_small.png
-    - copy of [http://petstore.swagger.io/images/logo_small.png](http://petstore.swagger.io/images/logo_small.png)
-- swagger-ui.throbber.gif
-    - copy of [http://petstore.swagger.io/images/throbber.gif](http://petstore.swagger.io/images/throbber.gif)
+[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite-lite/build/screen-capture.gitLsTree.png)](https://github.com/kaizhu256/node-swagger-ui-lite-lite)
+
+
+
+# package.json
+```
+{
+    "_packageJson": true,
+    "author": "kai zhu <kaizhu256@gmail.com>",
+    "description": "minimal npm installer for swagger-ui asset files \
+with zero npm dependencies",
+    "devDependencies": {
+        "utility2": "2015.3.25-10"
+    },
+    "keywords": [
+        "api",
+        "browser",
+        "json",
+        "light", "lightweight", "lite",
+        "rollup",
+        "schema",
+        "swagger", "swagger-ui",
+        "web"
+    ],
+    "license": "Apache 2.0",
+    "name": "swagger-ui-lite",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kaizhu256/node-swagger-ui-lite.git"
+    },
+    "scripts": {
+        "build-ci": "node_modules/.bin/utility2 shRun shReadmeBuild",
+        "test": "node_modules/.bin/utility2 shRun shReadmePackageJsonExport"
+    },
+    "version": "2.1.8-M1-2015-03-12-c"
+}
+```
 
 
 
 # todo
     - none
+
+
+
+# changelog of last 50 commits
+[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite-lite/build/screen-capture.gitLog.png)](https://github.com/kaizhu256/node-swagger-ui-lite-lite/commits)
+
+
+
+# internal build-script
+```
+# build.sh
+# this shell script will run the build for this package
+shBuild() {
+    # init env
+    export npm_config_mode_slimerjs=1 || return $?
+    . node_modules/.bin/utility2 && shInit || return $?
+
+    #!! # run npm-test on published package
+    #!! shRun shNpmTestPublished || return $?
+
+    #!! # test example shell script
+    #!! MODE_BUILD=testExampleSh \
+        #!! shRunScreenCapture shReadmeTestSh example.sh || return $?
+
+    #!! # run npm-test
+    #!! MODE_BUILD=npmTest shRunScreenCapture npm test || return $?
+
+    # if number of commits > 1024, then squash older commits
+    shRun shGitBackupAndSquashAndPush 1024 > /dev/null || return $?
+}
+shBuild
+
+# save exit-code
+EXIT_CODE=$?
+
+shBuildCleanup() {
+    # this function will cleanup build-artifacts in local build dir
+    # create package-listing
+    MODE_BUILD=gitLsTree shRunScreenCapture shGitLsTree || return $?
+    # create recent changelog of last 50 commits
+    MODE_BUILD=gitLog shRunScreenCapture git log -50 --pretty="%ai\u000a%B" || \
+        return $?
+}
+shBuildCleanup || exit $?
+
+shBuildGithubUploadCleanup() {
+    # this function will cleanup build-artifacts in local gh-pages repo
+    return
+}
+
+# upload build-artifacts to github,
+# and if number of commits > 16, then squash older commits
+COMMIT_LIMIT=16 shRun shBuildGithubUpload || exit $?
+
+# exit with $EXIT_CODE
+exit $EXIT_CODE
+```

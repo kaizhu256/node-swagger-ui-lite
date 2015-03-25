@@ -1,20 +1,29 @@
 {
+    "_packageJson": true,
     "author": "kai zhu <kaizhu256@gmail.com>",
-    "name": "swagger-ui-lite",
     "description": "minimal npm installer for swagger-ui asset files with zero npm dependencies",
+    "devDependencies": {
+        "utility2": "2015.3.25-10"
+    },
     "keywords": [
+        "api",
         "browser",
-        "lightweight",
-        "lite",
+        "json",
+        "light", "lightweight", "lite",
         "rollup",
-        "swagger",
-        "swagger-ui",
+        "schema",
+        "swagger", "swagger-ui",
         "web"
     ],
     "license": "Apache 2.0",
+    "name": "swagger-ui-lite",
     "repository": {
         "type": "git",
-        "url": "https://github.com/kaizhu256/node-swagger-ui-lite"
+        "url": "https://github.com/kaizhu256/node-swagger-ui-lite.git"
+    },
+    "scripts": {
+        "build-ci": "node_modules/.bin/utility2 shRun shReadmeBuild",
+        "test": "node_modules/.bin/utility2 shRun shReadmePackageJsonExport"
     },
     "version": "2.1.8-M1-2015-03-12-c"
 }
