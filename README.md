@@ -23,7 +23,7 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
 
 
 # package-listing
-[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite-lite/build/screen-capture.gitLsTree.png)](https://github.com/kaizhu256/node-swagger-ui-lite-lite)
+[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.gitLsTree.png)](https://github.com/kaizhu256/node-swagger-ui-lite)
 
 
 
@@ -69,7 +69,7 @@ with zero npm dependencies",
 
 
 # changelog of last 50 commits
-[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite-lite/build/screen-capture.gitLog.png)](https://github.com/kaizhu256/node-swagger-ui-lite-lite/commits)
+[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.gitLog.png)](https://github.com/kaizhu256/node-swagger-ui-lite/commits)
 
 
 
