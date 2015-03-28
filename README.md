@@ -26,6 +26,9 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
 
 
 # package-listing
+- swagger-tools files derived from https://github.com/apigee-127/swagger-tools
+- swagger-ui files derived from https://github.com/swagger-api/swagger-ui
+
 [![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.gitLsTree.png)](https://github.com/kaizhu256/node-swagger-ui-lite)
 
 
@@ -60,7 +63,7 @@ with zero npm dependencies",
         "build-ci": "node_modules/.bin/utility2 shRun shReadmeBuild",
         "test": "node_modules/.bin/utility2 shRun shReadmePackageJsonExport"
     },
-    "version": "2.1.8-M1-2015-03-12-c"
+    "version": "2.1.8-M1-2015-03-29-a"
 }
 ```
 
