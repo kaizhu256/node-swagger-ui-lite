@@ -3,7 +3,7 @@
     "author": "kai zhu <kaizhu256@gmail.com>",
     "description": "minimal npm installer for swagger-ui asset files with zero npm dependencies",
     "devDependencies": {
-        "utility2": "2015.3.25-10"
+        "utility2": "2015.3.28-11"
     },
     "keywords": [
         "api",

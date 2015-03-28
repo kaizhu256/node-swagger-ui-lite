@@ -2,13 +2,16 @@ swagger-ui-lite [![NPM](https://img.shields.io/npm/v/swagger-ui-lite.svg?style=f
 ===============
 minimal npm installer for swagger-ui asset files with zero npm dependencies
 
+
+
+# build-status [![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-swagger-ui-lite.svg)](https://travis-ci.org/kaizhu256/node-swagger-ui-lite)
 ![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/screen-capture.png)
 
 
 
 # quickstart
-1. npm install swagger-ui-lite
-2. cd ./node_modules/swagger-ui-lite
+1. $ npm install swagger-ui-lite
+2. $ cd ./node_modules/swagger-ui-lite
 3. open ./swagger-ui.html in a browser
 4. hack these files to suit your need
     - ./swagger-ui.html
@@ -35,7 +38,7 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
     "description": "minimal npm installer for swagger-ui asset files \
 with zero npm dependencies",
     "devDependencies": {
-        "utility2": "2015.3.25-10"
+        "utility2": "2015.3.28-11"
     },
     "keywords": [
         "api",
@@ -43,8 +46,7 @@ with zero npm dependencies",
         "json",
         "light", "lightweight", "lite",
         "rollup",
-        "schema",
-        "swagger", "swagger-ui",
+        "schema", "swagger", "swagger-ui",
         "web"
     ],
     "license": "Apache 2.0",
@@ -85,15 +87,17 @@ shBuild() {
     #!! # run npm-test on published package
     #!! shRun shNpmTestPublished || return $?
 
-    #!! # test example shell script
-    #!! MODE_BUILD=testExampleSh \
-        #!! shRunScreenCapture shReadmeTestSh example.sh || return $?
+    # run npm-test
+    MODE_BUILD=npmTest shRunScreenCapture npm test || return $?
 
-    #!! # run npm-test
-    #!! MODE_BUILD=npmTest shRunScreenCapture npm test || return $?
+    # screen-capture swagger-ui.html
+    shTmpAppCopy || return $?
+    shPhantomScreenCapture \
+        "file:///tmp/app/swagger-ui.html#\u0021/store/placeOrder" \
+        30000 10000 || return $?
 
-    # if number of commits > 1024, then squash older commits
-    shRun shGitBackupAndSquashAndPush 1024 > /dev/null || return $?
+    # if number of commits > 512, then squash older commits
+    shRun shGitBackupAndSquashAndPush 512 > /dev/null || return $?
 }
 shBuild
 
