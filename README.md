@@ -5,7 +5,7 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
 
 
 # build-status [![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-swagger-ui-lite.svg)](https://travis-ci.org/kaizhu256/node-swagger-ui-lite)
-![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/screen-capture.png)
+![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/screen-capture.build.slimerjs._2Ftmp_2Fapp_2Fswagger-ui.html.png)
 
 
 

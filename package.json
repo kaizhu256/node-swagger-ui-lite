@@ -11,8 +11,7 @@
         "json",
         "light", "lightweight", "lite",
         "rollup",
-        "schema",
-        "swagger", "swagger-ui",
+        "schema", "swagger", "swagger-ui",
         "web"
     ],
     "license": "Apache 2.0",
