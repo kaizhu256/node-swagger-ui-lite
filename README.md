@@ -38,6 +38,7 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
     "description": "minimal npm installer for swagger-ui asset files \
 with zero npm dependencies",
     "devDependencies": {
+        "phantomjs-lite": "2015.3.24-11",
         "utility2": "2015.3.28-11"
     },
     "keywords": [
@@ -84,8 +85,8 @@ shBuild() {
     export npm_config_mode_slimerjs=1 || return $?
     . node_modules/.bin/utility2 && shInit || return $?
 
-    #!! # run npm-test on published package
-    #!! shRun shNpmTestPublished || return $?
+    # run npm-test on published package
+    shRun shNpmTestPublished || return $?
 
     # run npm-test
     MODE_BUILD=npmTest shRunScreenCapture npm test || return $?
