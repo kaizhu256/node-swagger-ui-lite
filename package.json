@@ -23,5 +23,5 @@
         "build-ci": "node_modules/.bin/utility2 shRun shReadmeBuild",
         "test": "node_modules/.bin/utility2 shRun shReadmePackageJsonExport"
     },
-    "version": "2.1.8-M1-2015-03-29-a"
+    "version": "2.1.0-M2-2015-04-19-a"
 }
