@@ -27,7 +27,7 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
 
 # package-listing
 - swagger-tools files derived from https://github.com/apigee-127/swagger-tools
-- swagger-ui files derived from https://github.com/swagger-api/swagger-ui
+- swagger-ui files derived from http://petstore.swagger.io
 
 [![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.gitLsTree.png)](https://github.com/kaizhu256/node-swagger-ui-lite)
 
