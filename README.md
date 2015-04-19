@@ -41,14 +41,12 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
     "description": "minimal npm installer for swagger-ui asset files \
 with zero npm dependencies",
     "devDependencies": {
-        "phantomjs-lite": "2015.3.24-11",
-        "utility2": "2015.3.28-11"
+        "phantomjs-lite": "2015.4.18-a",
+        "utility2": "2015.4.18-b"
     },
     "keywords": [
         "api",
         "browser",
-        "json",
-        "light", "lightweight", "lite",
         "rollup",
         "schema", "swagger", "swagger-ui",
         "web"
@@ -100,8 +98,8 @@ shBuild() {
         "file:///tmp/app/swagger-ui.html#\u0021/store/placeOrder" \
         30000 10000 || return $?
 
-    # if number of commits > 512, then squash older commits
-    shRun shGitBackupAndSquashAndPush 512 > /dev/null || return $?
+    # if number of commits > 1024, then squash older commits
+    shRun shGitBackupAndSquashAndPush 1024 > /dev/null || return $?
 }
 shBuild
 
