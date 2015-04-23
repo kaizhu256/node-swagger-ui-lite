@@ -42,13 +42,13 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
 with zero npm dependencies",
     "devDependencies": {
         "phantomjs-lite": "2015.4.18-a",
-        "utility2": "2015.4.18-b"
+        "utility2": "2015.4.23-b"
     },
     "keywords": [
         "api",
         "browser",
         "rollup",
-        "schema", "swagger", "swagger-ui",
+        "schema", "swagger", "swagger-tools", "swagger-ui",
         "web"
     ],
     "license": "Apache 2.0",
@@ -61,7 +61,7 @@ with zero npm dependencies",
         "build-ci": "node_modules/.bin/utility2 shRun shReadmeBuild",
         "test": "node_modules/.bin/utility2 shRun shReadmePackageJsonExport"
     },
-    "version": "2.1.0-M2-2015-04-19-a"
+    "version": "2.1.0-M2-2015.4.23-b"
 }
 ```
 
