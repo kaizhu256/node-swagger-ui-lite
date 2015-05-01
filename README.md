@@ -41,8 +41,8 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
     "description": "minimal npm installer for swagger-ui asset files \
 with zero npm dependencies",
     "devDependencies": {
-        "phantomjs-lite": "2015.4.18-a",
-        "utility2": "2015.4.23-b"
+        "phantomjs-lite": "2015.4.26-c",
+        "utility2": "2015.4.30-a"
     },
     "keywords": [
         "api",
