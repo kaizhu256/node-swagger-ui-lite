@@ -72,6 +72,12 @@ with zero npm dependencies",
 
 
 
+# change since 237580bf
+- add Function.prototype.bind polyfill to swagger-ui.rollup.js
+- none
+
+
+
 # changelog of last 50 commits
 [![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.gitLog.png)](https://github.com/kaizhu256/node-swagger-ui-lite/commits)
 
