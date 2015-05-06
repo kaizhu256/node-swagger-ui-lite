@@ -28,7 +28,6 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
 # package-listing
 - swagger-tools files derived from https://github.com/apigee-127/swagger-tools
 - swagger-ui files derived from http://petstore.swagger.io
-
 [![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.gitLsTree.png)](https://github.com/kaizhu256/node-swagger-ui-lite)
 
 
@@ -42,7 +41,7 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
 with zero npm dependencies",
     "devDependencies": {
         "phantomjs-lite": "2015.4.26-c",
-        "utility2": "2015.4.30-a"
+        "utility2": "2015.5.6-b"
     },
     "keywords": [
         "api",
@@ -61,18 +60,19 @@ with zero npm dependencies",
         "build-ci": "node_modules/.bin/utility2 shRun shReadmeBuild",
         "test": "node_modules/.bin/utility2 shRun shReadmePackageJsonExport"
     },
-    "version": "2.1.0-M2-2015.4.23-b"
+    "version": "2.1.0-M2-2015.5.6-a"
 }
 ```
 
 
 
 # todo
-    - none
+- none
 
 
 
 # change since 237580bf
+- npm publish 2.1.0-M2-2015.5.6-a
 - add Function.prototype.bind polyfill to swagger-ui.rollup.js
 - none
 
