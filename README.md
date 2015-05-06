@@ -10,6 +10,9 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
 
 
 # build-status [![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-swagger-ui-lite.svg)](https://travis-ci.org/kaizhu256/node-swagger-ui-lite)
+
+[![build commit status](https://kaizhu256.github.io/node-github-crud/build/build.badge.svg)](https://travis-ci.org/kaizhu256/node-github-crud)
+
 | git-branch | [master](https://github.com/kaizhu256/node-swagger-ui-lite/tree/master) | [beta](https://github.com/kaizhu256/node-swagger-ui-lite/tree/beta) | [alpha](https://github.com/kaizhu256/node-swagger-ui-lite/tree/alpha)|
 |:--|:--|:--|:--|
 | build-artifacts | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..master..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..beta..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..alpha..travis-ci.org)|
