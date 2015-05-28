@@ -1,21 +1,34 @@
-swagger-ui-lite [![NPM](https://img.shields.io/npm/v/swagger-ui-lite.svg?style=flat-square)](https://www.npmjs.org/package/swagger-ui-lite)
+swagger-ui-lite
 ===============
 minimal npm installer for swagger-ui asset files with zero npm dependencies
+
+[![NPM](https://img.shields.io/npm/v/swagger-ui-lite.svg?style=flat-square)](https://www.npmjs.org/package/swagger-ui-lite)
 
 
 
 # screen-capture
-![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2Ftmp_2Fapp_2Fswagger-ui.html.png)
+[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2Ftmp_2Fapp_2Fswagger-ui.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2Ftmp_2Fapp_2Fswagger-ui.html.png)
 
 
 
 # build-status [![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-swagger-ui-lite.svg)](https://travis-ci.org/kaizhu256/node-swagger-ui-lite)
 
-[![build commit status](https://kaizhu256.github.io/node-github-crud/build/build.badge.svg)](https://travis-ci.org/kaizhu256/node-github-crud)
+| git-branch : | [master](https://github.com/kaizhu256/node-swagger-ui-lite/tree/master) | [beta](https://github.com/kaizhu256/node-swagger-ui-lite/tree/beta) | [alpha](https://github.com/kaizhu256/node-swagger-ui-lite/tree/alpha)|
+|--:|:--|:--|:--|
+| build-artifacts : | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..master..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..beta..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..alpha..travis-ci.org)|
 
-| git-branch | [master](https://github.com/kaizhu256/node-swagger-ui-lite/tree/master) | [beta](https://github.com/kaizhu256/node-swagger-ui-lite/tree/beta) | [alpha](https://github.com/kaizhu256/node-swagger-ui-lite/tree/alpha)|
-|:--|:--|:--|:--|
-| build-artifacts | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..master..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..beta..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..alpha..travis-ci.org)|
+#### master branch
+- stable branch
+- HEAD should be tagged, npm-published package
+
+#### beta branch
+- stable branch
+- HEAD should be latest, npm-published package
+
+#### alpha branch
+- unstable branch
+- HEAD is arbitrary
+- commit history may be rewritten
 
 
 
@@ -29,7 +42,7 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
     - ./swagger-ui.rollup.js
 
 #### output from phantomjs-lite
-![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2Ftmp_2Fapp_2Fswagger-ui.html.png)
+[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2Ftmp_2Fapp_2Fswagger-ui.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2Ftmp_2Fapp_2Fswagger-ui.html.png)
 
 
 
@@ -54,8 +67,8 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
     "description": "minimal npm installer for swagger-ui asset files \
 with zero npm dependencies",
     "devDependencies": {
-        "phantomjs-lite": "2015.4.26-c",
-        "utility2": "2015.5.6-b"
+        "phantomjs-lite": "^2015.4.26-c",
+        "utility2": "2015.5.15-f"
     },
     "keywords": [
         "api",
@@ -72,9 +85,9 @@ with zero npm dependencies",
     },
     "scripts": {
         "build-ci": "node_modules/.bin/utility2 shRun shReadmeBuild",
-        "test": "node_modules/.bin/utility2 shRun shReadmePackageJsonExport"
+        "test": "node_modules/.bin/utility2 shRun shReadmeExportPackageJson"
     },
-    "version": "2.1.0-M2-2015.5.6-a"
+    "version": "2.1.5-M2-2015.5.28-b"
 }
 ```
 
@@ -85,9 +98,11 @@ with zero npm dependencies",
 
 
 
-# change since 237580bf
-- npm publish 2.1.0-M2-2015.5.6-a
-- add Function.prototype.bind polyfill to swagger-ui.rollup.js
+# change since 2e0e9882
+- npm publish 2.1.5-M2-2015.5.28-b
+- add http://petstore.swagger.io/lib/swagger-oauth.js to swagger-ui.rollup.js
+- update to swagger@v2.1.5-M2
+- add swagger.json
 - none
 
 
@@ -98,10 +113,14 @@ with zero npm dependencies",
 
 
 # internal build-script
+- build.sh
+
 ```
 # build.sh
+
 # this shell script will run the build for this package
 shBuild() {
+    # this function will run the main build
     # init env
     export npm_config_mode_slimerjs=1 || return $?
     . node_modules/.bin/utility2 && shInit || return $?

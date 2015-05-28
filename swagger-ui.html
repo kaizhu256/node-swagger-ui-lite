@@ -20,6 +20,7 @@
   <script src='swagger-ui.js' type='text/javascript'></script>
   <script src='lib/highlight.7.3.pack.js' type='text/javascript'></script>
   <script src='lib/marked.js' type='text/javascript'></script>
+  <script src='lib/swagger-oauth.js' type='text/javascript'></script>
   -->
   <link href='swagger-ui.rollup.css' media='screen' rel='stylesheet' type='text/css'/>
   <script src='swagger-ui.rollup.js' type='text/javascript'></script>
@@ -44,9 +45,11 @@
               appName: "your-app-name"
             });
           }
+
           $('pre code').each(function(i, e) {
             hljs.highlightBlock(e)
           });
+
           addApiKeyAuthorization();
         },
         onFailure: function(data) {
@@ -56,9 +59,8 @@
         sorter : "alpha"
       });
 
-      function addApiKeyAuthorization() {
+      function addApiKeyAuthorization(){
         var key = encodeURIComponent($('#input_apiKey')[0].value);
-        log("key: " + key);
         if(key && key.trim() != "") {
             var apiKeyAuth = new SwaggerClient.ApiKeyAuthorization("api_key", key, "query");
             window.swaggerUi.api.clientAuthorizations.add("api_key", apiKeyAuth);
@@ -72,7 +74,6 @@
       /*
         var apiKey = "myApiKeyXXXX123456789";
         $('#input_apiKey').val(apiKey);
-        addApiKeyAuthorization();
       */
 
       window.swaggerUi.load();
