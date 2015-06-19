@@ -1,6 +1,6 @@
 swagger-ui-lite
 ===============
-minimal npm installer for swagger-ui asset files with zero npm dependencies
+minimal npm installer for swagger-ui asset files with zero npm-dependencies
 
 [![NPM](https://img.shields.io/npm/v/swagger-ui-lite.svg?style=flat-square)](https://www.npmjs.org/package/swagger-ui-lite)
 
@@ -60,15 +60,14 @@ minimal npm installer for swagger-ui asset files with zero npm dependencies
 
 
 # package.json
-```
+```json
 {
-    "_packageJson": true,
     "author": "kai zhu <kaizhu256@gmail.com>",
     "description": "minimal npm installer for swagger-ui asset files \
-with zero npm dependencies",
+with zero npm-dependencies",
     "devDependencies": {
-        "phantomjs-lite": "^2015.4.26-c",
-        "utility2": "2015.5.15-f"
+        "phantomjs-lite": "^1.9.8-2015.6.1-b",
+        "utility2": "2015.6.1-b"
     },
     "keywords": [
         "api",
@@ -87,22 +86,21 @@ with zero npm dependencies",
         "build-ci": "node_modules/.bin/utility2 shRun shReadmeBuild",
         "test": "node_modules/.bin/utility2 shRun shReadmeExportPackageJson"
     },
-    "version": "2.1.5-M2-2015.5.28-b"
+    "version": "2.1.0-20150619a"
 }
 ```
 
 
 
 # todo
+- update swagger-tools
 - none
 
 
 
-# change since 2e0e9882
-- npm publish 2.1.5-M2-2015.5.28-b
-- add http://petstore.swagger.io/lib/swagger-oauth.js to swagger-ui.rollup.js
-- update to swagger@v2.1.5-M2
-- add swagger.json
+# change since 336e609f
+- npm publish 2.1.0-20150619a
+- update to swagger@v2.1.0
 - none
 
 
@@ -115,7 +113,7 @@ with zero npm dependencies",
 # internal build-script
 - build.sh
 
-```
+```shell
 # build.sh
 
 # this shell script will run the build for this package
@@ -126,7 +124,7 @@ shBuild() {
     . node_modules/.bin/utility2 && shInit || return $?
 
     # run npm-test on published package
-    shRun shNpmTestPublished || return $?
+    shNpmTestPublished || return $?
 
     # run npm-test
     MODE_BUILD=npmTest shRunScreenCapture npm test || return $?
@@ -137,8 +135,8 @@ shBuild() {
         "file:///tmp/app/swagger-ui.html#\u0021/store/placeOrder" \
         30000 10000 || return $?
 
-    # if number of commits > 1024, then squash older commits
-    shRun shGitBackupAndSquashAndPush 1024 > /dev/null || return $?
+    # if number of commits > 256, then squash older commits
+    shGitBackupAndSquashAndPush 256 > /dev/null || return $?
 }
 shBuild
 
@@ -162,7 +160,7 @@ shBuildGithubUploadCleanup() {
 
 # upload build-artifacts to github,
 # and if number of commits > 16, then squash older commits
-COMMIT_LIMIT=16 shRun shBuildGithubUpload || exit $?
+COMMIT_LIMIT=16 shBuildGithubUpload || exit $?
 
 # exit with $EXIT_CODE
 exit $EXIT_CODE
