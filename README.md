@@ -67,7 +67,7 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 with zero npm-dependencies",
     "devDependencies": {
         "phantomjs-lite": "^1.9.8-2015.6.1-b",
-        "utility2": "2015.6.1-b"
+        "utility2": "^2015.6.1-b"
     },
     "keywords": [
         "api",
@@ -86,7 +86,7 @@ with zero npm-dependencies",
         "build-ci": "node_modules/.bin/utility2 shRun shReadmeBuild",
         "test": "node_modules/.bin/utility2 shRun shReadmeExportPackageJson"
     },
-    "version": "2.1.0-20150619a"
+    "version": "2015.6.1"
 }
 ```
 
@@ -98,9 +98,9 @@ with zero npm-dependencies",
 
 
 
-# change since 336e609f
-- npm publish 2.1.0-20150619a
-- update to swagger@v2.1.0
+# change since 562cf908
+- npm publish 2015.6.1
+- fix version breakage with latest npm install
 - none
 
 
@@ -134,9 +134,6 @@ shBuild() {
     shPhantomScreenCapture \
         "file:///tmp/app/swagger-ui.html#\u0021/store/placeOrder" \
         30000 10000 || return $?
-
-    # if number of commits > 256, then squash older commits
-    shGitBackupAndSquashAndPush 256 > /dev/null || return $?
 }
 shBuild
 
