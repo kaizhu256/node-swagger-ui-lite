@@ -22,7 +22,7 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 - HEAD should be tagged, npm-published package
 
 #### beta branch
-- stable branch
+- semi-stable branch
 - HEAD should be latest, npm-published package
 
 #### alpha branch
@@ -66,8 +66,8 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
     "description": "minimal npm installer for swagger-ui asset files \
 with zero npm-dependencies",
     "devDependencies": {
-        "phantomjs-lite": "^1.9.8-2015.6.1-b",
-        "utility2": "^2015.6.1-b"
+        "phantomjs-lite": "^2015.7.1",
+        "utility2": "^2015.7.10"
     },
     "keywords": [
         "api",
@@ -86,21 +86,20 @@ with zero npm-dependencies",
         "build-ci": "node_modules/.bin/utility2 shRun shReadmeBuild",
         "test": "node_modules/.bin/utility2 shRun shReadmeExportPackageJson"
     },
-    "version": "2015.6.1"
+    "version": "2015.6.2"
 }
 ```
 
 
 
 # todo
-- update swagger-tools
 - none
 
 
 
-# change since 562cf908
-- npm publish 2015.6.1
-- fix version breakage with latest npm install
+# change since 3df73348
+- npm publish 2015.6.2
+- update swagger-tools
 - none
 
 
@@ -117,6 +116,7 @@ with zero npm-dependencies",
 # build.sh
 
 # this shell script will run the build for this package
+
 shBuild() {
     # this function will run the main build
     # init env
@@ -124,7 +124,7 @@ shBuild() {
     . node_modules/.bin/utility2 && shInit || return $?
 
     # run npm-test on published package
-    shNpmTestPublished || return $?
+    shRun shNpmTestPublished || return $?
 
     # run npm-test
     MODE_BUILD=npmTest shRunScreenCapture npm test || return $?
