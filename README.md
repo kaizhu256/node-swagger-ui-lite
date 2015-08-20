@@ -2,7 +2,7 @@ swagger-ui-lite
 ===============
 minimal npm installer for swagger-ui asset files with zero npm-dependencies
 
-[![NPM](https://img.shields.io/npm/v/swagger-ui-lite.svg?style=flat-square)](https://www.npmjs.org/package/swagger-ui-lite)
+[![NPM](https://img.shields.io/npm/v/swagger-ui-lite.svg?style=flat-square)](https://www.npmjs.org/package/swagger-ui-lite) [![NPM](https://img.shields.io/npm/dm/swagger-ui-lite.svg?style=flat-square)](https://www.npmjs.org/package/swagger-ui-lite)
 
 
 
@@ -12,7 +12,6 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 
 
 # build-status [![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-swagger-ui-lite.svg)](https://travis-ci.org/kaizhu256/node-swagger-ui-lite)
-
 | git-branch : | [master](https://github.com/kaizhu256/node-swagger-ui-lite/tree/master) | [beta](https://github.com/kaizhu256/node-swagger-ui-lite/tree/beta) | [alpha](https://github.com/kaizhu256/node-swagger-ui-lite/tree/alpha)|
 |--:|:--|:--|:--|
 | build-artifacts : | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..master..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..beta..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..alpha..travis-ci.org)|
@@ -32,14 +31,24 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 
 
 
+# documentation
+#### this package is derived from
+- swagger-tools@0.9.4
+- swagger-ui@2.1.2
+
+
+
 # quickstart
-1. $ npm install swagger-ui-lite
-2. $ cd ./node_modules/swagger-ui-lite
-3. open ./swagger-ui.html in a browser
-4. hack these files to suit your need
-    - ./swagger-ui.html
-    - ./swagger-ui.rollup.css
-    - ./swagger-ui.rollup.js
+#### 1. $ npm install swagger-ui-lite
+
+#### 2. $ cd ./node_modules/swagger-ui-lite
+
+#### 3. open ./swagger-ui.html in a browser
+
+#### 4. hack these files to suit your need
+- ./swagger-ui.html
+- ./swagger-ui.rollup.css
+- ./swagger-ui.rollup.js
 
 #### output from phantomjs-lite
 [![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2Ftmp_2Fapp_2Fswagger-ui.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2Ftmp_2Fapp_2Fswagger-ui.html.png)
@@ -55,7 +64,7 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 - swagger-tools files derived from https://github.com/apigee-127/swagger-tools
 - swagger-ui files derived from http://petstore.swagger.io
 
-[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.gitLsTree.png)](https://github.com/kaizhu256/node-swagger-ui-lite)
+[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.gitLsTree.svg)](https://github.com/kaizhu256/node-swagger-ui-lite)
 
 
 
@@ -67,7 +76,7 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 with zero npm-dependencies",
     "devDependencies": {
         "phantomjs-lite": "^2015.7.1",
-        "utility2": "^2015.7.10"
+        "utility2": "^2015.8.5"
     },
     "keywords": [
         "api",
@@ -86,7 +95,7 @@ with zero npm-dependencies",
         "build-ci": "node_modules/.bin/utility2 shRun shReadmeBuild",
         "test": "node_modules/.bin/utility2 shRun shReadmeExportPackageJson"
     },
-    "version": "2015.6.2"
+    "version": "2015.8.1"
 }
 ```
 
@@ -97,15 +106,14 @@ with zero npm-dependencies",
 
 
 
-# change since 3df73348
-- npm publish 2015.6.2
-- update swagger-tools
+# change since 2c790662
+- npm publish 2015.8.1
 - none
 
 
 
 # changelog of last 50 commits
-[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.gitLog.png)](https://github.com/kaizhu256/node-swagger-ui-lite/commits)
+[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.gitLog.svg)](https://github.com/kaizhu256/node-swagger-ui-lite/commits)
 
 
 
@@ -130,35 +138,19 @@ shBuild() {
     MODE_BUILD=npmTest shRunScreenCapture npm test || return $?
 
     # screen-capture swagger-ui.html
-    shTmpAppCopy || return $?
     shPhantomScreenCapture \
-        "file:///tmp/app/swagger-ui.html#\u0021/store/placeOrder" \
-        30000 10000 || return $?
+        "file:///$PWD/swagger-ui.html#\u0021/store/placeOrder" 30000 10000 || return $?
 }
 shBuild
 
 # save exit-code
 EXIT_CODE=$?
-
-shBuildCleanup() {
-    # this function will cleanup build-artifacts in local build dir
-    # create package-listing
-    MODE_BUILD=gitLsTree shRunScreenCapture shGitLsTree || return $?
-    # create recent changelog of last 50 commits
-    MODE_BUILD=gitLog shRunScreenCapture git log -50 --pretty="%ai\u000a%B" || \
-        return $?
-}
-shBuildCleanup || exit $?
-
-shBuildGithubUploadCleanup() {
-    # this function will cleanup build-artifacts in local gh-pages repo
-    return
-}
-
-# upload build-artifacts to github,
-# and if number of commits > 16, then squash older commits
+# create package-listing
+MODE_BUILD=gitLsTree shRunScreenCapture shGitLsTree || exit $?
+# create recent changelog of last 50 commits
+MODE_BUILD=gitLog shRunScreenCapture git log -50 --pretty="%ai\u000a%B" || exit $?
+# upload build-artifacts to github, and if number of commits > 16, then squash older commits
 COMMIT_LIMIT=16 shBuildGithubUpload || exit $?
-
-# exit with $EXIT_CODE
 exit $EXIT_CODE
+
 ```
