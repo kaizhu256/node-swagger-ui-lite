@@ -7,11 +7,12 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 
 
 # screen-capture
-[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2Ftmp_2Fapp_2Fswagger-ui.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2Ftmp_2Fapp_2Fswagger-ui.html.png)
+[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2F_2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-swagger-ui-lite_2Fswagger-ui.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2F_2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-swagger-ui-lite_2Fswagger-ui.html.png)
 
 
 
 # build-status [![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-swagger-ui-lite.svg)](https://travis-ci.org/kaizhu256/node-swagger-ui-lite)
+
 | git-branch : | [master](https://github.com/kaizhu256/node-swagger-ui-lite/tree/master) | [beta](https://github.com/kaizhu256/node-swagger-ui-lite/tree/beta) | [alpha](https://github.com/kaizhu256/node-swagger-ui-lite/tree/alpha)|
 |--:|:--|:--|:--|
 | build-artifacts : | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..master..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..beta..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..alpha..travis-ci.org)|
@@ -33,8 +34,9 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 
 # documentation
 #### this package is derived from
-- swagger-tools@0.9.4
-- swagger-ui@2.1.2
+- nedb @ 0b564ba6
+- swagger-tools @ 0.9.9
+- swagger-ui @ 2.1.4
 
 
 
@@ -51,7 +53,7 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 - ./swagger-ui.rollup.js
 
 #### output from phantomjs-lite
-[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2Ftmp_2Fapp_2Fswagger-ui.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2Ftmp_2Fapp_2Fswagger-ui.html.png)
+[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2F_2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-swagger-ui-lite_2Fswagger-ui.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2F_2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-swagger-ui-lite_2Fswagger-ui.html.png)
 
 
 
@@ -61,9 +63,6 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 
 
 # package-listing
-- swagger-tools files derived from https://github.com/apigee-127/swagger-tools
-- swagger-ui files derived from http://petstore.swagger.io
-
 [![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.gitLsTree.svg)](https://github.com/kaizhu256/node-swagger-ui-lite)
 
 
@@ -76,7 +75,7 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 with zero npm-dependencies",
     "devDependencies": {
         "phantomjs-lite": "^2015.7.1",
-        "utility2": "^2015.8.5"
+        "utility2": "^2015.10.3"
     },
     "keywords": [
         "api",
@@ -95,7 +94,7 @@ with zero npm-dependencies",
         "build-ci": "node_modules/.bin/utility2 shRun shReadmeBuild",
         "test": "node_modules/.bin/utility2 shRun shReadmeExportPackageJson"
     },
-    "version": "2015.8.1"
+    "version": "2015.11.1"
 }
 ```
 
@@ -106,8 +105,11 @@ with zero npm-dependencies",
 
 
 
-# change since 2c790662
-- npm publish 2015.8.1
+# change since 953809d8
+- npm publish 2015.11.1
+- add nedb.min.js @ 0b564ba6
+- update to swagger-tools @ 0.9.9
+- update to swagger-ui @ 2.1.4
 - none
 
 

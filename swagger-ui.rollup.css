@@ -1,4 +1,5 @@
-/* node_modules/swagger-ui/dist/css/reset.css */
+/* init css reset.css */
+/* http://petstore.swagger.io/css/reset.css */
 /* http://meyerweb.com/eric/tools/css/reset/ v2.0 | 20110126 */
 html,
 body,
@@ -127,7 +128,8 @@ table {
 
 
 
-/* node_modules/swagger-ui/dist/css/screen.css */
+/* init css screen.css */
+/* http://petstore.swagger.io/css/screen.css */
 /* Original style from softwaremaniacs.org (c) Ivan Sagalaev <Maniac@SoftwareManiacs.Org> */
 .swagger-section pre code {
   display: block;
@@ -1285,16 +1287,8 @@ table {
 .swagger-section .auth {
   float: right;
 }
-.swagger-section .api-ic {
-  height: 18px;
-  vertical-align: middle;
-  display: inline-block;
-  background: url(swagger-ui.explorer_icons.png) no-repeat;
-}
-.swagger-section .api-ic .api_information_panel {
-  position: relative;
-  margin-top: 20px;
-  margin-left: -5px;
+.swagger-section #api_information_panel {
+  position: absolute;
   background: #FFF;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -1305,32 +1299,34 @@ table {
   color: black;
   padding: 5px;
 }
-.swagger-section .api-ic .api_information_panel p .api-msg-enabled {
+.swagger-section #api_information_panel p .api-msg-enabled {
   color: green;
 }
-.swagger-section .api-ic .api_information_panel p .api-msg-disabled {
+.swagger-section #api_information_panel p .api-msg-disabled {
   color: red;
 }
-.swagger-section .api-ic:hover .api_information_panel {
-  position: absolute;
-  display: block;
+.swagger-section .api-ic {
+  height: 18px;
+  vertical-align: middle;
+  display: inline-block;
+  background: url(swagger-ui.explorer_icons.png) no-repeat;
 }
 .swagger-section .ic-info {
   background-position: 0 0;
   width: 18px;
-  margin-top: -6px;
+  margin-top: -7px;
   margin-left: 4px;
 }
 .swagger-section .ic-warning {
   background-position: -60px 0;
   width: 18px;
-  margin-top: -6px;
+  margin-top: -7px;
   margin-left: 4px;
 }
 .swagger-section .ic-error {
   background-position: -30px 0;
   width: 18px;
-  margin-top: -6px;
+  margin-top: -7px;
   margin-left: 4px;
 }
 .swagger-section .ic-off {
