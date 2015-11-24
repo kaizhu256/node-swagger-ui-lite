@@ -6,15 +6,17 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 
 
 
-# screen-capture
-[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2F_2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-swagger-ui-lite_2Fswagger-ui.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2F_2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-swagger-ui-lite_2Fswagger-ui.html.png)
+# live test-server
+[![heroku.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.screenCapture.browser._2F_2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-swagger-ui-lite_2Fswagger-ui.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/swagger-ui.html)
 
 
 
 # build-status [![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-swagger-ui-lite.svg)](https://travis-ci.org/kaizhu256/node-swagger-ui-lite)
+[![build commit status](https://kaizhu256.github.io/node-swagger-ui-lite/build/build.badge.svg)](https://travis-ci.org/kaizhu256/node-swagger-ui-lite)
 
 | git-branch : | [master](https://github.com/kaizhu256/node-swagger-ui-lite/tree/master) | [beta](https://github.com/kaizhu256/node-swagger-ui-lite/tree/beta) | [alpha](https://github.com/kaizhu256/node-swagger-ui-lite/tree/alpha)|
 |--:|:--|:--|:--|
+| test-server : | [![github.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..master..travis-ci.org/swagger-ui.html) | [![github.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/swagger-ui.html) | [![github.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..alpha..travis-ci.org/swagger-ui.html)|
 | build-artifacts : | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..master..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..beta..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..alpha..travis-ci.org)|
 
 #### master branch
@@ -52,8 +54,8 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 - ./swagger-ui.rollup.css
 - ./swagger-ui.rollup.js
 
-#### output from phantomjs-lite
-[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2F_2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-swagger-ui-lite_2Fswagger-ui.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.npmTest.slimerjs._2F_2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-swagger-ui-lite_2Fswagger-ui.html.png)
+#### output from electron-lite
+[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.screenCapture.browser._2F_2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-swagger-ui-lite_2Fswagger-ui.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/swagger-ui.html)
 
 
 
@@ -74,8 +76,8 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
     "description": "minimal npm installer for swagger-ui asset files \
 with zero npm-dependencies",
     "devDependencies": {
-        "phantomjs-lite": "^2015.7.1",
-        "utility2": "^2015.10.3"
+        "electron-lite": "2015.10.5",
+        "utility2": "^2015.11.8"
     },
     "keywords": [
         "api",
@@ -92,9 +94,10 @@ with zero npm-dependencies",
     },
     "scripts": {
         "build-ci": "node_modules/.bin/utility2 shRun shReadmeBuild",
-        "test": "node_modules/.bin/utility2 shRun shReadmeExportPackageJson"
+        "test": "node_modules/.bin/utility2 shRun shReadmeExportPackageJson && \
+node_modules/.bin/utility2 test node test.js"
     },
-    "version": "2015.11.1"
+    "version": "2015.11.2"
 }
 ```
 
@@ -105,11 +108,9 @@ with zero npm-dependencies",
 
 
 
-# change since 953809d8
-- npm publish 2015.11.1
-- add nedb.min.js @ 0b564ba6
-- update to swagger-tools @ 0.9.9
-- update to swagger-ui @ 2.1.4
+# change since 8a490246
+- npm publish 2015.11.2
+- deploy assets to gh-pages
 - none
 
 
@@ -130,7 +131,6 @@ with zero npm-dependencies",
 shBuild() {
     # this function will run the main build
     # init env
-    export npm_config_mode_slimerjs=1 || return $?
     . node_modules/.bin/utility2 && shInit || return $?
 
     # run npm-test on published package
@@ -140,8 +140,11 @@ shBuild() {
     MODE_BUILD=npmTest shRunScreenCapture npm test || return $?
 
     # screen-capture swagger-ui.html
-    shPhantomScreenCapture \
-        "file:///$PWD/swagger-ui.html#\u0021/store/placeOrder" 30000 10000 || return $?
+    MODE_BUILD=screenCapture modeBrowserTest=screenCapture \
+        url="file:///$PWD/swagger-ui.html#\u0021/store/placeOrder" shBrowserTest || return $?
+
+    # deploy app to gh-pages
+    git ls-tree --name-only -r HEAD | xargs tar -czf - | tar -C tmp/build -xzvf - || return $?
 }
 shBuild
 

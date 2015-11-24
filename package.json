@@ -2,8 +2,8 @@
     "author": "kai zhu <kaizhu256@gmail.com>",
     "description": "minimal npm installer for swagger-ui asset files with zero npm-dependencies",
     "devDependencies": {
-        "phantomjs-lite": "^2015.7.1",
-        "utility2": "^2015.10.3"
+        "electron-lite": "2015.10.5",
+        "utility2": "^2015.11.8"
     },
     "keywords": [
         "api",
@@ -20,7 +20,7 @@
     },
     "scripts": {
         "build-ci": "node_modules/.bin/utility2 shRun shReadmeBuild",
-        "test": "node_modules/.bin/utility2 shRun shReadmeExportPackageJson"
+        "test": "node_modules/.bin/utility2 shRun shReadmeExportPackageJson && node_modules/.bin/utility2 test node test.js"
     },
-    "version": "2015.11.1"
+    "version": "2015.11.2"
 }
