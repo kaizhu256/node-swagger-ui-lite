@@ -38,7 +38,7 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 #### this package is derived from
 - nedb @ 0b564ba6
 - swagger-tools @ 0.9.9
-- swagger-ui @ 2.1.4
+- swagger-ui @ 2.1.3
 
 
 
@@ -77,7 +77,7 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 with zero npm-dependencies",
     "devDependencies": {
         "electron-lite": "2015.10.5",
-        "utility2": "^2015.11.8"
+        "utility2": "^2015.11.10"
     },
     "keywords": [
         "api",
@@ -97,7 +97,7 @@ with zero npm-dependencies",
         "test": "node_modules/.bin/utility2 shRun shReadmeExportPackageJson && \
 node_modules/.bin/utility2 test node test.js"
     },
-    "version": "2015.11.2"
+    "version": "2015.11.4"
 }
 ```
 
@@ -108,9 +108,9 @@ node_modules/.bin/utility2 test node test.js"
 
 
 
-# change since 8a490246
-- npm publish 2015.11.2
-- deploy assets to gh-pages
+# change since 29ed6123
+- npm publish 2015.11.4
+- revert to swagger-ui 2.1.2
 - none
 
 
