@@ -38,7 +38,7 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 #### this package is derived from
 - nedb @ 0b564ba6
 - swagger-tools @ 0.9.9
-- swagger-ui @ 2.1.3
+- swagger-ui @ 2.1.2
 
 
 
@@ -76,8 +76,8 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
     "description": "minimal npm installer for swagger-ui asset files \
 with zero npm-dependencies",
     "devDependencies": {
-        "electron-lite": "2015.10.5",
-        "utility2": "^2015.11.10"
+        "electron-lite": "2015.11.2",
+        "utility2": "2015.11.15"
     },
     "keywords": [
         "api",
@@ -86,7 +86,7 @@ with zero npm-dependencies",
         "schema", "swagger", "swagger-tools", "swagger-ui",
         "web"
     ],
-    "license": "Apache 2.0",
+    "license": "Apache-2.0",
     "name": "swagger-ui-lite",
     "repository": {
         "type": "git",
@@ -94,10 +94,11 @@ with zero npm-dependencies",
     },
     "scripts": {
         "build-ci": "node_modules/.bin/utility2 shRun shReadmeBuild",
-        "test": "node_modules/.bin/utility2 shRun shReadmeExportPackageJson && \
+        "test": "MODE_LINENO=0 \
+node_modules/.bin/utility2 shRun shReadmeExportFile package.json package.json && \
 node_modules/.bin/utility2 test node test.js"
     },
-    "version": "2015.11.4"
+    "version": "2015.11.5"
 }
 ```
 
@@ -108,9 +109,9 @@ node_modules/.bin/utility2 test node test.js"
 
 
 
-# change since 29ed6123
-- npm publish 2015.11.4
-- revert to swagger-ui 2.1.2
+# change since a27ea864
+- npm publish 2015.11.5
+- full revert to swagger-ui 2.1.2
 - none
 
 
