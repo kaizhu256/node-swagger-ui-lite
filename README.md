@@ -98,7 +98,7 @@ with zero npm-dependencies",
 node_modules/.bin/utility2 shRun shReadmeExportFile package.json package.json && \
 node_modules/.bin/utility2 test node test.js"
     },
-    "version": "2015.11.5"
+    "version": "2015.11.6"
 }
 ```
 
@@ -109,9 +109,10 @@ node_modules/.bin/utility2 test node test.js"
 
 
 
-# change since a27ea864
-- npm publish 2015.11.5
-- full revert to swagger-ui 2.1.2
+# change since 59d4e319
+- npm publish 2015.11.6
+- split swagger-ui into swagger-client and swagger-ui
+- uglify swagger-ui.rollup.js
 - none
 
 
