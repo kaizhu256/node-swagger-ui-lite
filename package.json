@@ -4,7 +4,7 @@
 
     "devDependencies": {
         "electron-lite": "2015.11.2",
-        "utility2": "2015.11.15"
+        "utility2": "2015.11.16"
     },
     "keywords": [
         "api",
@@ -25,5 +25,5 @@
 
 
     },
-    "version": "2015.11.6"
+    "version": "2015.11.7"
 }
