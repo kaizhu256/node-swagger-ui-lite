@@ -1,22 +1,64 @@
 swagger-ui-lite
 ===============
-minimal npm installer for swagger-ui asset files with zero npm-dependencies
+this zero-dependency package will provide browser-compatible versions of jslint and csslint
 
-[![NPM](https://img.shields.io/npm/v/swagger-ui-lite.svg?style=flat-square)](https://www.npmjs.org/package/swagger-ui-lite) [![NPM](https://img.shields.io/npm/dm/swagger-ui-lite.svg?style=flat-square)](https://www.npmjs.org/package/swagger-ui-lite)
+[![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-swagger-ui-lite.svg)](https://travis-ci.org/kaizhu256/node-swagger-ui-lite) [![istanbul-coverage](https://kaizhu256.github.io/node-swagger-ui-lite/build..alpha..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-swagger-ui-lite/build..alpha..travis-ci.org/coverage.html/index.html)
 
+[![NPM](https://nodei.co/npm/swagger-ui-lite.png?downloads=true)](https://www.npmjs.com/package/swagger-ui-lite)
 
-
-# live test-server
-[![heroku.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.screenCapture.browser._2F_2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-swagger-ui-lite_2Fswagger-ui.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/swagger-ui.html)
-
+[![package-listing](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.gitLsTree.svg)](https://github.com/kaizhu256/node-swagger-ui-lite)
 
 
-# build-status [![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-swagger-ui-lite.svg)](https://travis-ci.org/kaizhu256/node-swagger-ui-lite)
+
+# cdn download
+- [https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/assets.swagger_ui.rollup.js](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/assets.swagger_ui.rollup.js)
+- [https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/assets.swagger_ui.rollup.min.js](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/assets.swagger_ui.rollup.min.js)
+
+
+
+# live demo
+- [https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/index.html](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/index.html)
+
+[![github.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.deployGithub.browser._2Fnode-swagger-ui-lite_2Fbuild..alpha..travis-ci.org_2Fapp_2Findex.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/index.html)
+
+
+
+# documentation
+#### api-doc
+- [https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/api-doc.html](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/api-doc.html)
+
+[![api-doc](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.apiDocCreate.browser._2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-swagger-ui-lite_2Ftmp_2Fbuild_2Fapi-doc.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/api-doc.html)
+
+#### todo
+- none
+
+#### change since 275900d9
+- npm publish 2017.2.1
+- add api-doc
+- add heroku test-server
+- merge css/html/images into file assets.swagger_ui.html
+- rename file swagger.json -> assets.swagger_ui.json
+- rename file swagger-ui.rollup.js -> assets.swagger_ui.rollup.js
+- none
+
+#### this package requires
+- darwin or linux os
+
+#### additional info
+- csslint code derived from https://github.com/CSSLint/csslint/blob/v0.10.0/release/csslint.js
+- jslint code derived from https://github.com/douglascrockford/JSLint/blob/394bf291bfa3881bb9827b9fc7b7d1112d83f313/jslint.js
+
+
+
+# build status [![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-swagger-ui-lite.svg)](https://travis-ci.org/kaizhu256/node-swagger-ui-lite)
 [![build commit status](https://kaizhu256.github.io/node-swagger-ui-lite/build/build.badge.svg)](https://travis-ci.org/kaizhu256/node-swagger-ui-lite)
 
 | git-branch : | [master](https://github.com/kaizhu256/node-swagger-ui-lite/tree/master) | [beta](https://github.com/kaizhu256/node-swagger-ui-lite/tree/beta) | [alpha](https://github.com/kaizhu256/node-swagger-ui-lite/tree/alpha)|
 |--:|:--|:--|:--|
-| test-server : | [![github.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..master..travis-ci.org/swagger-ui.html) | [![github.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/swagger-ui.html) | [![github.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..alpha..travis-ci.org/swagger-ui.html)|
+| test-server-1 : | [![github.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..master..travis-ci.org/app/index.html) | [![github.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/index.html) | [![github.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..alpha..travis-ci.org/app/index.html)|
+| test-server-2 : | [![heroku.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/heroku-logo.75x25.png)](https://h1-swagger-ui-master.herokuapp.com) | [![heroku.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/heroku-logo.75x25.png)](https://h1-swagger-ui-beta.herokuapp.com) | [![heroku.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/heroku-logo.75x25.png)](https://h1-swagger-ui-alpha.herokuapp.com)|
+| test-report : | [![test-report](https://kaizhu256.github.io/node-swagger-ui-lite/build..master..travis-ci.org/test-report.badge.svg)](https://kaizhu256.github.io/node-swagger-ui-lite/build..master..travis-ci.org/test-report.html) | [![test-report](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/test-report.badge.svg)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/test-report.html) | [![test-report](https://kaizhu256.github.io/node-swagger-ui-lite/build..alpha..travis-ci.org/test-report.badge.svg)](https://kaizhu256.github.io/node-swagger-ui-lite/build..alpha..travis-ci.org/test-report.html)|
+| coverage : | [![istanbul-coverage](https://kaizhu256.github.io/node-swagger-ui-lite/build..master..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-swagger-ui-lite/build..master..travis-ci.org/coverage.html/index.html) | [![istanbul-coverage](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/coverage.html/index.html) | [![istanbul-coverage](https://kaizhu256.github.io/node-swagger-ui-lite/build..alpha..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-swagger-ui-lite/build..alpha..travis-ci.org/coverage.html/index.html)|
 | build-artifacts : | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..master..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..beta..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-swagger-ui-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-swagger-ui-lite/tree/gh-pages/build..alpha..travis-ci.org)|
 
 #### master branch
@@ -34,38 +76,126 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 
 
 
-# documentation
-#### this package is derived from
-- nedb @ 1.4.2
-- swagger-tools @ 0.9.9
-- swagger-ui @ 2.1.2
+# quickstart web example
+![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.testExampleJs.browser..png)
+
+#### to run this example, follow the instruction in the script below
+- [example.js](https://kaizhu256.github.io/node-swagger-ui-lite/build/example.js)
+```javascript
+/*
+example.js
+
+this script will demo the browser-version of jslint and csslint
+
+instruction
+    1. save this script as example.js
+    2. run the shell command:
+        $ npm install swagger-ui-lite && PORT=8081 node example.js
+    3. play with the browser-demo on http://127.0.0.1:8081
+*/
 
 
 
-# quickstart
-#### 1. $ npm install swagger-ui-lite
-
-#### 2. $ cd ./node_modules/swagger-ui-lite
-
-#### 3. open ./swagger-ui.html in a browser
-
-#### 4. hack these files to suit your need
-- ./swagger-ui.html
-- ./swagger-ui.rollup.css
-- ./swagger-ui.rollup.js
-
-#### output from electron-lite
-[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.screenCapture.browser._2F_2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-swagger-ui-lite_2Fswagger-ui.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/swagger-ui.html)
-
-
-
-# npm-dependencies
-- none
+/*jslint
+    bitwise: true,
+    browser: true,
+    maxerr: 8,
+    maxlen: 96,
+    node: true,
+    nomen: true,
+    regexp: true,
+    stupid: true
+*/
+(function () {
+    'use strict';
+    var local;
 
 
 
-# package-listing
-[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.gitLsTree.svg)](https://github.com/kaizhu256/node-swagger-ui-lite)
+    // run node js-env code - pre-init
+    (function () {
+        // init local
+        try {
+            local = require('swagger-ui-lite');
+        } catch (errorCaught1) {
+            try {
+                local = require('.');
+            } catch (errorCaught2) {
+                local = require('..');
+            }
+        }
+        // init modeJs
+        local.modeJs = 'node';
+        // init global
+        local.global = global;
+        // export local
+        local.global.local = local;
+    }());
+    switch (local.modeJs) {
+
+
+
+    // run node js-env code - post-init
+    case 'node':
+        // export local
+        module.exports = local;
+        // require modules
+        local.fs = require('fs');
+        local.http = require('http');
+        local.url = require('url');
+        // init assets
+        local.assetsDict = local.assetsDict || {};
+        [
+            '/assets.swagger_ui.html',
+            '/assets.swagger_ui.json',
+            '/assets.swagger_ui.rollup.js'
+        ].forEach(function (file) {
+            local.assetsDict[file] = local.fs.readFileSync(local.__dirname + file, 'utf8');
+        });
+        local.assetsDict['/'] = local.assetsDict['/assets.index.template.html'] =
+            local.assetsDict['/assets.swagger_ui.html'];
+        // run the cli
+        if (local.global.utility2_rollup || module !== require.main) {
+            break;
+        }
+        local.assetsDict['/assets.example.js'] = local.assetsDict['/assets.example.js'] ||
+            local.fs.readFileSync(__filename, 'utf8');
+        local.assetsDict['/assets.swagger_ui.rollup.js'] =
+            local.assetsDict['/assets.swagger_ui.rollup.js'] || local.fs.readFileSync(
+                local.swagger_ui.__dirname + '/lib.swagger_ui.js',
+                'utf8'
+            ).replace((/^#!/), '//');
+        local.assetsDict['/favicon.ico'] = local.assetsDict['/favicon.ico'] || '';
+        // if $npm_config_timeout_exit exists,
+        // then exit this process after $npm_config_timeout_exit ms
+        if (Number(process.env.npm_config_timeout_exit)) {
+            setTimeout(process.exit, Number(process.env.npm_config_timeout_exit));
+        }
+        // start server
+        if (local.global.utility2_serverHttp1) {
+            break;
+        }
+        process.env.PORT = process.env.PORT || '8081';
+        console.log('server starting on port ' + process.env.PORT);
+        local.http.createServer(function (request, response) {
+            request.urlParsed = local.url.parse(request.url);
+            if (local.assetsDict[request.urlParsed.pathname] !== undefined) {
+                response.end(local.assetsDict[request.urlParsed.pathname]);
+                return;
+            }
+            response.statusCode = 404;
+            response.end();
+        }).listen(process.env.PORT);
+        break;
+    }
+}());
+```
+
+#### output from electron
+![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.testExampleJs.browser..png)
+
+#### output from shell
+![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.testExampleJs.svg)
 
 
 
@@ -73,46 +203,47 @@ minimal npm installer for swagger-ui asset files with zero npm-dependencies
 ```json
 {
     "author": "kai zhu <kaizhu256@gmail.com>",
-    "description": "minimal npm installer for swagger-ui asset files \
-with zero npm-dependencies",
+    "description": "this zero-dependency package will provide browser-compatible versions of jslint and csslint",
     "devDependencies": {
-        "electron-lite": "2015.11.2",
-        "utility2": "2015.11.16"
+        "electron-lite": "kaizhu256/node-electron-lite#alpha",
+        "utility2": "kaizhu256/node-utility2#alpha"
     },
+    "engines": {
+        "node": ">=4.0"
+    },
+    "homepage": "https://github.com/kaizhu256/node-swagger-ui-lite",
     "keywords": [
         "api",
         "browser",
         "rollup",
-        "schema", "swagger", "swagger-tools", "swagger-ui",
+        "schema",
+        "swagger",
+        "swagger-tools",
+        "swagger-ui",
         "web"
     ],
-    "license": "Apache-2.0",
+    "license": "MIT",
+    "main": "lib.swagger_ui.js",
     "name": "swagger-ui-lite",
+    "nameAlias": "swagger_ui",
+    "os": [
+        "darwin",
+        "linux"
+    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/kaizhu256/node-swagger-ui-lite.git"
     },
     "scripts": {
-        "build-ci": "node_modules/.bin/utility2 shRun shReadmeBuild",
-        "test": "MODE_LINENO=0 \
-node_modules/.bin/utility2 shRun shReadmeExportFile package.json package.json && \
-node_modules/.bin/utility2 test node test.js"
+        "build-ci": "utility2 shRun shReadmeBuild",
+        "heroku-postbuild": "npm install 'kaizhu256/node-utility2#alpha' && utility2 shRun shDeployHeroku",
+        "postinstall": "if [ -f lib.swagger-ui-lite.npm-scripts.sh ]; then ./lib.swagger-ui-lite.npm-scripts.sh postinstall; fi",
+        "start": "export PORT=${PORT:-8080} && export npm_config_mode_auto_restart=1 && utility2 shRun shIstanbulCover test.js",
+        "test": "export PORT=$(utility2 shServerPortRandom) && utility2 test test.js"
     },
-    "version": "2015.11.7"
+    "version": "2017.2.1"
 }
 ```
-
-
-
-# todo
-- none
-
-
-
-# change since 75a60ff7
-- npm publish 2015.11.7
-- update to nedb @ 1.4.2 and inspected it to work standalone in both nodejs and browser
-- none
 
 
 
@@ -123,40 +254,50 @@ node_modules/.bin/utility2 test node test.js"
 
 # internal build-script
 - build.sh
-
 ```shell
 # build.sh
 
 # this shell script will run the build for this package
 
-shBuild() {
-    # this function will run the main build
+shBuild() {(set -e
+# this function will run the main build
     # init env
-    . node_modules/.bin/utility2 && shInit || return $?
+    . node_modules/.bin/utility2 && shInit
+    # cleanup github-gh-pages dir
+    # export BUILD_GITHUB_UPLOAD_PRE_SH="rm -fr build"
+    # init github-gh-pages commit-limit
+    export COMMIT_LIMIT=16
+    # if branch is alpha, beta, or master, then run default build
+    if [ "$CI_BRANCH" = alpha ] ||
+        [ "$CI_BRANCH" = beta ] ||
+        [ "$CI_BRANCH" = master ]
+    then
+        shBuildCiDefault
+    fi
+)}
 
-    # run npm-test on published package
-    shRun shNpmTestPublished || return $?
-
-    # run npm-test
-    MODE_BUILD=npmTest shRunScreenCapture npm test || return $?
-
-    # screen-capture swagger-ui.html
-    MODE_BUILD=screenCapture modeBrowserTest=screenCapture \
-        url="file:///$PWD/swagger-ui.html#\u0021/store/placeOrder" shBrowserTest || return $?
-
+shBuildCiTestPost() {(set -e
+# this function will run the post-test build
+    # if running legacy-node, then return
+    [ "$(node --version)" \< "v7.0" ] && return || true
+    export NODE_ENV=production
     # deploy app to gh-pages
-    git ls-tree --name-only -r HEAD | xargs tar -czf - | tar -C tmp/build -xzvf - || return $?
-}
+    (export MODE_BUILD=deployGithub &&
+        shDeployGithub) || return $?
+    # deploy app to heroku
+    (export MODE_BUILD=deployHeroku &&
+        shDeployHeroku) || return $?
+)}
+
+shBuildCiTestPre() {(set -e
+# this function will run the pre-test build
+    # test example.js
+    (export MODE_BUILD=testExampleJs &&
+        shRunScreenCapture shReadmeTestExampleJs) || return $?
+    # test published-package
+    (export MODE_BUILD=npmTestPublished &&
+        shRunScreenCapture shNpmTestPublished) || return $?
+)}
+
 shBuild
-
-# save exit-code
-EXIT_CODE=$?
-# create package-listing
-MODE_BUILD=gitLsTree shRunScreenCapture shGitLsTree || exit $?
-# create recent changelog of last 50 commits
-MODE_BUILD=gitLog shRunScreenCapture git log -50 --pretty="%ai\u000a%B" || exit $?
-# upload build-artifacts to github, and if number of commits > 16, then squash older commits
-COMMIT_LIMIT=16 shBuildGithubUpload || exit $?
-exit $EXIT_CODE
-
 ```
