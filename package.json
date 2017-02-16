@@ -1,6 +1,6 @@
 {
     "author": "kai zhu <kaizhu256@gmail.com>",
-    "description": "this zero-dependency package will provide browser-compatible versions of jslint and csslint",
+    "description": "this package is a zero-dependency version of the swagger-ui (v2.1.5 client) npm-package with only 3 asset-files",
     "devDependencies": {
         "electron-lite": "kaizhu256/node-electron-lite#alpha",
         "utility2": "kaizhu256/node-utility2#alpha"
@@ -10,14 +10,11 @@
     },
     "homepage": "https://github.com/kaizhu256/node-swagger-ui-lite",
     "keywords": [
-        "api",
         "browser",
-        "rollup",
-        "schema",
         "swagger",
-        "swagger-tools",
-        "swagger-ui",
-        "web"
+        "swagger-api",
+        "swagger-client",
+        "swagger-ui"
     ],
     "license": "MIT",
     "main": "lib.swagger_ui.js",
@@ -38,5 +35,5 @@
         "start": "export PORT=${PORT:-8080} && export npm_config_mode_auto_restart=1 && utility2 shRun shIstanbulCover test.js",
         "test": "export PORT=$(utility2 shServerPortRandom) && utility2 test test.js"
     },
-    "version": "2017.2.1"
+    "version": "2017.2.2"
 }

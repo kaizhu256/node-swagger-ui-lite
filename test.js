@@ -96,7 +96,7 @@ window = global;\n\
 /* jslint-ignore-end */
             ) + local.fs.readFileSync('assets.swagger_ui.rollup.js', 'utf8')
                     .replace((/^\/\/ init lib [\S\s]*?\n\n\n\n/gm), function (match0) {
-                    if (match0.indexOf('swagger') < 0) {
+                    if (match0.indexOf('init lib swagger') < 0) {
                         return '';
                     }
                     return match0;
@@ -119,7 +119,7 @@ window = global;\n\
                     exports: options.exports
                 }
             };
-            local.buildDoc(options, onError);
+            local.buildApiDoc(options, onError);
         };
 
         local.testCase_build_app = function (options, onError) {
@@ -131,6 +131,9 @@ window = global;\n\
                 local.fs.readFileSync('tmp/README.example.js', 'utf8')
             );
             options = [{
+                file: '/assets.swagger_ui.html',
+                url: '/assets.swagger_ui.html'
+            }, {
                 file: '/assets.swagger_ui.json',
                 url: '/assets.swagger_ui.json'
             }];
@@ -145,6 +148,8 @@ window = global;\n\
             options.customize = function () {
                 // search-and-replace - customize readmeTo
                 [
+                    // customize cdn-download
+                    (/cdn download[\S\s]*?\n\n\n\n/),
                     // customize quickstart-header
                     (/run \w*? js-env code[^`]*?switch/),
                     // customize quickstart-footer

@@ -1,6 +1,6 @@
 swagger-ui-lite
 ===============
-this zero-dependency package will provide browser-compatible versions of jslint and csslint
+this package is a zero-dependency version of the swagger-ui (v2.1.5 client) npm-package with only 3 asset-files
 
 [![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-swagger-ui-lite.svg)](https://travis-ci.org/kaizhu256/node-swagger-ui-lite) [![istanbul-coverage](https://kaizhu256.github.io/node-swagger-ui-lite/build..alpha..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-swagger-ui-lite/build..alpha..travis-ci.org/coverage.html/index.html)
 
@@ -11,8 +11,9 @@ this zero-dependency package will provide browser-compatible versions of jslint 
 
 
 # cdn download
+- [https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/assets.swagger_ui.html](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/assets.swagger_ui.html)
+- [https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/assets.swagger_ui.json](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/assets.swagger_ui.json)
 - [https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/assets.swagger_ui.rollup.js](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/assets.swagger_ui.rollup.js)
-- [https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/assets.swagger_ui.rollup.min.js](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/assets.swagger_ui.rollup.min.js)
 
 
 
@@ -32,21 +33,16 @@ this zero-dependency package will provide browser-compatible versions of jslint 
 #### todo
 - none
 
-#### change since 275900d9
-- npm publish 2017.2.1
-- add api-doc
-- add heroku test-server
-- merge css/html/images into file assets.swagger_ui.html
-- rename file swagger.json -> assets.swagger_ui.json
-- rename file swagger-ui.rollup.js -> assets.swagger_ui.rollup.js
+#### change since c008beb9
+- npm publish 2017.2.2
+- fix cdn-download
 - none
 
 #### this package requires
 - darwin or linux os
 
 #### additional info
-- csslint code derived from https://github.com/CSSLint/csslint/blob/v0.10.0/release/csslint.js
-- jslint code derived from https://github.com/douglascrockford/JSLint/blob/394bf291bfa3881bb9827b9fc7b7d1112d83f313/jslint.js
+- code derived from https://github.com/swagger-api/swagger-ui/tree/v2.1.5/dist/lib
 
 
 
@@ -85,7 +81,7 @@ this zero-dependency package will provide browser-compatible versions of jslint 
 /*
 example.js
 
-this script will demo the browser-version of jslint and csslint
+this script will demo the swagger-ui client
 
 instruction
     1. save this script as example.js
@@ -203,7 +199,7 @@ instruction
 ```json
 {
     "author": "kai zhu <kaizhu256@gmail.com>",
-    "description": "this zero-dependency package will provide browser-compatible versions of jslint and csslint",
+    "description": "this package is a zero-dependency version of the swagger-ui (v2.1.5 client) npm-package with only 3 asset-files",
     "devDependencies": {
         "electron-lite": "kaizhu256/node-electron-lite#alpha",
         "utility2": "kaizhu256/node-utility2#alpha"
@@ -213,14 +209,11 @@ instruction
     },
     "homepage": "https://github.com/kaizhu256/node-swagger-ui-lite",
     "keywords": [
-        "api",
         "browser",
-        "rollup",
-        "schema",
         "swagger",
-        "swagger-tools",
-        "swagger-ui",
-        "web"
+        "swagger-api",
+        "swagger-client",
+        "swagger-ui"
     ],
     "license": "MIT",
     "main": "lib.swagger_ui.js",
@@ -241,7 +234,7 @@ instruction
         "start": "export PORT=${PORT:-8080} && export npm_config_mode_auto_restart=1 && utility2 shRun shIstanbulCover test.js",
         "test": "export PORT=$(utility2 shServerPortRandom) && utility2 test test.js"
     },
-    "version": "2017.2.1"
+    "version": "2017.2.2"
 }
 ```
 
