@@ -1,4 +1,4 @@
-/* istanbul instrument in package swagger-ui-lite */
+/* istanbul instrument in package swagger_ui */
 /*jslint
     bitwise: true,
     browser: true,
@@ -12,4 +12,5 @@
 (function () {
     'use strict';
     module.exports.__dirname = __dirname;
+    module.exports.module = module;
 }());
