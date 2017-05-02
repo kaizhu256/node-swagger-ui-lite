@@ -5,7 +5,9 @@ this package is a zero-dependency version of the swagger-ui (v2.1.5 client) npm-
 
 [![NPM](https://nodei.co/npm/swagger-ui-lite.png?downloads=true)](https://www.npmjs.com/package/swagger-ui-lite)
 
-[![package-listing](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.gitLsTree.svg)](https://github.com/kaizhu256/node-swagger-ui-lite)
+[![npmPackageListing](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenCapture.npmPackageListing.svg)](https://github.com/kaizhu256/node-swagger-ui-lite)
+
+![npmPackageDependencyTree](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenCapture.npmPackageDependencyTree.svg)
 
 
 
@@ -19,7 +21,7 @@ this package is a zero-dependency version of the swagger-ui (v2.1.5 client) npm-
 # live demo
 - [https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/index.html](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/index.html)
 
-[![github.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.deployGithub.browser._2Fnode-swagger-ui-lite_2Fbuild_2Fapp_2Findex.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/index.html)
+[![github.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenCapture.deployGithub.browser.%252Fnode-swagger-ui-lite%252Fbuild%252Fapp%252Findex.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/index.html)
 
 
 
@@ -27,15 +29,14 @@ this package is a zero-dependency version of the swagger-ui (v2.1.5 client) npm-
 #### apidoc
 - [https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/apidoc.html](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/apidoc.html)
 
-[![apidoc](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.buildApidoc.browser._2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-swagger-ui-lite_2Ftmp_2Fbuild_2Fapidoc.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/apidoc.html)
+[![apidoc](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenCapture.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/apidoc.html)
 
 #### todo
 - none
 
-#### change since f7474478
-- npm publish 2017.3.19
-- rename dom-element #outputTextareaStdout -> #outputTextareaStdout1
-- rename file assets.swagger_ui.json -> assets.swagger_ui.petstore.json
+#### changelog for v2017.5.1
+- npm publish 2017.5.1
+- update build
 - none
 
 #### this package requires
@@ -73,7 +74,7 @@ this package is a zero-dependency version of the swagger-ui (v2.1.5 client) npm-
 
 
 # quickstart web example
-![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.testExampleJs.browser..png)
+![screenCapture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenCapture.testExampleJs.browser.%252F.png)
 
 #### to run this example, follow the instruction in the script below
 - [example.js](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/example.js)
@@ -109,7 +110,7 @@ instruction
 
 
 
-    // run node js-env code - pre-init
+    // run node js-env code - init-before
     (function () {
         /* istanbul ignore next */
         // init local
@@ -133,8 +134,8 @@ instruction
 
 
 
-    // post-init
-    // run browser js-env code - post-init
+    // init-after
+    // run browser js-env code - init-after
     /* istanbul ignore next */
     case 'browser':
         local.testRunBrowser = function (event) {
@@ -186,7 +187,7 @@ instruction
                     /*jslint evil: true*/
                     eval(document.querySelector('#inputTextareaEval1').value);
                 } catch (errorCaught) {
-                    console.error(errorCaught.stack);
+                    console.error(errorCaught);
                 }
             }
         };
@@ -222,7 +223,7 @@ instruction
 
 
 
-    // run node js-env code - post-init
+    // run node js-env code - init-after
     /* istanbul ignore next */
     case 'node':
         // export local
@@ -249,12 +250,15 @@ instruction
         local.assetsDict['/assets.example.js'] =
             local.assetsDict['/assets.example.js'] ||
             local.fs.readFileSync(__filename, 'utf8');
+        // bug-workaround - long $npm_package_buildCustomOrg
+        /* jslint-ignore-begin */
         local.assetsDict['/assets.swagger_ui.rollup.js'] =
             local.assetsDict['/assets.swagger_ui.rollup.js'] ||
             local.fs.readFileSync(
                 local.swagger_ui.__dirname + '/lib.swagger_ui.js',
                 'utf8'
             ).replace((/^#!/), '//');
+        /* jslint-ignore-end */
         local.assetsDict['/favicon.ico'] = local.assetsDict['/favicon.ico'] || '';
         // if $npm_config_timeout_exit exists,
         // then exit this process after $npm_config_timeout_exit ms
@@ -266,7 +270,7 @@ instruction
             break;
         }
         process.env.PORT = process.env.PORT || '8081';
-        console.log('server starting on port ' + process.env.PORT);
+        console.error('server starting on port ' + process.env.PORT);
         local.http.createServer(function (request, response) {
             request.urlParsed = local.url.parse(request.url);
             if (local.assetsDict[request.urlParsed.pathname] !== undefined) {
@@ -282,10 +286,10 @@ instruction
 ```
 
 #### output from browser
-![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.testExampleJs.browser..png)
+![screenCapture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenCapture.testExampleJs.browser.%252F.png)
 
 #### output from shell
-![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.testExampleJs.svg)
+![screenCapture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenCapture.testExampleJs.svg)
 
 
 
@@ -318,7 +322,6 @@ instruction
         "darwin",
         "linux"
     ],
-    "readmeParse": "1",
     "repository": {
         "type": "git",
         "url": "https://github.com/kaizhu256/node-swagger-ui-lite.git"
@@ -326,19 +329,19 @@ instruction
     "scripts": {
         "build-ci": "utility2 shReadmeTest build_ci.sh",
         "env": "env",
-        "heroku-postbuild": "npm install 'kaizhu256/node-utility2#alpha' && utility2 shDeployHeroku",
-        "postinstall": "if [ -f npm_scripts.sh ]; then ./npm_scripts.sh postinstall; fi",
-        "start": "export PORT=${PORT:-8080} && utility2 start test.js",
-        "test": "export PORT=$(utility2 shServerPortRandom) && utility2 test test.js"
+        "heroku-postbuild": "npm install \"kaizhu256/node-utility2#alpha\" && utility2 shDeployHeroku",
+        "postinstall": "[ ! -f npm_scripts.sh ] || ./npm_scripts.sh postinstall",
+        "start": "PORT=${PORT:-8080} utility2 start test.js",
+        "test": "PORT=$(utility2 shServerPortRandom) utility2 test test.js"
     },
-    "version": "2017.3.19"
+    "version": "2017.5.1"
 }
 ```
 
 
 
 # changelog of last 50 commits
-[![screen-capture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screen-capture.gitLog.svg)](https://github.com/kaizhu256/node-swagger-ui-lite/commits)
+[![screenCapture](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenCapture.gitLog.svg)](https://github.com/kaizhu256/node-swagger-ui-lite/commits)
 
 
 
@@ -349,24 +352,16 @@ instruction
 
 # this shell script will run the build for this package
 
-shBuildCiInternalPost() {(set -e
+shBuildCiAfter() {(set -e
     shDeployGithub
     shDeployHeroku
     shReadmeBuildLinkVerify
 )}
 
-shBuildCiInternalPre() {(set -e
+shBuildCiBefore() {(set -e
     shReadmeTest example.js
     shReadmeTest example.sh
     shNpmTestPublished
-)}
-
-shBuildCiPost() {(set -e
-    return
-)}
-
-shBuildCiPre() {(set -e
-    return
 )}
 
 # run shBuildCi
