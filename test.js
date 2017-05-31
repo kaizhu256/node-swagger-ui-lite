@@ -48,11 +48,11 @@
             break;
         // re-init local from example.js
         case 'node':
-            local = (local.global.utility2_rollup || require('utility2'))
-                .requireReadme();
+            local = (local.global.utility2_rollup ||
+                require('utility2')).requireReadme();
             break;
         }
-        // export local
+        // init exports
         local.global.local = local;
     }());
 
@@ -163,69 +163,17 @@ window = global;\n\
             local.testCase_buildReadme_default(options, local.onErrorThrow);
             local.testCase_buildLib_default(options, local.onErrorThrow);
             local.testCase_buildTest_default(options, local.onErrorThrow);
-            local.assetsDict['/assets.app.js'] =
-                local.fs.readFileSync('tmp/README.example.js', 'utf8');
             options = [{
                 file: '/assets.swagger_ui.html',
                 url: '/assets.swagger_ui.html'
             }, {
                 file: '/assets.swagger_ui.petstore.json',
                 url: '/assets.swagger_ui.petstore.json'
+            }, {
+                file: '/assets.swagger_ui.rollup.js',
+                url: '/assets.swagger_ui.rollup.js'
             }];
             local.buildApp(options, onError);
-        };
-
-        local.testCase_buildLib_default = function (options, onError) {
-        /*
-         * this function will test buildLib's default handling-behavior
-         */
-            options = {};
-            options.customize = function () {
-                // search-and-replace - customize dataTo
-                [
-                    // customize js\-env code
-                    (/use strict[\S\s]*?\n\}\(\)\);\n/)
-                ].forEach(function (rgx) {
-                    options.dataFrom.replace(rgx, function (match0) {
-                        options.dataTo = options.dataTo.replace(rgx, match0);
-                    });
-                });
-            };
-            local.buildLib(options, onError);
-        };
-
-        local.testCase_buildReadme_default = function (options, onError) {
-        /*
-         * this function will test buildReadme's default handling-behavior-behavior
-         */
-            options = {};
-            options.customize = function () {
-                // search-and-replace - customize dataTo
-                [
-                    // customize cdn-download
-                    (/cdn download[\S\s]*?\n\n\n\n/),
-                    // customize quickstart-header
-                    (/run \w*? js\-env code[^`]*?switch/),
-                    // customize quickstart-footer
-                    (/init assets[^`]*?run the cli/)
-                ].forEach(function (rgx) {
-                    options.dataFrom.replace(rgx, function (match0) {
-                        options.dataTo = options.dataTo.replace(rgx, match0);
-                    });
-                });
-                options.dataTo = options.dataTo.replace(
-                    'local.global.utility2_utility2',
-                    'window.utility2'
-                );
-            };
-            local.buildReadme(options, onError);
-        };
-
-        local.testCase_webpage_default = function (options, onError) {
-        /*
-         * this function will test webpage's default handling-behavior
-         */
-            onError(null, options);
         };
         break;
     }
@@ -248,15 +196,27 @@ window = global;\n\
             onError
         ) {
         /*
-         * this function will test browsers's null-case handling-behavior-behavior
+         * this function will test browser's null-case handling-behavior-behavior
          */
             onError(null, options);
         };
 
+        local.utility2.ajaxForwardProxyUrlTest = local.utility2.ajaxForwardProxyUrlTest ||
+            function (url, location) {
+            /*
+             * this function will test if the url requires forward-proxy
+             */
+                // jslint-hack
+                local.nop(url);
+                return local.env.npm_package_nameAlias && (/\bgithub.io$/).test(location.host)
+                    ? 'https://h1-' + local.env.npm_package_nameAlias + '-alpha.herokuapp.com'
+                    : location.protocol + '//' + location.host;
+            };
+
         // run tests
-        local.nop(local.modeTest &&
-            document.querySelector('#testRunButton1') &&
-            document.querySelector('#testRunButton1').click());
+        if (local.modeTest && document.querySelector('#testRunButton1')) {
+            document.querySelector('#testRunButton1').click();
+        }
         break;
 
 
