@@ -60,10 +60,9 @@ this zero-dependency package will provide a rollup, single-script version of the
 #### todo
 - none
 
-#### changelog for v2017.9.13
-- npm publish 2017.9.13
-- move live-demo to top of README.md
-- improve test-coverage
+#### changelog for v2017.9.14
+- npm publish 2017.9.14
+- fix shNpmTestPublished
 - none
 
 #### this package requires
@@ -436,7 +435,7 @@ instruction
         "start": "PORT=${PORT:-8080} utility2 start test.js",
         "test": "PORT=$(utility2 shServerPortRandom) utility2 test test.js"
     },
-    "version": "2017.9.13"
+    "version": "2017.9.14"
 }
 ```
 
