@@ -1,7 +1,14 @@
 # swagger-ui-lite
-this package is a zero-dependency version of the swagger-ui (v2.1.5 client) npm-package with only 3 asset-files
+this zero-dependency package will provide a rollup, single-script version of the swagger-ui client (v2.1.5)
 
-[![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-swagger-ui-lite.svg)](https://travis-ci.org/kaizhu256/node-swagger-ui-lite) [![coverage](https://kaizhu256.github.io/node-swagger-ui-lite/build/coverage.badge.svg)](https://kaizhu256.github.io/node-swagger-ui-lite/build/coverage.html/index.html)
+# live demo
+- [https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app)
+
+[![screenshot](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.deployGithub.browser.%252Fnode-swagger-ui-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app)
+
+
+
+[![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-swagger-ui-lite.svg)](https://travis-ci.org/kaizhu256/node-swagger-ui-lite) [![coverage](https://kaizhu256.github.io/node-swagger-ui-lite/build/coverage.badge.svg)](https://kaizhu256.github.io/node-swagger-ui-lite/build/coverage.html/index.html) [![snyk.io vulnerabilities](https://snyk.io/test/github/kaizhu256/node-swagger-ui-lite/badge.svg)](https://snyk.io/test/github/kaizhu256/node-swagger-ui-lite)
 
 [![NPM](https://nodei.co/npm/swagger-ui-lite.png?downloads=true)](https://www.npmjs.com/package/swagger-ui-lite)
 
@@ -23,11 +30,10 @@ this package is a zero-dependency version of the swagger-ui (v2.1.5 client) npm-
 
 # table of contents
 1. [cdn download](#cdn-download)
-1. [live demo](#live-demo)
 1. [documentation](#documentation)
 1. [quickstart standalone app](#quickstart-standalone-app)
 1. [quickstart example.js](#quickstart-examplejs)
-1. [all screenshots](#all-screenshots)
+1. [extra screenshots](#extra-screenshots)
 1. [package.json](#packagejson)
 1. [changelog of last 50 commits](#changelog-of-last-50-commits)
 1. [internal build script](#internal-build-script)
@@ -42,14 +48,10 @@ this package is a zero-dependency version of the swagger-ui (v2.1.5 client) npm-
 
 
 
-# live demo
-- [https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app)
-
-[![github.com test-server](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.deployGithub.browser.%252Fnode-swagger-ui-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app)
-
-
-
 # documentation
+#### cli help
+![screenshot](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.npmPackageCliHelp.svg)
+
 #### apidoc
 - [https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/apidoc.html](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/apidoc.html)
 
@@ -58,9 +60,10 @@ this package is a zero-dependency version of the swagger-ui (v2.1.5 client) npm-
 #### todo
 - none
 
-#### changelog for v2017.5.30
-- npm publish 2017.5.30
-- revamp README.md with updated quickstart and 'table of contents'
+#### changelog for v2017.9.13
+- npm publish 2017.9.13
+- move live-demo to top of README.md
+- improve test-coverage
 - none
 
 #### this package requires
@@ -260,10 +263,12 @@ instruction
     case 'node':
         // init exports
         module.exports = local;
-        // require modules
-        local.fs = require('fs');
-        local.http = require('http');
-        local.url = require('url');
+        // require builtins
+        Object.keys(process.binding('natives')).forEach(function (key) {
+            if (!local[key] && !(/\/|^_|^sys$/).test(key)) {
+                local[key] = require(key);
+            }
+        });
         // init assets
         local.assetsDict = local.assetsDict || {};
         [
@@ -300,8 +305,8 @@ instruction
                     return match0;
                 }
             });
-        // run the cli
-        if (local.global.utility2_rollup || module !== require.main) {
+        // init cli
+        if (module !== require.main || local.global.utility2_rollup) {
             break;
         }
         local.assetsDict['/assets.example.js'] =
@@ -350,7 +355,7 @@ instruction
 
 
 
-# all screenshots
+# extra screenshots
 1. [https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)
 [![screenshot](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)
 
@@ -396,7 +401,7 @@ instruction
 ```json
 {
     "author": "kai zhu <kaizhu256@gmail.com>",
-    "description": "this package is a zero-dependency version of the swagger-ui (v2.1.5 client) npm-package with only 3 asset-files",
+    "description": "this zero-dependency package will provide a rollup, single-script version of the swagger-ui client (v2.1.5)",
     "devDependencies": {
         "electron-lite": "kaizhu256/node-electron-lite#alpha",
         "utility2": "kaizhu256/node-utility2#alpha"
@@ -406,10 +411,8 @@ instruction
     },
     "homepage": "https://github.com/kaizhu256/node-swagger-ui-lite",
     "keywords": [
-        "browser",
+        "openapi",
         "swagger",
-        "swagger-api",
-        "swagger-client",
         "swagger-ui"
     ],
     "license": "MIT",
@@ -428,12 +431,12 @@ instruction
     "scripts": {
         "build-ci": "utility2 shReadmeTest build_ci.sh",
         "env": "env",
-        "heroku-postbuild": "npm install \"kaizhu256/node-utility2#alpha\" && utility2 shDeployHeroku",
+        "heroku-postbuild": "npm uninstall utility2 2>/dev/null; npm install kaizhu256/node-utility2#alpha && utility2 shDeployHeroku",
         "postinstall": "[ ! -f npm_scripts.sh ] || ./npm_scripts.sh postinstall",
         "start": "PORT=${PORT:-8080} utility2 start test.js",
         "test": "PORT=$(utility2 shServerPortRandom) utility2 test test.js"
     },
-    "version": "2017.5.30"
+    "version": "2017.9.13"
 }
 ```
 

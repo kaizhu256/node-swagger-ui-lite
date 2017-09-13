@@ -163,6 +163,7 @@ window = global;\n\
             local.testCase_buildReadme_default(options, local.onErrorThrow);
             local.testCase_buildLib_default(options, local.onErrorThrow);
             local.testCase_buildTest_default(options, local.onErrorThrow);
+            local.testCase_buildCustomOrg_default(options, local.onErrorThrow);
             options = [{
                 file: '/assets.swagger_ui.html',
                 url: '/assets.swagger_ui.html'
@@ -196,7 +197,7 @@ window = global;\n\
             onError
         ) {
         /*
-         * this function will test browser's null-case handling-behavior-behavior
+         * this function will test browser's null-case handling-behavior
          */
             onError(null, options);
         };
@@ -229,7 +230,7 @@ window = global;\n\
             onError
         ) {
         /*
-         * this function will test buildApidoc's default handling-behavior-behavior
+         * this function will test buildApidoc's default handling-behavior
          */
             options = { modulePathList: module.paths };
             local.buildApidoc(options, onError);
@@ -240,7 +241,7 @@ window = global;\n\
             onError
         ) {
         /*
-         * this function will test buildApp's default handling-behavior-behavior
+         * this function will test buildApp's default handling-behavior
          */
             local.testCase_buildReadme_default(options, local.onErrorThrow);
             local.testCase_buildLib_default(options, local.onErrorThrow);
@@ -275,7 +276,7 @@ window = global;\n\
             onError
         ) {
         /*
-         * this function will test buildReadme's default handling-behavior-behavior
+         * this function will test buildReadme's default handling-behavior
          */
             options = {};
             local.buildReadme(options, onError);
@@ -299,7 +300,14 @@ window = global;\n\
         /*
          * this function will test webpage's default handling-behavior
          */
-            options = { modeCoverageMerge: true, url: local.serverLocalHost + '?modeTest=1' };
+            options = {
+                fileScreenshotBase: 'tmp/build/screenshot.npmTest.browser.%2F',
+                modeCoverageMerge: true,
+                url: local.assetsDict['/']
+                    .indexOf('<script src="assets.test.js"></script>') >= 0
+                    ? local.serverLocalHost + '?modeTest=1'
+                    : local.serverLocalHost + '/index.default.html?modeTest=1'
+            };
             local.browserTest(options, onError);
         };
 

@@ -45,6 +45,12 @@
         if (local.modeJs === 'browser') {
             local.global.utility2_swagger_ui = local;
         } else {
+            // require builtins
+            Object.keys(process.binding('natives')).forEach(function (key) {
+                if (!local[key] && !(/\/|^_|^sys$/).test(key)) {
+                    local[key] = require(key);
+                }
+            });
             module.exports = local;
             module.exports.__dirname = __dirname;
             module.exports.module = module;
@@ -57,8 +63,6 @@
     // run node js-env code - init-after
     /* istanbul ignore next */
     case 'node':
-        // require modules
-        local.fs = require('fs');
         // init assets
         local.assetsDict = local.assetsDict || {};
         local.fs.readdirSync(local.__dirname).forEach(function (file) {
