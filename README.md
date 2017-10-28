@@ -52,7 +52,7 @@ this zero-dependency package will provide a rollup, single-script version of the
 #### cli help
 ![screenshot](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.npmPackageCliHelp.svg)
 
-#### apidoc
+#### api doc
 - [https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/apidoc.html](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/apidoc.html)
 
 [![apidoc](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/apidoc.html)
@@ -60,9 +60,9 @@ this zero-dependency package will provide a rollup, single-script version of the
 #### todo
 - none
 
-#### changelog for v2017.9.14
-- npm publish 2017.9.14
-- fix shNpmTestPublished
+#### changelog for v2017.10.28
+- npm publish 2017.10.28
+- update build
 - none
 
 #### this package requires
@@ -79,13 +79,13 @@ this zero-dependency package will provide a rollup, single-script version of the
 ```shell
 # example.sh
 
-# this shell script will download and run a web demo of swagger-ui-lite as a standalone app
+# this shell script will download and run a web-demo of swagger-ui-lite as a standalone app
 
 # 1. download standalone app
 curl -O https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/assets.app.js
 # 2. run standalone app
 node ./assets.app.js
-# 3. open a browser to http://127.0.0.1:8081 and play with the web demo
+# 3. open a browser to http://127.0.0.1:8081 and play with the web-demo
 # 4. edit file assets.app.js to suit your needs
 ```
 
@@ -106,13 +106,13 @@ node ./assets.app.js
 /*
 example.js
 
-this script will run a web demo of swagger-ui-lite
+this script will run a web-demo of swagger-ui-lite
 
 instruction
     1. save this script as example.js
     2. run the shell command:
         $ npm install swagger-ui-lite && PORT=8081 node example.js
-    3. open a browser to http://127.0.0.1:8081 and play with the web demo
+    3. open a browser to http://127.0.0.1:8081 and play with the web-demo
     4. edit this script to suit your needs
 */
 
@@ -123,7 +123,7 @@ instruction
     bitwise: true,
     browser: true,
     maxerr: 8,
-    maxlen: 96,
+    maxlen: 100,
     node: true,
     nomen: true,
     regexp: true,
@@ -168,8 +168,7 @@ instruction
 
 
 
-    // init-after
-    // run browser js-env code - init-after
+    // run browser js-env code - init-test
     /* istanbul ignore next */
     case 'browser':
         local.testRunBrowser = function (event) {
@@ -257,7 +256,7 @@ instruction
 
 
 
-    // run node js-env code - init-after
+    // run node js-env code - init-test
     /* istanbul ignore next */
     case 'node':
         // init exports
@@ -296,7 +295,7 @@ instruction
                     return 'the greatest app in the world!';
                 case 'npm_package_name':
                     return 'swagger-ui-lite';
-                case 'npm_package_nameAlias':
+                case 'npm_package_nameLib':
                     return 'swagger_ui';
                 case 'npm_package_version':
                     return '0.0.1';
@@ -316,7 +315,7 @@ instruction
         local.assetsDict['/assets.swagger_ui.js'] =
             local.assetsDict['/assets.swagger_ui.js'] ||
             local.fs.readFileSync(
-                local.swagger_ui.__dirname + '/lib.swagger_ui.js',
+                local.__dirname + '/lib.swagger_ui.js',
                 'utf8'
             ).replace((/^#!/), '//');
         /* jslint-ignore-end */
@@ -385,9 +384,6 @@ instruction
 1. [https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.npmTest.browser.%252F.png](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.npmTest.browser.%252F.png)
 [![screenshot](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.npmTest.browser.%252F.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.npmTest.browser.%252F.png)
 
-1. [https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.npmTestPublished.browser.%252F.png](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.npmTestPublished.browser.%252F.png)
-[![screenshot](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.npmTestPublished.browser.%252F.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.npmTestPublished.browser.%252F.png)
-
 1. [https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.testExampleJs.browser.%252F.png](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.testExampleJs.browser.%252F.png)
 [![screenshot](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.testExampleJs.browser.%252F.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.testExampleJs.browser.%252F.png)
 
@@ -417,7 +413,7 @@ instruction
     "license": "MIT",
     "main": "lib.swagger_ui.js",
     "name": "swagger-ui-lite",
-    "nameAlias": "swagger_ui",
+    "nameLib": "swagger_ui",
     "nameOriginal": "swagger-ui-lite",
     "os": [
         "darwin",
@@ -435,7 +431,7 @@ instruction
         "start": "PORT=${PORT:-8080} utility2 start test.js",
         "test": "PORT=$(utility2 shServerPortRandom) utility2 test test.js"
     },
-    "version": "2017.9.14"
+    "version": "2017.10.28"
 }
 ```
 
