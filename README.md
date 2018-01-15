@@ -1,7 +1,7 @@
 # swagger-ui-lite
-this zero-dependency package will provide a rollup, single-script version of the swagger-ui client (v2.1.5)
+this zero-dependency package will provide a rollup, single-script version of the swagger-ui client (v2.1.5), with a working web-demo
 
-# live demo
+# live web demo
 - [https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app)
 
 [![screenshot](https://kaizhu256.github.io/node-swagger-ui-lite/build/screenshot.deployGithub.browser.%252Fnode-swagger-ui-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app)
@@ -60,9 +60,9 @@ this zero-dependency package will provide a rollup, single-script version of the
 #### todo
 - none
 
-#### changelog for v2017.10.28
-- npm publish 2017.10.28
-- update build
+#### changelog for v2018.1.14
+- npm publish 2018.1.14
+- remove unused browser-code from example.js
 - none
 
 #### this package requires
@@ -84,7 +84,7 @@ this zero-dependency package will provide a rollup, single-script version of the
 # 1. download standalone app
 curl -O https://kaizhu256.github.io/node-swagger-ui-lite/build..beta..travis-ci.org/app/assets.app.js
 # 2. run standalone app
-node ./assets.app.js
+PORT=8081 node ./assets.app.js
 # 3. open a browser to http://127.0.0.1:8081 and play with the web-demo
 # 4. edit file assets.app.js to suit your needs
 ```
@@ -171,87 +171,6 @@ instruction
     // run browser js-env code - init-test
     /* istanbul ignore next */
     case 'browser':
-        local.testRunBrowser = function (event) {
-            if (!event || (event &&
-                    event.currentTarget &&
-                    event.currentTarget.className &&
-                    event.currentTarget.className.includes &&
-                    event.currentTarget.className.includes('onreset'))) {
-                // reset output
-                Array.from(
-                    document.querySelectorAll('body > .resettable')
-                ).forEach(function (element) {
-                    switch (element.tagName) {
-                    case 'INPUT':
-                    case 'TEXTAREA':
-                        element.value = '';
-                        break;
-                    default:
-                        element.textContent = '';
-                    }
-                });
-            }
-            switch (event && event.currentTarget && event.currentTarget.id) {
-            case 'testRunButton1':
-                // show tests
-                if (document.querySelector('#testReportDiv1').style.maxHeight === '0px') {
-                    local.uiAnimateSlideDown(document.querySelector('#testReportDiv1'));
-                    document.querySelector('#testRunButton1').textContent =
-                        'hide internal test';
-                    local.modeTest = true;
-                    local.testRunDefault(local);
-                // hide tests
-                } else {
-                    local.uiAnimateSlideUp(document.querySelector('#testReportDiv1'));
-                    document.querySelector('#testRunButton1').textContent = 'run internal test';
-                }
-                break;
-            // custom-case
-            default:
-                break;
-            }
-            if (document.querySelector('#inputTextareaEval1') && (!event || (event &&
-                    event.currentTarget &&
-                    event.currentTarget.className &&
-                    event.currentTarget.className.includes &&
-                    event.currentTarget.className.includes('oneval')))) {
-                // try to eval input-code
-                try {
-                    /*jslint evil: true*/
-                    eval(document.querySelector('#inputTextareaEval1').value);
-                } catch (errorCaught) {
-                    console.error(errorCaught);
-                }
-            }
-        };
-        // log stderr and stdout to #outputTextareaStdout1
-        ['error', 'log'].forEach(function (key) {
-            console[key + '_original'] = console[key];
-            console[key] = function () {
-                var element;
-                console[key + '_original'].apply(console, arguments);
-                element = document.querySelector('#outputTextareaStdout1');
-                if (!element) {
-                    return;
-                }
-                // append text to #outputTextareaStdout1
-                element.value += Array.from(arguments).map(function (arg) {
-                    return typeof arg === 'string'
-                        ? arg
-                        : JSON.stringify(arg, null, 4);
-                }).join(' ') + '\n';
-                // scroll textarea to bottom
-                element.scrollTop = element.scrollHeight;
-            };
-        });
-        // init event-handling
-        ['change', 'click', 'keyup'].forEach(function (event) {
-            Array.from(document.querySelectorAll('.on' + event)).forEach(function (element) {
-                element.addEventListener(event, local.testRunBrowser);
-            });
-        });
-        // run tests
-        local.testRunBrowser();
         break;
 
 
@@ -396,7 +315,7 @@ instruction
 ```json
 {
     "author": "kai zhu <kaizhu256@gmail.com>",
-    "description": "this zero-dependency package will provide a rollup, single-script version of the swagger-ui client (v2.1.5)",
+    "description": "this zero-dependency package will provide a rollup, single-script version of the swagger-ui client (v2.1.5), with a working web-demo",
     "devDependencies": {
         "electron-lite": "kaizhu256/node-electron-lite#alpha",
         "utility2": "kaizhu256/node-utility2#alpha"
@@ -431,7 +350,7 @@ instruction
         "start": "PORT=${PORT:-8080} utility2 start test.js",
         "test": "PORT=$(utility2 shServerPortRandom) utility2 test test.js"
     },
-    "version": "2017.10.28"
+    "version": "2018.1.14"
 }
 ```
 
