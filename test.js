@@ -1,8 +1,9 @@
 /* istanbul instrument in package swagger_ui */
+/* jslint-utility2 */
 /*jslint
     bitwise: true,
     browser: true,
-    maxerr: 8,
+    maxerr: 4,
     maxlen: 100,
     node: true,
     nomen: true,
@@ -43,16 +44,19 @@
         // init test
         local.testRunInit(local);
     }());
-    switch (local.modeJs) {
 
 
 
-    // run node js-env code - function
-    case 'node':
+    // run shared js-env code - function
+    (function () {
         local.testCase_buildApidoc_default = function (options, onError) {
         /*
          * this function will test buildApidoc's default handling-behavior-behavior
          */
+            if (local.modeJs !== 'node') {
+                onError(null, options);
+                return;
+            }
             options = {};
             options.global = local.objectSetDefault({}, local.global);
             options.polyfill = function () {
@@ -134,11 +138,15 @@ window = global;\n\
         /*
          * this function will test buildApp's default handling-behavior-behavior
          */
+            if (local.modeJs !== 'node') {
+                onError(null, options);
+                return;
+            }
             local.testCase_buildReadme_default(options, local.onErrorThrow);
             local.testCase_buildLib_default(options, local.onErrorThrow);
             local.testCase_buildTest_default(options, local.onErrorThrow);
             local.testCase_buildCustomOrg_default(options, local.onErrorThrow);
-            options = [{
+            options = { assetsList: [{
                 file: '/assets.swagger_ui.html',
                 url: '/assets.swagger_ui.html'
             }, {
@@ -147,9 +155,8 @@ window = global;\n\
             }, {
                 file: '/assets.swagger_ui.rollup.js',
                 url: '/assets.swagger_ui.rollup.js'
-            }];
+            }] };
             local.buildApp(options, onError);
         };
-        break;
-    }
+    }());
 }());
