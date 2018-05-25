@@ -60,9 +60,9 @@ this zero-dependency package will provide a rollup, single-script version of the
 #### todo
 - none
 
-#### changelog for v2018.4.7
-- npm publish v2018.4.7
-- fix ci for nodejs v9.x
+#### changelog 2018.5.25
+- npm publish 2018.5.25
+- update build
 - none
 
 #### this package requires
@@ -141,24 +141,20 @@ instruction
         // init local
         local = {};
         // init modeJs
-        local.modeJs = (function () {
+        (function () {
             try {
-                return typeof navigator.userAgent === 'string' &&
-                    typeof document.querySelector('body') === 'object' &&
-                    typeof XMLHttpRequest.prototype.open === 'function' &&
-                    'browser';
-            } catch (errorCaughtBrowser) {
-                return module.exports &&
-                    typeof process.versions.node === 'string' &&
+                local.modeJs = typeof process.versions.node === 'string' &&
                     typeof require('http').createServer === 'function' &&
                     'node';
+            } catch (ignore) {
             }
+            local.modeJs = local.modeJs || 'browser';
         }());
         // init global
         local.global = local.modeJs === 'browser'
             ? window
             : global;
-        // init utility2_rollup
+        // re-init local
         local = local.global.utility2_rollup || (local.modeJs === 'browser'
             ? local.global.utility2_swagger_ui
             : require('swagger-ui-lite'));
@@ -215,11 +211,10 @@ instruction
         local.v8 = require('v8');
         local.vm = require('vm');
         local.zlib = require('zlib');
-/* validateLineSortedReset */
+        /* validateLineSortedReset */
         // init assets
         local.assetsDict = local.assetsDict || {};
         [
-            'assets.index.css',
             'assets.index.template.html',
             'assets.swgg.swagger.json',
             'assets.swgg.swagger.server.json'
@@ -233,17 +228,15 @@ instruction
                 );
             }
         });
-/* validateLineSortedReset */
-        // bug-workaround - long $npm_package_buildCustomOrg
+        /* validateLineSortedReset */
         /* jslint-ignore-begin */
+        // bug-workaround - long $npm_package_buildCustomOrg
         local.assetsDict['/assets.swagger_ui.js'] =
             local.assetsDict['/assets.swagger_ui.js'] ||
-            local.fs.readFileSync(
-                local.__dirname + '/lib.swagger_ui.js',
-                'utf8'
-            ).replace((/^#!/), '//');
+            local.fs.readFileSync(local.__dirname + '/lib.swagger_ui.js', 'utf8'
+        ).replace((/^#!\//), '// ');
         /* jslint-ignore-end */
-/* validateLineSortedReset */
+        /* validateLineSortedReset */
         local.assetsDict['/'] =
             local.assetsDict['/assets.example.html'] =
             local.assetsDict['/assets.index.template.html']
@@ -374,16 +367,15 @@ instruction
         "url": "https://github.com/kaizhu256/node-swagger-ui-lite.git"
     },
     "scripts": {
-        "apidocRawCreate": "[ ! -f npm_scripts.sh ] || ./npm_scripts.sh shNpmScriptApidocRawCreate",
-        "apidocRawFetch": "[ ! -f npm_scripts.sh ] || ./npm_scripts.sh shNpmScriptApidocRawFetch",
-        "build-ci": "utility2 shReadmeTest build_ci.sh",
-        "env": "env",
-        "heroku-postbuild": "npm uninstall utility2 2>/dev/null; npm install kaizhu256/node-utility2#alpha && utility2 shDeployHeroku",
-        "postinstall": "[ ! -f npm_scripts.sh ] || ./npm_scripts.sh shNpmScriptPostinstall",
-        "start": "PORT=${PORT:-8080} utility2 start test.js",
-        "test": "PORT=$(utility2 shServerPortRandom) utility2 test test.js"
+        "build-ci": "./npm_scripts.sh",
+        "eval": "./npm_scripts.sh",
+        "heroku-postbuild": "./npm_scripts.sh",
+        "postinstall": "./npm_scripts.sh",
+        "start": "./npm_scripts.sh",
+        "test": "./npm_scripts.sh",
+        "utility2": "./npm_scripts.sh"
     },
-    "version": "2018.4.7"
+    "version": "2018.5.25"
 }
 ```
 
@@ -414,7 +406,7 @@ shBuildCiBefore () {(set -e
 )}
 
 # run shBuildCi
-eval $(utility2 source)
+eval "$(utility2 source)"
 shBuildCi
 ```
 
