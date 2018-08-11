@@ -60,8 +60,9 @@ this zero-dependency package will provide a rollup, single-script version of the
 #### todo
 - none
 
-#### changelog 2018.5.25
-- npm publish 2018.5.25
+#### changelog 2018.8.11
+- npm publish 2018.8.11
+- migrate from modeJs -> isBrowser
 - update build
 - none
 
@@ -140,41 +141,41 @@ instruction
     (function () {
         // init local
         local = {};
-        // init modeJs
-        (function () {
-            try {
-                local.modeJs = typeof process.versions.node === 'string' &&
-                    typeof require('http').createServer === 'function' &&
-                    'node';
-            } catch (ignore) {
-            }
-            local.modeJs = local.modeJs || 'browser';
-        }());
+        // init isBrowser
+        local.isBrowser = typeof window === "object" &&
+            typeof window.XMLHttpRequest === "function" &&
+            window.document &&
+            typeof window.document.querySelectorAll === "function";
         // init global
-        local.global = local.modeJs === 'browser'
+        local.global = local.isBrowser
             ? window
             : global;
         // re-init local
-        local = local.global.utility2_rollup || (local.modeJs === 'browser'
+        local = local.global.utility2_rollup || (local.isBrowser
             ? local.global.utility2_swagger_ui
             : require('swagger-ui-lite'));
         // init exports
         local.global.local = local;
     }());
-    switch (local.modeJs) {
 
 
 
     // run browser js-env code - init-test
     /* istanbul ignore next */
-    case 'browser':
-        break;
+    (function () {
+        if (!local.isBrowser) {
+            return;
+        }
+    }());
 
 
 
     // run node js-env code - init-test
     /* istanbul ignore next */
-    case 'node':
+    (function () {
+        if (local.isBrowser) {
+            return;
+        }
         // init exports
         module.exports = local;
         // require builtins
@@ -256,7 +257,7 @@ instruction
             });
         // init cli
         if (module !== require.main || local.global.utility2_rollup) {
-            break;
+            return;
         }
         local.assetsDict['/assets.example.js'] =
             local.assetsDict['/assets.example.js'] ||
@@ -269,7 +270,7 @@ instruction
         }
         // start server
         if (local.global.utility2_serverHttp1) {
-            break;
+            return;
         }
         process.env.PORT = process.env.PORT || '8081';
         console.error('server starting on port ' + process.env.PORT);
@@ -282,8 +283,7 @@ instruction
             response.statusCode = 404;
             response.end();
         }).listen(process.env.PORT);
-        break;
-    }
+    }());
 }());
 ```
 
@@ -368,6 +368,7 @@ instruction
     },
     "scripts": {
         "build-ci": "./npm_scripts.sh",
+        "env": "env",
         "eval": "./npm_scripts.sh",
         "heroku-postbuild": "./npm_scripts.sh",
         "postinstall": "./npm_scripts.sh",
@@ -375,7 +376,7 @@ instruction
         "test": "./npm_scripts.sh",
         "utility2": "./npm_scripts.sh"
     },
-    "version": "2018.5.25"
+    "version": "2018.8.11"
 }
 ```
 
