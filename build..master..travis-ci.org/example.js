@@ -35,45 +35,41 @@ instruction
     (function () {
         // init local
         local = {};
-        // init modeJs
-        local.modeJs = (function () {
-            try {
-                return typeof navigator.userAgent === 'string' &&
-                    typeof document.querySelector('body') === 'object' &&
-                    typeof XMLHttpRequest.prototype.open === 'function' &&
-                    'browser';
-            } catch (errorCaughtBrowser) {
-                return module.exports &&
-                    typeof process.versions.node === 'string' &&
-                    typeof require('http').createServer === 'function' &&
-                    'node';
-            }
-        }());
+        // init isBrowser
+        local.isBrowser = typeof window === "object" &&
+            typeof window.XMLHttpRequest === "function" &&
+            window.document &&
+            typeof window.document.querySelectorAll === "function";
         // init global
-        local.global = local.modeJs === 'browser'
+        local.global = local.isBrowser
             ? window
             : global;
-        // init utility2_rollup
-        local = local.global.utility2_rollup || (local.modeJs === 'browser'
+        // re-init local
+        local = local.global.utility2_rollup || (local.isBrowser
             ? local.global.utility2_swagger_ui
             : require('swagger-ui-lite'));
         // init exports
         local.global.local = local;
     }());
-    switch (local.modeJs) {
 
 
 
     // run browser js-env code - init-test
     /* istanbul ignore next */
-    case 'browser':
-        break;
+    (function () {
+        if (!local.isBrowser) {
+            return;
+        }
+    }());
 
 
 
     // run node js-env code - init-test
     /* istanbul ignore next */
-    case 'node':
+    (function () {
+        if (local.isBrowser) {
+            return;
+        }
         // init exports
         module.exports = local;
         // require builtins
@@ -110,11 +106,10 @@ instruction
         local.v8 = require('v8');
         local.vm = require('vm');
         local.zlib = require('zlib');
-/* validateLineSortedReset */
+        /* validateLineSortedReset */
         // init assets
         local.assetsDict = local.assetsDict || {};
         [
-            'assets.index.css',
             'assets.index.template.html',
             'assets.swgg.swagger.json',
             'assets.swgg.swagger.server.json'
@@ -128,17 +123,15 @@ instruction
                 );
             }
         });
-/* validateLineSortedReset */
-        // bug-workaround - long $npm_package_buildCustomOrg
+        /* validateLineSortedReset */
         /* jslint-ignore-begin */
+        // bug-workaround - long $npm_package_buildCustomOrg
         local.assetsDict['/assets.swagger_ui.js'] =
             local.assetsDict['/assets.swagger_ui.js'] ||
-            local.fs.readFileSync(
-                local.__dirname + '/lib.swagger_ui.js',
-                'utf8'
-            ).replace((/^#!/), '//');
+            local.fs.readFileSync(local.__dirname + '/lib.swagger_ui.js', 'utf8'
+        ).replace((/^#!\//), '// ');
         /* jslint-ignore-end */
-/* validateLineSortedReset */
+        /* validateLineSortedReset */
         local.assetsDict['/'] =
             local.assetsDict['/assets.example.html'] =
             local.assetsDict['/assets.index.template.html']
@@ -158,7 +151,7 @@ instruction
             });
         // init cli
         if (module !== require.main || local.global.utility2_rollup) {
-            break;
+            return;
         }
         local.assetsDict['/assets.example.js'] =
             local.assetsDict['/assets.example.js'] ||
@@ -171,7 +164,7 @@ instruction
         }
         // start server
         if (local.global.utility2_serverHttp1) {
-            break;
+            return;
         }
         process.env.PORT = process.env.PORT || '8081';
         console.error('server starting on port ' + process.env.PORT);
@@ -184,6 +177,5 @@ instruction
             response.statusCode = 404;
             response.end();
         }).listen(process.env.PORT);
-        break;
-    }
+    }());
 }());

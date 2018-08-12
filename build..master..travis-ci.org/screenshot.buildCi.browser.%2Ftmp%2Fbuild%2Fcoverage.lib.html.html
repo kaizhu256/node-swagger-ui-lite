@@ -1,12 +1,4 @@
-<html lang="en" class="x-istanbul" data-scrape="{
-    &quot;hrefDict&quot;: {
-        &quot;https://github.com/kaizhu256/node-swagger-ui-lite&quot;: &quot;swagger-ui-lite (v2018.4.7)&quot;,
-        &quot;https://github.com/kaizhu256/node-utility2&quot;: &quot;utility2&quot;
-    },
-    &quot;href&quot;: &quot;file:///home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/coverage.lib.html&quot;,
-    &quot;url&quot;: &quot;file:///home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/coverage.lib.html&quot;,
-    &quot;bodyTextContent&quot;: &quot;1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n32\n33\n34\n35\n36\n37\n38\n39\n40\n41\n42\n43\n44\n45\n46\n47\n48\n49\n50\n51\n52\n53\n54\n55\n56\n57\n58\n59\n60\n61\n62\n63\n64\n65\n66\n67\n68\n69\n70\n71\n72\n73\n74\n75\n76\n77\n78\n79\n80\n81\n82\n83\n84\n85\n86\n87\n88\n89\n90\n91\n92\n93\n94\n95\n96\n97\n98\n99\n100\n101\n102\n103\n104\n105\n106\n107\n108\n109\n110\n111\n112\n113\n114\n115\n116\n117\n118\n119\n120\n121\n122\n123\n124\n125\n126\n127\n128\n129\n130\n131\n132\n133\n134\n135\n136\n137\n138\n139\n140\n141\n142\n143\n144\n145\n146\n147\n148\n149\n150\n151\n152\n153\n154\n155\n156\n157\n158\n159\n160\n161\n162\n163\n164\n\n&nbsp;/* istanbul instrument in package swagger_ui */\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n(function () {\n    'use strict';\n    var local;\n\n    // run shared js-env code - init-before\n    (function () {\n        // init local\n        local = {};\n        // init modeJs\n        local.modeJs = (function () {\n            try {\n                return typeof navigator.userAgent === 'string' &amp;&amp;\n                    typeof document.querySelector('body') === 'object' &amp;&amp;\n                    typeof XMLHttpRequest.prototype.open === 'function' &amp;&amp;\n                    'browser';\n            } catch (errorCaughtBrowser) {\n                return module.exports &amp;&amp;\n                    typeof process.versions.node === 'string' &amp;&amp;\n                    typeof require('http').createServer === 'function' &amp;&amp;\n                    'node';\n            }\n        }());\n        // init global\n        local.global = local.modeJs === 'browser'\n            ? window\n            : global;\n        // re-init local\n        local = local.global.local = (local.global.utility2 ||\n            require('utility2')).requireReadme();\n        // init test\n        local.testRunInit(local);\n    }());\n\n    // run shared js-env code - function\n    (function () {\n        local.testCase_buildApidoc_default = function (options, onError) {\n        /*\n         * this function will test buildApidoc's default handling-behavior-behavior\n         */\n            if (local.modeJs !== 'node') {\n                onError(null, options);\n                return;\n            }\n            options = {};\n            options.global = local.objectSetDefault({}, local.global);\n            options.polyfill = function () {\n                var $, Backbone, Handlebars, window;\n                $ = Backbone = Handlebars = function (arg0) {\n                    return arg0;\n                };\n                // jslint-hack\n                $(Backbone, Handlebars, window);\n                [\n                    'Collection',\n                    'Model',\n                    'Router',\n                    'View',\n                    'extend',\n                    'registerHelper',\n                    'template'\n                ].forEach(function (key) {\n                    $[key] = $;\n                });\n                window = global;\n            };\n            // coverage-hack\n            options.polyfill();\n            local.vm.runInThisContext(local.jslintAndPrint(\n/* jslint-ignore-begin */\n'\\\n/*jslint\\n\\\n    node: true\\n\\\n*/\\n\\\n\&quot;use strict\&quot;;\\n\\\nvar $, Backbone, Handlebars, window;\\n\\\n$ = Backbone = Handlebars = function (arg0) {\\n\\\n    return arg0;\\n\\\n};\\n\\\n// jslint-hack\\n\\\n$(Backbone, Handlebars, window);\\n\\\n[\\n\\\n    \&quot;Collection\&quot;,\\n\\\n    \&quot;Model\&quot;,\\n\\\n    \&quot;Router\&quot;,\\n\\\n    \&quot;View\&quot;,\\n\\\n    \&quot;extend\&quot;,\\n\\\n    \&quot;registerHelper\&quot;,\\n\\\n    \&quot;template\&quot;\\n\\\n].forEach(function (key) {\\n\\\n    $[key] = $;\\n\\\n});\\n\\\nwindow = global;\\n\\\n', 'polyfill.js'\n/* jslint-ignore-end */\n            ) + local.fs.readFileSync('assets.swagger_ui.rollup.js', 'utf8')\n                    .replace((/^\\/\\/ init lib [\\S\\s]*?\\n\\n\\n\\n/gm), function (match0) {\n                    if (match0.indexOf('init lib swagger') < 0) {\n                        return '';\n                    }\n                    return match0;\n                })\n                );\n            options.exports = local.objectSetDefault({}, local.global);\n            Object.keys(options.exports).forEach(function (key) {\n                if (options.exports[key] === options.global[key]) {\n                    delete options.exports[key];\n                }\n            });\n            delete options.exports.$.Backbone;\n            delete options.exports.$.Handlebars;\n            delete options.exports.Backbone;\n            delete options.exports.Handlebars;\n            delete options.exports.$;\n            options.moduleDict = {\n                exampleFileList: ['assets.swagger_ui.rollup.js'],\n                swagger_ui: { exports: options.exports }\n            };\n            local.buildApidoc(options, onError);\n        };\n\n        local.testCase_buildApp_default = function (options, onError) {\n        /*\n         * this function will test buildApp's default handling-behavior-behavior\n         */\n            if (local.modeJs !== 'node') {\n                onError(null, options);\n                return;\n            }\n            local.testCase_buildReadme_default(options, local.onErrorThrow);\n            local.testCase_buildLib_default(options, local.onErrorThrow);\n            local.testCase_buildTest_default(options, local.onErrorThrow);\n            local.testCase_buildCustomOrg_default(options, local.onErrorThrow);\n            options = { assetsList: [{\n                file: '/assets.swagger_ui.html',\n                url: '/assets.swagger_ui.html'\n            }, {\n                file: '/assets.swagger_ui.petstore.json',\n                url: '/assets.swagger_ui.petstore.json'\n            }, {\n                file: '/assets.swagger_ui.rollup.js',\n                url: '/assets.swagger_ui.rollup.js'\n            }] };\n            local.buildApp(options, onError);\n        };\n    }());\n}());&quot;
-}"><head>
+<html lang="en" class="x-istanbul"><head>
     <title>Code coverage report for node-swagger-ui-lite/test.js</title>
     <meta charset="utf-8">
 <style>
@@ -231,7 +223,7 @@
     width: 100%;
 }
 .x-istanbul .tableHeader td {
-    background: #eee;
+    background: #fff;
     border: 1px solid #666;
     padding: 5px;
 }
@@ -241,9 +233,37 @@
 </style>
 </head>
 <body class="x-istanbul">
+<script>
+// init domOnEventSelectAllWithinPre
+(function () {
+/*
+ * this function will limit select-all within <pre tabIndex="0"> elements
+ * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse
+ */
+    "use strict";
+    if (window.domOnEventSelectAllWithinPre) {
+        return;
+    }
+    window.domOnEventSelectAllWithinPre = function (event) {
+        var range, selection;
+        if (event &&
+                event.code === "KeyA" &&
+                (event.ctrlKey || event.metaKey) &&
+                event.target.closest("pre")) {
+            range = document.createRange();
+            range.selectNodeContents(event.target.closest("pre"));
+            selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            event.preventDefault();
+        }
+    };
+    document.addEventListener("keydown", window.domOnEventSelectAllWithinPre);
+}());
+</script>
 <div class="header high">
     <h1 style="font-weight: bold;">
-        <a href="https://github.com/kaizhu256/node-swagger-ui-lite">swagger-ui-lite (v2018.4.7)</a>
+        <a href="https://github.com/kaizhu256/node-swagger-ui-lite">swagger-ui-lite (2018.8.11)</a>
     </h1>
     <h1>Code coverage report for <span class="entity">node-swagger-ui-lite/test.js</span></h1>
     <table class="tableHeader">
@@ -258,10 +278,10 @@
     </thead>
     <tbody>
         <tr><td><span class="ignore-none">none</span></td>
-        <td>100%<br>(52 / 52)</td>
-        <td>100%<br>(20 / 20)</td>
-        <td>100%<br>(11 / 11)</td>
-        <td>100%<br>(52 / 52)</td>
+        <td>100%<br>(49 / 49)</td>
+        <td>100%<br>(16 / 16)</td>
+        <td>100%<br>(10 / 10)</td>
+        <td>100%<br>(49 / 49)</td>
     </tr></tbody>
     </table>
     <div class="path"><a href="../index.html">All files</a> » <a href="index.html">node-swagger-ui-lite/</a> » test.js</div>
@@ -422,16 +442,7 @@
 152
 153
 154
-155
-156
-157
-158
-159
-160
-161
-162
-163
-164</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
+155</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -455,15 +466,6 @@
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -551,8 +553,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">41</span>
-<span class="cline-any cline-yes">25</span>
+<span class="cline-any cline-yes">36</span>
+<span class="cline-any cline-yes">20</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
@@ -594,7 +596,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* istanbul instrument in package swagger_ui */
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js" tabindex="0">/* istanbul instrument in package swagger_ui */
 /* jslint-utility2 */
 /*jslint
     bitwise: true,
@@ -616,22 +618,13 @@
     (function () {
         // init local
         local = {};
-        // init modeJs
-        local.modeJs = (function () {
-            try {
-                return typeof navigator.userAgent === 'string' &amp;&amp;
-                    typeof document.querySelector('body') === 'object' &amp;&amp;
-                    typeof XMLHttpRequest.prototype.open === 'function' &amp;&amp;
-                    'browser';
-            } catch (errorCaughtBrowser) {
-                return module.exports &amp;&amp;
-                    typeof process.versions.node === 'string' &amp;&amp;
-                    typeof require('http').createServer === 'function' &amp;&amp;
-                    'node';
-            }
-        }());
+        // init isBrowser
+        local.isBrowser = typeof window === "object" &amp;&amp;
+            typeof window.XMLHttpRequest === "function" &amp;&amp;
+            window.document &amp;&amp;
+            typeof window.document.querySelectorAll === "function";
         // init global
-        local.global = local.modeJs === 'browser'
+        local.global = local.isBrowser
             ? window
             : global;
         // re-init local
@@ -649,7 +642,7 @@
         /*
          * this function will test buildApidoc's default handling-behavior-behavior
          */
-            if (local.modeJs !== 'node') {
+            if (local.isBrowser) {
                 onError(null, options);
                 return;
             }
@@ -734,7 +727,7 @@ window = global;\n\
         /*
          * this function will test buildApp's default handling-behavior-behavior
          */
-            if (local.modeJs !== 'node') {
+            if (local.isBrowser) {
                 onError(null, options);
                 return;
             }
@@ -761,7 +754,7 @@ window = global;\n\
 </tbody></table></pre>
 </div>
 <div class="footer">
-    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Mon Apr 09 2018 00:39:40 GMT+0000 (UTC)</div>
+    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Sun Aug 12 2018 09:26:56 GMT+0000 (Coordinated Universal Time)</div>
 </div>
 
 

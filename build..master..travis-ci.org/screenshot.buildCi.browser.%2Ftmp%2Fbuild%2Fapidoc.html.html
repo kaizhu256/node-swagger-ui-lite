@@ -1,12 +1,4 @@
-<html data-scrape="{
-    &quot;hrefDict&quot;: {
-        &quot;https://github.com/kaizhu256/node-swagger-ui-lite&quot;: &quot;swagger-ui-lite (v2018.4.7)&quot;,
-        &quot;https://github.com/kaizhu256/node-utility2&quot;: &quot;utility2&quot;
-    },
-    &quot;href&quot;: &quot;file:///home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/apidoc.html&quot;,
-    &quot;url&quot;: &quot;file:///home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/apidoc.html&quot;,
-    &quot;bodyTextContent&quot;: &quot;description and source-codeSwaggerClient = function (url, options) {\n  this.authorizations = null;\n  this.authorizationScheme = null;\n  this.basePath = null;\n  this.debug = false;\n  this.enableCookies = false;\n  this.info = null;\n  this.isBuilt = false;\n  this.isValid = false;\n  this.modelsArray = [];\n  this.resourceCount = 0;\n  this.url = null;\n  this.useJQuery = false;\n  this.jqueryAjaxCache = false;\n  this.swaggerObject = {};\n  this.deferredClient = undefined;\n\n                description and source-codefunction clientCredentialsFlow(scopes, tokenUrl, OAuthSchemeKey) {\n  var params = {\n    'client_id': clientId,\n    'client_secret': clientSecret,\n    'scope': scopes.join(' '),\n    'grant_type': 'client_credentials'\n  }\n  $.ajax(\n  {\n    url : tokenUrl,\n    type: \&quot;POST\&quot;,\n    data: params,\n    success:function(data, textStatus, jqXHR)\n    {\n      onOAuthComplete(data,OAuthSchemeKey);\n    },\n    error: function(jqXHR, textStatus, errorThrown)\n    {\n      onOAuthComplete(\&quot;\&quot;);\n    }\n  });\n\n              var auths = window.swaggerUi.api.authSchemes || window.swaggerUi.api.securityDefinitions;\n  if(auths) {\n    var key;\n    var defs = auths;\n    for(key in defs) {\n      var auth = defs[key];\n      if(auth.type === 'oauth2' &amp;&amp; auth.scopes) {\n        var scope;\n        if(Array.isArray(auth.scopes)) {\n          // 1.2 support\n          var i;\n          for(i = 0; i < auth.scopes.length; i++) {\n            scopes.push(auth.scopes[i]);\n          }\n        }\n        else {\n          // 2.0 support\n          for(scope in auth.scopes) {\n            scopes.push({scope: scope, description: auth.scopes[scope], OAuthSchemeKey: key});\n          }\n        }\n      }\n    }\n  }\n\n    $('.api-popup-dialog').remove();\n  popupDialog = $(\n    [\n      '<div class=\&quot;api-popup-dialog\&quot;>',\n      '<div class=\&quot;api-popup-title\&quot;>Select OAuth2.0 Scopes</div>',\n      '<div class=\&quot;api-popup-content\&quot;>',\n        '<p>Scopes are used to grant an application different levels of access to data on behalf of the end user. Each API may declare\n one or more scopes.',\n          '<a href=\&quot;#\&quot;>Learn how to use</a>',\n        '</p>',\n        '<p><strong>' + appName + '</strong> API requires the following scopes. Select which ones you want to grant to Swagger UI\n.</p>',\n        '<ul class=\&quot;api-popup-scopes\&quot;>',\n        '</ul>',\n        '<p class=\&quot;error-msg\&quot;></p>',\n        '<div class=\&quot;api-popup-actions\&quot;><button class=\&quot;api-popup-authbtn api-button green\&quot; type=\&quot;button\&quot;>Authorize</button><button\n class=\&quot;api-popup-cancel api-button gray\&quot; type=\&quot;button\&quot;>Cancel</button></div>',\n      '</div>',\n      '</div>'].join(''));\n  $(document.body).append(popupDialog);\n\n  //TODO: only display applicable scopes (will need to pass them into handleLogin)\n  popup = popupDialog.find('ul.api-popup-scopes').empty();\n  for (i = 0; i < scopes.length; i ++) {\n    scope = scopes[i];\n    str = '<li><input type=\&quot;checkbox\&quot; id=\&quot;scope_' + i + '\&quot; scope=\&quot;' + scope.scope + '\&quot;' +'\&quot; oauthtype=\&quot;' + scope.OAuthSchemeKey +'\&quot;/>' + '<\nlabel for=\&quot;scope_' + i + '\&quot;>' + scope.scope ;\n    if (scope.description) {\n      if ($.map(auths, function(n, i) { return i; }).length > 1) //if we have more than one scheme, display schemes\n\t    str += '<br/><span class=\&quot;api-scope-desc\&quot;>' + scope.description + ' ('+ scope.OAuthSchemeKey+')' +'</span>';\n\t  else\n\t    str += '<br/><span class=\&quot;api-scope-desc\&quot;>' + scope.description + '</span>';\n    }\n    str += '</label></li>';\n    popup.append(str);\n  }\n\n                        description and source-codefunction handleLogout() {\n  for(key in window.swaggerUi.api.clientAuthorizations.authz){\n    window.swaggerUi.api.clientAuthorizations.remove(key)\n  }\n  window.enabledScopes = null;\n  $('.api-ic.ic-on').addClass('ic-off');\n  $('.api-ic.ic-on').removeClass('ic-on');\n\n                appName = (o.appName||errors.push('missing appName'));\n  popupMask = (o.popupMask||$('#api-common-mask'));\n  popupDialog = (o.popupDialog||$('.api-popup-dialog'));\n  clientId = (o.clientId||errors.push('missing client id'));\n  clientSecret = (o.clientSecret||null);\n  realm = (o.realm||errors.push('missing realm'));\n  scopeSeparator = (o.scopeSeparator||' ');\n  additionalQueryStringParams = (o.additionalQueryStringParams||{});\n\n    $('pre code').each(function(i, e) {hljs.highlightBlock(e)});\n  $('.api-ic').unbind();\n  $('.api-ic').click(function(s) {\n    if($(s.target).hasClass('ic-off'))\n      handleLogin();\n    else {\n      handleLogout();\n    }\n    false;\n  });\n}\n    example usagen/a\n\n            description and source-codefunction onOAuthComplete(token, OAuthSchemeKey) {\n  if(token) {\n    if(token.error) {\n      var checkbox = $('input[type=checkbox],.secured')\n      checkbox.each(function(pos){\n        checkbox[pos].checked = false;\n      });\n      alert(token.error);\n    }\n    else {\n      var b = token[window.swaggerUi.tokenName];\n      if (!OAuthSchemeKey){\n          OAuthSchemeKey = token.state;\n      }\n      if(b){\n        // if all roles are satisfied\n        var o = null;\n        $.each($('.auth .api-ic .api_information_panel'), function(k, v) {\n          var children = v;\n          if(children &amp;&amp; children.childNodes) {\n            var requiredScopes = [];\n            $.each((children.childNodes), function (k1, v1){\n              var inner = v1.innerHTML;\n              if(inner)\n                requiredScopes.push(inner);\n            });\n            var diff = [];\n            for(var i=0; i < requiredScopes.length; i++) {\n              var s = requiredScopes[i];\n              if(window.enabledScopes &amp;&amp; window.enabledScopes.indexOf(s) == -1) {\n                diff.push(s);\n              }\n            }\n            if(diff.length > 0){\n              o = v.parentNode.parentNode;\n              $(o.parentNode).find('.api-ic.ic-on').addClass('ic-off');\n              $(o.parentNode).find('.api-ic.ic-on').removeClass('ic-on');\n\n              // sorry, not all scopes are satisfied\n              $(o).find('.api-ic').addClass('ic-warning');\n              $(o).find('.api-ic').removeClass('ic-error');\n            }\n            else {\n              o = v.parentNode.parentNode;\n              $(o.parentNode).find('.api-ic.ic-off').addClass('ic-on');\n              $(o.parentNode).find('.api-ic.ic-off').removeClass('ic-off');\n\n              // all scopes are satisfied\n              $(o).find('.api-ic').addClass('ic-info');\n              $(o).find('.api-ic').removeClass('ic-warning');\n              $(o).find('.api-ic').removeClass('ic-error');\n            }\n          }\n        });\n        window.swaggerUi.api.clientAuthorizations.add(window.OAuthSchemeKey, new SwaggerClient.ApiKeyAuthorization('Authorization\n', 'Bearer ' + b, 'header'));\n        window.swaggerUi.load();\n      }\n    }\n  }\n}\n    example usagen/a\n\n              // redirect_uri is required in auth code flow\n  // see https://tools.ietf.org/html/draft-ietf-oauth-v2-31#section-4.1.3\n  var host = window.location;\n  var pathname = location.pathname.substring(0, location.pathname.lastIndexOf(\&quot;/\&quot;));\n  var defaultRedirectUrl = host.protocol + '//' + host.host + pathname + '/o2c.html';\n  var redirectUrl = window.oAuthRedirectUrl || defaultRedirectUrl;\n\n      $.ajax(\n  {\n    url : window.swaggerUi.tokenUrl,\n    type: \&quot;POST\&quot;,\n    data: params,\n    success:function(data, textStatus, jqXHR)\n    {\n      onOAuthComplete(data, OAuthSchemeKey);\n    },\n    error: function(jqXHR, textStatus, errorThrown)\n    {\n      onOAuthComplete(\&quot;\&quot;);\n    }\n  });\n}\n    example usagen/a\n\n            \t\t\t\t                        \t\t\t\t                        \t\t\t\t                        \t\t\t\t            \t\t\t\t                                                      description and source-codetoggleEndpointListForResource = function (resource) {\n\t\tvar elem = $('li#resource_' + Docs.escapeResourceName(resource) + ' ul.endpoints');\n\t\tif (elem.is(':visible')) {\n\t\t\t$.bbq.pushState('#/', 2);\n\t\t\tDocs.collapseEndpointListForResource(resource);\n\t\t} else {\n            $.bbq.pushState('#/' + resource, 2);\n\t\t\tDocs.expandEndpointListForResource(resource);\n\t\t}\n\t}\n    example usagen/a\n\n                                                  description and source-codePasswordAuthorization = function (username, password) {\n  if (arguments.length === 3) {\n    helpers.log('PasswordAuthorization: the \\'name\\' argument has been removed, pass only username and password');\n    username = arguments[1];\n    password = arguments[2];\n  }\n  this.username = username;\n  this.password = password;\n}\n    example usagen/a\n\n                              var qp;\n    if (obj.url.indexOf('?') > 0) {\n      qp = obj.url.substring(obj.url.indexOf('?') + 1);\n      var parts = qp.split('&amp;');\n      if(parts &amp;&amp; parts.length > 0) {\n        for(var i = 0; i < parts.length; i++) {\n          var kv = parts[i].split('=');\n          if(kv &amp;&amp; kv.length > 0) {\n            if (kv[0] === this.name) {\n              // skip it\n              return false;\n            }\n          }\n        }\n      }\n    }\n\n                                                                                              var obj = {\n    useJQuery: this.useJQuery,\n    jqueryAjaxCache: this.jqueryAjaxCache,\n    url: this.url,\n    method: 'get',\n    headers: {\n      accept: this.swaggerRequestHeaders\n    },\n    on: {\n      error: function (response) {\n        if (self.url.substring(0, 4) !== 'http') {\n          return self.fail('Please specify the protocol for ' + self.url);\n        } else if (response.status === 0) {\n          return self.fail('Can\\'t read from server.  It may not have the appropriate access-control-origin settings.');\n        } else if (response.status === 404) {\n          return self.fail('Can\\'t read swagger JSON from ' + self.url);\n        } else {\n          return self.fail(response.status + ' : ' + response.statusText + ' ' + self.url);\n        }\n      },\n      response: function (resp) {\n\n                                                      converter.setDocumentationLocation(self.url);\n          converter.convert(responseObj, self.clientAuthorizations, self.options, function(spec) {\n            self.swaggerObject = spec;\n            new Resolver().resolve(spec, self.url, self.buildFromSpec, self);\n            self.isValid = true;\n          });\n        }\n      }\n    }\n  };\n\n                          this.apis = {};\n  this.apisArray = [];\n  this.basePath = response.basePath || '';\n  this.consumes = response.consumes;\n  this.host = response.host || '';\n  this.info = response.info || {};\n  this.produces = response.produces;\n  this.schemes = response.schemes || [];\n  this.securityDefinitions = response.securityDefinitions;\n  this.security = response.security;\n  this.title = response.title || '';\n\n                if (typeof this.url === 'string') {\n    location = this.parseUri(this.url);\n    if (typeof this.scheme === 'undefined' &amp;&amp; typeof this.schemes === 'undefined' || this.schemes.length === 0) {\n      this.scheme = location.scheme || 'http';\n    } else if (typeof this.scheme === 'undefined') {\n      this.scheme = this.schemes[0] || location.scheme;\n    }\n\n          if (location.port) {\n        this.host = this.host + ':' + location.port;\n      }\n    }\n  }\n  else {\n    if (typeof this.schemes === 'undefined' || this.schemes.length === 0) {\n      this.scheme = 'http';\n    }\n    else if (typeof this.scheme === 'undefined') {\n      this.scheme = this.schemes[0];\n    }\n  }\n\n                          if (_.isUndefined(operation)) {\n        // Operation does not exist\n        return;\n      } else if (!_.isPlainObject(operation)) {\n        // Operation exists but it is not an Operation Object.  Since this is invalid, log it.\n        helpers.log('The \\'' + method + '\\' operation for \\'' + path + '\\' path is not an Operation Object');\n\n                                      // bind self operation's execute command to the api\n      _.forEach(tags, function (tag) {\n        var clientProperty = _.indexOf(reservedClientTags, tag) > -1 ? '_' + tag : tag;\n        var apiProperty = _.indexOf(reservedApiTags, tag) > -1 ? '_' + tag : tag;\n        var operationGroup = self[clientProperty];\n\n        if (clientProperty !== tag) {\n          helpers.log('The \\'' + tag + '\\' tag conflicts with a SwaggerClient function/property name.  Use \\'client.' +\n                      clientProperty + '\\' or \\'client.apis.' + tag + '\\' instead of \\'client.' + tag + '\\'.');\n        }\n\n                    description and source-codefail = function (message) {\n  if (this.usePromise) {\n    this.deferredClient.reject(message);\n    return this.deferredClient.promise;\n  } else {\n    if (this.failure) {\n      this.failure(message);\n    }\n    else {\n      this.failure(message);\n    }\n  }\n}\n    example usagen/a\n\n                      _.forEach(api.operations, function (operation, name) {\n          output += '  * ' + name + ': ' + operation.summary + '\\n';\n        });\n      }\n    });\n  } else if (this instanceof OperationGroup || _.isPlainObject(this)) {\n    output += 'operations for the \\'' + this.label + '\\' tag\\n';\n\n                      description and source-codeidFromOp = function (path, httpMethod, op) {\n  if(!op || !op.operationId) {\n    op = op || {};\n    op.operationId = httpMethod + '_' + path;\n  }\n  var opId = op.operationId.replace(/[\\s!@#$%^&amp;*()_+=\\[{\\]};:<>|.\\/?,\\\\'\&quot;\&quot;-]/g, '_') || (path.substring(1) + '_' + httpMethod);\n\n                    if(this.url &amp;&amp; this.url.indexOf('http:') === -1 &amp;&amp; this.url.indexOf('https:') === -1) {\n    // no protocol, so we can only use window if it exists\n    if(typeof(window) !== 'undefined' &amp;&amp; window &amp;&amp; window.location) {\n      this.url = window.location.origin + this.url;\n    }\n  }\n\n  options = options || {};\n  this.clientAuthorizations.add(options.authorizations);\n  this.swaggerRequestHeaders = options.swaggerRequestHeaders || 'application/json;charset=utf-8,*/*';\n  this.defaultSuccessCallback = options.defaultSuccessCallback || null;\n  this.defaultErrorCallback = options.defaultErrorCallback || null;\n  this.modelPropertyMacro = options.modelPropertyMacro || null;\n  this.parameterMacro = options.parameterMacro || null;\n  this.usePromise = options.usePromise || null;\n\n            this.supportedSubmitMethods = options.supportedSubmitMethods || [];\n  this.failure = options.failure || function (err) { throw err; };\n  this.progress = options.progress || function () {};\n  this.spec = _.cloneDeep(options.spec); // Clone so we do not alter the provided document\n\n                  // make unique across this operation group\n  while(true) {\n    var matched = false;\n    _.forEach(api.operations, function (operation) {\n      if(operation.nickname === name) {\n        matched = true;\n      }\n    });\n    if(!matched) {\n      return name;\n    }\n    name = operationId + '_' + count;\n    count ++;\n  }\n\n              description and source-codeparseUri = function (uri) {\n  var urlParseRE = /^(((([^:\\/#\\?]+:)?(?:(\\/\\/)((?:(([^:@\\/#\\?]+)(?:\\:([^:@\\/#\\?]+))?)@)?(([^:\\/#\\?\\]\\[]+|\\[[^\\/\\]@#?]+\\])(?:\\:([\n0-9]+))?))?)?)?((\\/?(?:[^\\/\\?#]+\\/+)*)([^\\?#]*)))?(\\?[^#]+)?)(#.*)?/;\n  var parts = urlParseRE.exec(uri);\n\n                                            if(schemes &amp;&amp; schemes.length > 0) {\n    if(this.apis) {\n      _.forEach(this.apis, function (api) {\n        if (api.operations) {\n          _.forEach(api.operations, function (operation) {\n            operation.scheme = schemes[0];\n          });\n        }\n      });\n    }\n  }\n}\n    example usagen/a\n\n                                                                                                                                              if (this.authView) {\n    this.authView.remove();\n  }\n  var url = this.options.url;\n  if (url &amp;&amp; url.indexOf('http') !== 0) {\n    url = this.buildUrl(window.location.href.toString(), url);\n  }\n  if(this.api) {\n    this.options.authorizations = this.api.clientAuthorizations.authz;\n  }\n  this.options.url = url;\n  this.headerView.update(url);\n\n                                        description and source-coderender = function (){\n  var authsModel;\n  this.showMessage('Finished Loading Resource Information. Rendering Swagger UI...');\n  this.mainView = new SwaggerUi.Views.MainView({\n    model: this.api,\n    el: $('#' + this.dom_id),\n    swaggerOptions: this.options,\n    router: this\n  }).render();\n  if (!_.isEmpty(this.api.securityDefinitions)){\n    authsModel = _.map(this.api.securityDefinitions, function (auth, name) {\n      var result = {};\n      result[name] = auth;\n      return result;\n    });\n    this.authView = new SwaggerUi.Views.AuthButtonView({\n      data: SwaggerUi.utils.parseSecurityDefinitions(authsModel),\n      router: this\n    });\n    $('#auth_container').append(this.authView.render().el);\n  }\n  this.showMessage();\n  switch (this.options.docExpansion) {\n    case 'full':\n      this.expandAll(); break;\n    case 'list':\n      this.listAll(); break;\n    default:\n      break;\n  }\n  this.renderGFM();\n\n                                          description and source-codeshowMessage = function (data){\n  if (data === undefined) {\n    data = '';\n  }\n  var $msgbar = $('#message-bar');\n  $msgbar.removeClass('message-fail');\n  $msgbar.addClass('message-success');\n  $msgbar.text(data);\n  if(window.SwaggerTranslator) {\n    window.SwaggerTranslator.translate($msgbar);\n  }\n}\n    example usagen/a&quot;
-}"><head></head><body><div class="apidocDiv">
+<html><head></head><body><div class="apidocDiv">
 <style>
 /*csslint
 */
@@ -56,7 +48,7 @@
 }
 </style>
 <h1>api documentation for
-    <a href="https://github.com/kaizhu256/node-swagger-ui-lite">swagger-ui-lite (v2018.4.7)</a>
+    <a href="https://github.com/kaizhu256/node-swagger-ui-lite">swagger-ui-lite (2018.8.11)</a>
 </h1>
 <h4>this zero-dependency package will provide a rollup, single-script version of the swagger-ui client (v2.1.5), with a working web-demo</h4>
 <div class="apidocSectionDiv"><a href="#apidoc.tableOfContents" id="apidoc.tableOfContents"><h1>table of contents</h1></a><ol>
@@ -75,10 +67,16 @@
 
         <li>
 
-            <a class="apidocElementLiA" href="#apidoc.element.swagger-ui-lite.serverLog">
-            function <span class="apidocSignatureSpan">swagger-ui-lite.</span>serverLog
-            <span class="apidocSignatureSpan">(options)</span>
+            <a class="apidocElementLiA" href="#apidoc.element.swagger-ui-lite.nop">
+            function <span class="apidocSignatureSpan">swagger-ui-lite.</span>nop
+            <span class="apidocSignatureSpan">()</span>
             </a>
+
+        </li>
+
+        <li>
+
+            <span class="apidocSignatureSpan">number <span class="apidocSignatureSpan">swagger-ui-lite.</span>timeExit</span>
 
         </li>
 
@@ -720,20 +718,22 @@
 
 
     <h2>
-        <a href="#apidoc.element.swagger-ui-lite.serverLog" id="apidoc.element.swagger-ui-lite.serverLog">
-        function <span class="apidocSignatureSpan">swagger-ui-lite.</span>serverLog
-        <span class="apidocSignatureSpan">(options)</span>
+        <a href="#apidoc.element.swagger-ui-lite.nop" id="apidoc.element.swagger-ui-lite.nop">
+        function <span class="apidocSignatureSpan">swagger-ui-lite.</span>nop
+        <span class="apidocSignatureSpan">()</span>
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">serverLog = function (options) {
+    <li>description and source-code<pre class="apidocCodePre">nop = function () {
 <span class="apidocCodeCommentSpan">/*
- * this function will log server operations
+ * this function will do nothing
  */
-</span>    console.error('serverLog - ' + JSON.stringify(options));
+</span>    return;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
+
+
 
 
 
@@ -762,7 +762,7 @@
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">ApiKeyAuthorization = function () {
+    <li>description and source-code<pre class="apidocCodePre">function() {
   warn('window.ApiKeyAuthorization is deprecated. Please use SwaggerClient.ApiKeyAuthorization.');
   SwaggerClient.ApiKeyAuthorization.apply(window, arguments);
 }</pre></li>
@@ -778,7 +778,7 @@
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">PasswordAuthorization = function () {
+    <li>description and source-code<pre class="apidocCodePre">function() {
   warn('window.PasswordAuthorization is deprecated. Please use SwaggerClient.PasswordAuthorization.');
   SwaggerClient.PasswordAuthorization.apply(window, arguments);
 }</pre></li>
@@ -1174,7 +1174,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">collapseEndpointListForResource = function (resource) {
+    <li>description and source-code<pre class="apidocCodePre">function(resource) {
 		var resource = Docs.escapeResourceName(resource);
 		if (resource == '') {
 			$('.resource ul.endpoints').slideUp();
@@ -1198,7 +1198,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">collapseOperation = function (elem) {
+    <li>description and source-code<pre class="apidocCodePre">function(elem) {
 		elem.slideUp();
 	}</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
@@ -1213,7 +1213,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">collapseOperationsForResource = function (resource) {
+    <li>description and source-code<pre class="apidocCodePre">function(resource) {
 		// Make sure the resource container is open..
 		Docs.expandEndpointListForResource(resource);
 
@@ -1238,7 +1238,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">escapeResourceName = function (resource) {
+    <li>description and source-code<pre class="apidocCodePre">function(resource) {
 		return resource.replace(/[!"#$%&amp;'()*+,.\/:;&lt;=&gt;?@\[\\\]\^`{|}~]/g, "\\$&amp;");
 	}</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
@@ -1253,7 +1253,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">expandEndpointListForResource = function (resource) {
+    <li>description and source-code<pre class="apidocCodePre">function(resource) {
 		var resource = Docs.escapeResourceName(resource);
 		if (resource == '') {
 			$('.resource ul.endpoints').slideDown();
@@ -1277,7 +1277,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">expandOperation = function (elem) {
+    <li>description and source-code<pre class="apidocCodePre">function(elem) {
 		elem.slideDown();
 	}</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
@@ -1292,7 +1292,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">expandOperationsForResource = function (resource) {
+    <li>description and source-code<pre class="apidocCodePre">function(resource) {
 		// Make sure the resource container is open..
 		Docs.expandEndpointListForResource(resource);
 
@@ -1317,7 +1317,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">shebang = function () {
+    <li>description and source-code<pre class="apidocCodePre">function() {
 
 		// If shebang has an operation nickname in it..
 		// e.g. /docs/#!/words/get_search
@@ -1363,7 +1363,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">toggleEndpointListForResource = function (resource) {
+    <li>description and source-code<pre class="apidocCodePre">function(resource) {
 		var elem = $('li#resource_' + Docs.escapeResourceName(resource) + ' ul.endpoints');
 		if (elem.is(':visible')) {
 			$.bbq.pushState('#/', 2);
@@ -2033,7 +2033,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">makeUniqueOperationId = function (operationId, api) {
+    <li>description and source-code<pre class="apidocCodePre">function(operationId, api) {
   var count = 0;
   var name = operationId;
 
@@ -2187,7 +2187,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">buildUrl = function (base, url){
+    <li>description and source-code<pre class="apidocCodePre">function(base, url){
   if (url.indexOf('/') === 0) {
     var parts = base.split('/');
     base = parts[0] + '//' + parts[2];
@@ -2224,7 +2224,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">collapseAll = function (){
+    <li>description and source-code<pre class="apidocCodePre">function(){
   Docs.collapseEndpointListForResource('');
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
@@ -2239,7 +2239,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">expandAll = function (){
+    <li>description and source-code<pre class="apidocCodePre">function(){
   Docs.expandOperationsForResource('');
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
@@ -2254,7 +2254,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">getOption = function (option) {
+    <li>description and source-code<pre class="apidocCodePre">function(option) {
   return this.options[option];
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
@@ -2269,7 +2269,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">initialize = function (options) {
+    <li>description and source-code<pre class="apidocCodePre">function(options) {
   options = options || {};
 
   if (options.defaultModelRendering !== 'model') {
@@ -2348,7 +2348,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">listAll = function (){
+    <li>description and source-code<pre class="apidocCodePre">function(){
   Docs.collapseOperationsForResource('');
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
@@ -2363,7 +2363,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">load = function (){
+    <li>description and source-code<pre class="apidocCodePre">function(){
   // Initialize the API object
   if (this.mainView) {
     this.mainView.clear();
@@ -2412,7 +2412,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">onLoadFailure = function (data){
+    <li>description and source-code<pre class="apidocCodePre">function(data){
   if (data === undefined) {
     data = '';
   }
@@ -2439,7 +2439,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">render = function (){
+    <li>description and source-code<pre class="apidocCodePre">function(){
   var authsModel;
   this.showMessage('Finished Loading Resource Information. Rendering Swagger UI...');
   this.mainView = new SwaggerUi.Views.MainView({
@@ -2489,7 +2489,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">renderGFM = function (){
+    <li>description and source-code<pre class="apidocCodePre">function(){
   $('.markdown').each(function(){
     $(this).html(marked($(this).html()));
   });
@@ -2510,7 +2510,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">setOption = function (option, value) {
+    <li>description and source-code<pre class="apidocCodePre">function(option, value) {
   this.options[option] = value;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
@@ -2525,7 +2525,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">showMessage = function (data){
+    <li>description and source-code<pre class="apidocCodePre">function(data){
   if (data === undefined) {
     data = '';
   }
@@ -2549,7 +2549,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">updateSwaggerUi = function (data){
+    <li>description and source-code<pre class="apidocCodePre">function(data){
   this.options.url = data.url;
   this.load();
 }</pre></li>
@@ -2590,7 +2590,7 @@ label for="scope_' + i + '"&gt;' + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">add = function () {
+    <li>description and source-code<pre class="apidocCodePre">function() {
   warn('Using window.authorizations is deprecated. Please use SwaggerUi.api.clientAuthorizations.add().');
 
   if (typeof window.swaggerUi === 'undefined') {

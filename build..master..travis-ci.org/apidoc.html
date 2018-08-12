@@ -52,7 +52,7 @@
 
         href="https://github.com/kaizhu256/node-swagger-ui-lite"
 
-    >swagger-ui-lite (v2018.4.7)</a>
+    >swagger-ui-lite (2018.8.11)</a>
 </h1>
 <h4>this zero-dependency package will provide a rollup, single-script version of the swagger-ui client (v2.1.5), with a working web-demo</h4>
 <div class="apidocSectionDiv"><a
@@ -74,10 +74,16 @@
 
         <li>
 
-            <a class="apidocElementLiA" href="#apidoc.element.swagger-ui-lite.serverLog">
-            function <span class="apidocSignatureSpan">swagger-ui-lite.</span>serverLog
-            <span class="apidocSignatureSpan">(options)</span>
+            <a class="apidocElementLiA" href="#apidoc.element.swagger-ui-lite.nop">
+            function <span class="apidocSignatureSpan">swagger-ui-lite.</span>nop
+            <span class="apidocSignatureSpan">()</span>
             </a>
+
+        </li>
+
+        <li>
+
+            <span class="apidocSignatureSpan">number <span class="apidocSignatureSpan">swagger-ui-lite.</span>timeExit</span>
 
         </li>
 
@@ -719,20 +725,22 @@
 
 
     <h2>
-        <a href="#apidoc.element.swagger-ui-lite.serverLog" id="apidoc.element.swagger-ui-lite.serverLog">
-        function <span class="apidocSignatureSpan">swagger-ui-lite.</span>serverLog
-        <span class="apidocSignatureSpan">(options)</span>
+        <a href="#apidoc.element.swagger-ui-lite.nop" id="apidoc.element.swagger-ui-lite.nop">
+        function <span class="apidocSignatureSpan">swagger-ui-lite.</span>nop
+        <span class="apidocSignatureSpan">()</span>
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">serverLog = function (options) {
+    <li>description and source-code<pre class="apidocCodePre">nop = function () {
 <span class="apidocCodeCommentSpan">/*
- * this function will log server operations
+ * this function will do nothing
  */
-</span>    console.error(&apos;serverLog - &apos; + JSON.stringify(options));
+</span>    return;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
+
+
 
 
 
@@ -761,7 +769,7 @@
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">ApiKeyAuthorization = function () {
+    <li>description and source-code<pre class="apidocCodePre">function() {
   warn(&apos;window.ApiKeyAuthorization is deprecated. Please use SwaggerClient.ApiKeyAuthorization.&apos;);
   SwaggerClient.ApiKeyAuthorization.apply(window, arguments);
 }</pre></li>
@@ -777,7 +785,7 @@
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">PasswordAuthorization = function () {
+    <li>description and source-code<pre class="apidocCodePre">function() {
   warn(&apos;window.PasswordAuthorization is deprecated. Please use SwaggerClient.PasswordAuthorization.&apos;);
   SwaggerClient.PasswordAuthorization.apply(window, arguments);
 }</pre></li>
@@ -1173,7 +1181,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">collapseEndpointListForResource = function (resource) {
+    <li>description and source-code<pre class="apidocCodePre">function(resource) {
 		var resource = Docs.escapeResourceName(resource);
 		if (resource == &apos;&apos;) {
 			$(&apos;.resource ul.endpoints&apos;).slideUp();
@@ -1197,7 +1205,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">collapseOperation = function (elem) {
+    <li>description and source-code<pre class="apidocCodePre">function(elem) {
 		elem.slideUp();
 	}</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
@@ -1212,7 +1220,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">collapseOperationsForResource = function (resource) {
+    <li>description and source-code<pre class="apidocCodePre">function(resource) {
 		// Make sure the resource container is open..
 		Docs.expandEndpointListForResource(resource);
 
@@ -1237,7 +1245,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">escapeResourceName = function (resource) {
+    <li>description and source-code<pre class="apidocCodePre">function(resource) {
 		return resource.replace(/[!&quot;#$%&amp;&apos;()*+,.\/:;&lt;=&gt;?@\[\\\]\^`{|}~]/g, &quot;\\$&amp;&quot;);
 	}</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
@@ -1252,7 +1260,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">expandEndpointListForResource = function (resource) {
+    <li>description and source-code<pre class="apidocCodePre">function(resource) {
 		var resource = Docs.escapeResourceName(resource);
 		if (resource == &apos;&apos;) {
 			$(&apos;.resource ul.endpoints&apos;).slideDown();
@@ -1276,7 +1284,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">expandOperation = function (elem) {
+    <li>description and source-code<pre class="apidocCodePre">function(elem) {
 		elem.slideDown();
 	}</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
@@ -1291,7 +1299,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">expandOperationsForResource = function (resource) {
+    <li>description and source-code<pre class="apidocCodePre">function(resource) {
 		// Make sure the resource container is open..
 		Docs.expandEndpointListForResource(resource);
 
@@ -1316,7 +1324,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">shebang = function () {
+    <li>description and source-code<pre class="apidocCodePre">function() {
 
 		// If shebang has an operation nickname in it..
 		// e.g. /docs/#!/words/get_search
@@ -1362,7 +1370,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">toggleEndpointListForResource = function (resource) {
+    <li>description and source-code<pre class="apidocCodePre">function(resource) {
 		var elem = $(&apos;li#resource_&apos; + Docs.escapeResourceName(resource) + &apos; ul.endpoints&apos;);
 		if (elem.is(&apos;:visible&apos;)) {
 			$.bbq.pushState(&apos;#/&apos;, 2);
@@ -2032,7 +2040,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">makeUniqueOperationId = function (operationId, api) {
+    <li>description and source-code<pre class="apidocCodePre">function(operationId, api) {
   var count = 0;
   var name = operationId;
 
@@ -2186,7 +2194,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">buildUrl = function (base, url){
+    <li>description and source-code<pre class="apidocCodePre">function(base, url){
   if (url.indexOf(&apos;/&apos;) === 0) {
     var parts = base.split(&apos;/&apos;);
     base = parts[0] + &apos;//&apos; + parts[2];
@@ -2223,7 +2231,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">collapseAll = function (){
+    <li>description and source-code<pre class="apidocCodePre">function(){
   Docs.collapseEndpointListForResource(&apos;&apos;);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
@@ -2238,7 +2246,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">expandAll = function (){
+    <li>description and source-code<pre class="apidocCodePre">function(){
   Docs.expandOperationsForResource(&apos;&apos;);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
@@ -2253,7 +2261,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">getOption = function (option) {
+    <li>description and source-code<pre class="apidocCodePre">function(option) {
   return this.options[option];
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
@@ -2268,7 +2276,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">initialize = function (options) {
+    <li>description and source-code<pre class="apidocCodePre">function(options) {
   options = options || {};
 
   if (options.defaultModelRendering !== &apos;model&apos;) {
@@ -2347,7 +2355,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">listAll = function (){
+    <li>description and source-code<pre class="apidocCodePre">function(){
   Docs.collapseOperationsForResource(&apos;&apos;);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
@@ -2362,7 +2370,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">load = function (){
+    <li>description and source-code<pre class="apidocCodePre">function(){
   // Initialize the API object
   if (this.mainView) {
     this.mainView.clear();
@@ -2411,7 +2419,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">onLoadFailure = function (data){
+    <li>description and source-code<pre class="apidocCodePre">function(data){
   if (data === undefined) {
     data = &apos;&apos;;
   }
@@ -2438,7 +2446,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">render = function (){
+    <li>description and source-code<pre class="apidocCodePre">function(){
   var authsModel;
   this.showMessage(&apos;Finished Loading Resource Information. Rendering Swagger UI...&apos;);
   this.mainView = new SwaggerUi.Views.MainView({
@@ -2488,7 +2496,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">renderGFM = function (){
+    <li>description and source-code<pre class="apidocCodePre">function(){
   $(&apos;.markdown&apos;).each(function(){
     $(this).html(marked($(this).html()));
   });
@@ -2509,7 +2517,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">setOption = function (option, value) {
+    <li>description and source-code<pre class="apidocCodePre">function(option, value) {
   this.options[option] = value;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
@@ -2524,7 +2532,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">showMessage = function (data){
+    <li>description and source-code<pre class="apidocCodePre">function(data){
   if (data === undefined) {
     data = &apos;&apos;;
   }
@@ -2548,7 +2556,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">updateSwaggerUi = function (data){
+    <li>description and source-code<pre class="apidocCodePre">function(data){
   this.options.url = data.url;
   this.load();
 }</pre></li>
@@ -2589,7 +2597,7 @@ label for=&quot;scope_&apos; + i + &apos;&quot;&gt;&apos; + scope.scope ;
         </a>
     </h2>
     <ul>
-    <li>description and source-code<pre class="apidocCodePre">add = function () {
+    <li>description and source-code<pre class="apidocCodePre">function() {
   warn(&apos;Using window.authorizations is deprecated. Please use SwaggerUi.api.clientAuthorizations.add().&apos;);
 
   if (typeof window.swaggerUi === &apos;undefined&apos;) {

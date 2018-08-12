@@ -19117,7 +19117,7 @@ local.assetsDict['/favicon.ico'] = '';
             options = local.objectSetDefault(options, { assetsList: [] });
             // build assets
             local.fsRmrSync(local.env.npm_config_dir_build + '/app');
-            local.onParallelList({ list: options.assetsList.concat([{
+            local.onParallelList({ list: [{
                 file: '/LICENSE',
                 url: '/LICENSE'
             }, {
@@ -19165,7 +19165,7 @@ local.assetsDict['/favicon.ico'] = '';
             }, {
                 file: '/jsonp.utility2.stateInit',
                 url: '/jsonp.utility2.stateInit?callback=window.utility2.stateInit'
-            }]) }, function (options2, onParallel) {
+            }].concat(options.assetsList) }, function (options2, onParallel) {
                 options2 = options2.element;
                 onParallel.counter += 1;
                 local.ajax(options2, function (error, xhr) {
@@ -19175,6 +19175,9 @@ local.assetsDict['/favicon.ico'] = '';
                     local.jslintAndPrintConditional(xhr.responseText, options2.file);
                     // validate no error occurred
                     local.assert(!local.jslint.errorText, local.jslint.errorText);
+                    if (options2.modeUglify) {
+                        local.response = local.uglify(xhr.responseText, options2.file);
+                    }
                     local.fsWriteFileWithMkdirpSync(
                         local.env.npm_config_dir_build + '/app' + options2.file,
                         xhr.response
@@ -19314,7 +19317,7 @@ local.assetsDict['/favicon.ico'] = '';
                     '            local.global.utility2_rollup_old || '
                 );
             }
-            options.customize();
+            options.customize(options);
             // save lib.xxx.js
             local.fs.writeFileSync(
                 'lib.' + local.env.npm_package_nameLib + '.js',
@@ -19490,7 +19493,17 @@ local.assetsDict['/favicon.ico'] = '';
                     '\n' + match0 + '\n'
                 );
             });
-            options.customize();
+            options.customize(options);
+            // customize assets.index.template.html
+            if (local.assetsDict['/assets.index.template.html']
+                    .indexOf('"assets.utility2.template.html"') < 0) {
+                options.dataTo = options.dataTo.replace(
+                    new RegExp('\\n {8}\\/\\* jslint-ignore-begin \\*\\/\\n' +
+                        ' {8}local.assetsDict\\[\'\\/assets.index.template.html\'\\] = \'\\\\\\n' +
+                        '[\\S\\s]*?\\n {8}\\/\\* jslint-ignore-end \\*\\/\\n'),
+                    '\n'
+                );
+            }
             // customize shDeployCustom
             if (options.dataFrom.indexOf('    shDeployCustom\n') >= 0) {
                 [
@@ -19550,16 +19563,6 @@ local.assetsDict['/favicon.ico'] = '';
                 // customize screenshot
                 options.dataTo = options.dataTo.replace(element[1], '');
             });
-            // customize assets.index.template.html
-            if (local.assetsDict['/assets.index.template.html']
-                    .indexOf('"assets.utility2.template.html"') < 0) {
-                options.dataTo = options.dataTo.replace(
-                    new RegExp('\\n {8}\\/\\* jslint-ignore-begin \\*\\/\\n' +
-                        ' {8}local.assetsDict\\[\'\\/assets.index.template.html\'\\] = \'\\\\\\n' +
-                        '[\\S\\s]*?\\n {8}\\/\\* jslint-ignore-end \\*\\/\\n'),
-                    '\n'
-                );
-            }
             // render dataTo - customizeAfter
             options.customizeAfter = true;
             options.dataTo = local.templateRenderJslintLite(options.dataTo, options);
@@ -19641,7 +19644,7 @@ local.assetsDict['/favicon.ico'] = '';
                     );
                 }
             });
-            options.customize();
+            options.customize(options);
             // save test.js
             local.fs.writeFileSync('test.js', options.dataTo);
             onError();
@@ -31218,7 +31221,11 @@ x-request-header-test: aa\\r\\n\
             local.testCase_buildReadme_default(options, local.onErrorThrow);\n\
             local.testCase_buildLib_default(options, local.onErrorThrow);\n\
             local.testCase_buildTest_default(options, local.onErrorThrow);\n\
-            options = { assetsList: [{\n\
+            local.buildApp({ assetsList: [{\n\
+                file: '/assets.example.min.js',\n\
+                modeUglify: true,\n\
+                url: '/assets.example.js'\n\
+            }, {\n\
                 file: '/assets.hello',\n\
                 url: '/assets.hello'\n\
             }, {\n\
@@ -31245,8 +31252,7 @@ x-request-header-test: aa\\r\\n\
             }, {\n\
                 file: '/assets.utility2.rollup.js',\n\
                 url: '/assets.utility2.rollup.js'\n\
-            }] };\n\
-            local.buildApp(options, onError);\n\
+            }] }, onError);\n\
         };\n\
 \n\
         local.testCase_buildCustomOrg_default = function (options, onError) {\n\
@@ -31573,6 +31579,13 @@ x-request-header-test: aa\\r\\n\
          */\n\
             options = {};\n\
             local.onNext(options, function (error, data) {\n\
+                // bug-workaround - crypto.subtle sometimes freezes in browser\n\
+                /* istanbul ignore next */\n\
+                setTimeout(function () {\n\
+                    if (local.isBrowser && options.modeNext <= 6) {\n\
+                        options.onNext();\n\
+                    }\n\
+                }, 1000);\n\
                 switch (options.modeNext) {\n\
                 case 1:\n\
                     // encrypt data\n\
@@ -31613,13 +31626,6 @@ x-request-header-test: aa\\r\\n\
                     onError(!local.isBrowser && error, options);\n\
                     onError = local.nop;\n\
                 }\n\
-                // bug-workaround - fix crypto.subtle freezing in browser\n\
-                /* istanbul ignore next */\n\
-                setTimeout(function () {\n\
-                    if (local.isBrowser && options.modeNext <= 6) {\n\
-                        options.onNext();\n\
-                    }\n\
-                }, 2000);\n\
             });\n\
             options.modeNext = 0;\n\
             options.onNext();\n\

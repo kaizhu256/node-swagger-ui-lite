@@ -225,7 +225,7 @@
     width: 100%;
 }
 .x-istanbul .tableHeader td {
-    background: #eee;
+    background: #fff;
     border: 1px solid #666;
     padding: 5px;
 }
@@ -235,9 +235,37 @@
 </style>
 </head>
 <body class="x-istanbul">
+<script>
+// init domOnEventSelectAllWithinPre
+(function () {
+/*
+ * this function will limit select-all within <pre tabIndex="0"> elements
+ * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse
+ */
+    "use strict";
+    if (window.domOnEventSelectAllWithinPre) {
+        return;
+    }
+    window.domOnEventSelectAllWithinPre = function (event) {
+        var range, selection;
+        if (event &&
+                event.code === "KeyA" &&
+                (event.ctrlKey || event.metaKey) &&
+                event.target.closest("pre")) {
+            range = document.createRange();
+            range.selectNodeContents(event.target.closest("pre"));
+            selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            event.preventDefault();
+        }
+    };
+    document.addEventListener("keydown", window.domOnEventSelectAllWithinPre);
+}());
+</script>
 <div class="header high">
     <h1 style="font-weight: bold;">
-        <a href="https://github.com/kaizhu256/node-swagger-ui-lite">swagger-ui-lite (v2018.4.7)</a>
+        <a href="https://github.com/kaizhu256/node-swagger-ui-lite">swagger-ui-lite (2018.8.11)</a>
     </h1>
     <h1>Code coverage report for <span class="entity">node-swagger-ui-lite/example.js</span></h1>
     <table class="tableHeader">
@@ -251,10 +279,10 @@
     </tr>
     </thead>
     <tbody>
-        <td>branches: 20<br>statements: 22<br>functions: 2</td>
+        <td>branches: 20<br>statements: 21<br>functions: 2</td>
         <td>100%<br>(78 / 78)</td>
-        <td>100%<br>(45 / 45)</td>
-        <td>100%<br>(6 / 6)</td>
+        <td>100%<br>(43 / 43)</td>
+        <td>100%<br>(7 / 7)</td>
         <td>100%<br>(78 / 78)</td>
     </tbody>
     </table>
@@ -549,14 +577,8 @@
 285
 286
 287
-288
-289
-290
-291
-292
-293
-294
-295</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
+288</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -700,15 +722,6 @@
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -723,13 +736,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -738,6 +751,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -781,10 +799,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4</span>
-<span class="cline-any cline-yes">4</span>
-<span class="cline-any cline-yes">4</span>
+<span class="cline-any cline-yes">3</span>
+<span class="cline-any cline-yes">3</span>
+<span class="cline-any cline-yes">3</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -795,8 +812,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -847,10 +862,10 @@
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">&nbsp;
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js" tabIndex="0">&nbsp;
+&nbsp;
 &nbsp;
 &nbsp;
 &nbsp;
@@ -992,45 +1007,41 @@ instruction
     (function () {
         // init local
         local = {};
-        // init modeJs
-        local.modeJs = (function () {
-            try {
-                return typeof navigator.userAgent === 'string' &amp;&amp;
-                    typeof document.querySelector('body') === 'object' &amp;&amp;
-                    typeof XMLHttpRequest.prototype.open === 'function' &amp;&amp;
-                    'browser';
-            } catch (errorCaughtBrowser) {
-                return module.exports &amp;&amp;
-                    typeof process.versions.node === 'string' &amp;&amp;
-                    typeof require('http').createServer === 'function' &amp;&amp;
-                    'node';
-            }
-        }());
+        // init isBrowser
+        local.isBrowser = typeof window === "object" &amp;&amp;
+            typeof window.XMLHttpRequest === "function" &amp;&amp;
+            window.document &amp;&amp;
+            typeof window.document.querySelectorAll === "function";
         // init global
-        local.global = local.modeJs === 'browser'
+        local.global = local.isBrowser
             ? window
             : global;
-        // init utility2_rollup
-        local = local.global.utility2_rollup || (local.modeJs === 'browser'
+        // re-init local
+        local = local.global.utility2_rollup || (local.isBrowser
             ? local.global.utility2_swagger_ui
             : global.utility2_moduleExports);
         // init exports
         local.global.local = local;
     }());
-    switch (local.modeJs) {
 &nbsp;
 &nbsp;
 &nbsp;
     // run browser js-env code - init-test
     /* istanbul ignore next */
-    case 'browser':
-        break;
+    (function () {
+        if (!local.isBrowser) {
+            return;
+        }
+    }());
 &nbsp;
 &nbsp;
 &nbsp;
     // run node js-env code - init-test
     /* istanbul ignore next */
-    case 'node':
+    (function () {
+        if (local.isBrowser) {
+            return;
+        }
         // init exports
         module.exports = local;
         // require builtins
@@ -1067,11 +1078,10 @@ instruction
         local.v8 = require('v8');
         local.vm = require('vm');
         local.zlib = require('zlib');
-/* validateLineSortedReset */
+        /* validateLineSortedReset */
         // init assets
         local.assetsDict = local.assetsDict || <span class="branch-1 cbranch-skip" title="branch not covered" >{};</span>
         [
-            'assets.index.css',
             'assets.index.template.html',
             'assets.swgg.swagger.json',
             'assets.swgg.swagger.server.json'
@@ -1085,17 +1095,15 @@ instruction
                 );
             }
         });
-/* validateLineSortedReset */
-        // bug-workaround - long $npm_package_buildCustomOrg
+        /* validateLineSortedReset */
         /* jslint-ignore-begin */
+        // bug-workaround - long $npm_package_buildCustomOrg
         local.assetsDict['/assets.swagger_ui.js'] =
             local.assetsDict['/assets.swagger_ui.js'] ||
-            local.fs.readFileSync(
-                local.__dirname + '/lib.swagger_ui.js',
-                'utf8'
-            ).replace((/^#!/), '//');
+            local.fs.readFileSync(local.__dirname + '/lib.swagger_ui.js', 'utf8'
+        ).replace((/^#!\//), '// ');
         /* jslint-ignore-end */
-/* validateLineSortedReset */
+        /* validateLineSortedReset */
         local.assetsDict['/'] =
             local.assetsDict['/assets.example.html'] =
             local.assetsDict['/assets.index.template.html']
@@ -1115,7 +1123,7 @@ instruction
             });
         // init cli
         <span class="skip-if-branch" title="else path not taken" >E</span>if (module !== require.main || <span class="branch-1 cbranch-skip" title="branch not covered" >local.global.utility2_rollup)</span> {
-            break;
+            return;
         }
 <span class="cstat-skip" title="statement not covered" >        local.assetsDict['/assets.example.js'] =</span>
             local.assetsDict['/assets.example.js'] ||
@@ -1128,7 +1136,7 @@ instruction
         }
         // start server
 <span class="cstat-skip" title="statement not covered" >        if (local.global.utility2_serverHttp1) {</span>
-<span class="cstat-skip" title="statement not covered" >            break;</span>
+<span class="cstat-skip" title="statement not covered" >            return;</span>
         }
 <span class="cstat-skip" title="statement not covered" >        process.env.PORT = process.env.PORT || '8081';</span>
 <span class="cstat-skip" title="statement not covered" >        console.error('server starting on port ' + process.env.PORT);</span>
@@ -1141,14 +1149,13 @@ instruction
 <span class="cstat-skip" title="statement not covered" >            response.statusCode = 404;</span>
 <span class="cstat-skip" title="statement not covered" >            response.end();</span>
         }).listen(process.env.PORT);
-<span class="cstat-skip" title="statement not covered" >        break;</span>
-    }
+    }());
 }());
 &nbsp;</pre></td></tr>
 </table></pre>
 </div>
 <div class="footer">
-    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Mon Apr 09 2018 00:39:40 GMT+0000 (UTC)</div>
+    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Sun Aug 12 2018 09:26:56 GMT+0000 (Coordinated Universal Time)</div>
 </div>
 </body>
 </html>

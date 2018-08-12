@@ -38,21 +38,36 @@
 a {
     overflow-wrap: break-word;
 }
+body {
+    background: #eef;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0 40px;
+}
 body > div,
+body > form > div,
+body > form > input,
+body > form > pre,
+body > form > textarea,
+body > form > .button,
+body > input,
 body > pre,
 body > textarea,
 body > .button {
     margin-bottom: 20px;
 }
+body > form > input,
+body > form > .button,
+body > input,
+body > .button {
+    width: 20rem;
+}
+body > form > textarea,
 body > textarea {
     height: 10rem;
     width: 100%;
 }
 body > textarea[readonly] {
     background: #ddd;
-}
-body > .button {
-    width: 20rem;
 }
 code,
 pre,
@@ -463,10 +478,7 @@ textarea {
 }
 </style>
 </head>
-<body style="background: #eef; font-family: Arial, Helvetica, sans-serif; margin: 0 40px;">
-<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>
-<div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>
-<code style="display: none;"></code><div class="button uiAnimateShake uiAnimateSlide utility2FooterDiv zeroPixel" style="display: none;"></div><pre style="display: none;"></pre><textarea readonly style="display: none;"></textarea>
+<body>
 <script>
 /* jslint-utility2 */
 /*jslint
@@ -479,37 +491,23 @@ textarea {
     regexp: true,
     stupid: true
 */
+// init domOnEventWindowOnloadTimeElapsed
 (function () {
+/*
+ * this function will measure and print the time-elapsed for window.onload
+ */
     "use strict";
-    var ajaxProgressDiv1,
-        ajaxProgressState,
-        ajaxProgressUpdate,
-        timerIntervalAjaxProgressUpdate;
-    ajaxProgressDiv1 = document.querySelector("#ajaxProgressDiv1");
-    setTimeout(function () {
-        ajaxProgressDiv1.style.width = "25%";
-    });
-    ajaxProgressState = 0;
-    ajaxProgressUpdate = (window.local &&
-        window.local.ajaxProgressUpdate) || function () {
-        ajaxProgressDiv1.style.width = "100%";
-        setTimeout(function () {
-            ajaxProgressDiv1.style.background = "transparent";
-            setTimeout(function () {
-                ajaxProgressDiv1.style.width = "0%";
-            }, 500);
-        }, 1500);
-    };
-    timerIntervalAjaxProgressUpdate = setInterval(function () {
-        ajaxProgressState += 1;
-        ajaxProgressDiv1.style.width = Math.max(
-            100 - 75 * Math.exp(-0.125 * ajaxProgressState),
-            Number(ajaxProgressDiv1.style.width.slice(0, -1)) || 0
-        ) + "%";
-    }, 1000);
+    if (window.domOnEventWindowOnloadTimeElapsed) {
+        return;
+    }
+    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;
     window.addEventListener("load", function () {
-        clearInterval(timerIntervalAjaxProgressUpdate);
-        ajaxProgressUpdate();
+        setTimeout(function () {
+            window.domOnEventWindowOnloadTimeElapsed = Date.now() -
+                window.domOnEventWindowOnloadTimeElapsed;
+            console.error("domOnEventWindowOnloadTimeElapsed = " +
+                window.domOnEventWindowOnloadTimeElapsed);
+        }, 100);
     });
 }());
 </script>

@@ -5,7 +5,7 @@
 
 <tspan x="10" y="42"></tspan>
 
-<tspan x="10" y="58">0.   2018-08-11 22:58:35 +0700  1356078 bytes  .</tspan>
+<tspan x="10" y="58">0.   2018-08-11 20:42:15 +0700  1356078 bytes  .</tspan>
 
 <tspan x="10" y="74">1.   2018-05-25 21:12:57 +0800      117 bytes  .gitignore</tspan>
 
@@ -13,7 +13,7 @@
 
 <tspan x="10" y="106">3.   2018-08-11 20:42:15 +0700     1090 bytes  LICENSE</tspan>
 
-<tspan x="10" y="122">4.   2018-08-11 22:58:35 +0700    22135 bytes  README.md</tspan>
+<tspan x="10" y="122">4.   2018-08-11 20:42:15 +0700    22135 bytes  README.md</tspan>
 
 <tspan x="10" y="138">5.   2017-09-14 05:18:31 +0700    86502 bytes  assets.index.template.html</tspan>
 
@@ -21,7 +21,7 @@
 
 <tspan x="10" y="170">7.   2017-02-17 04:08:27 +0800  1198130 bytes  assets.swagger_ui.rollup.js</tspan>
 
-<tspan x="10" y="186">8.   2018-08-11 22:58:35 +0700     4232 bytes  lib.swagger_ui.js</tspan>
+<tspan x="10" y="186">8.   2018-08-11 20:42:15 +0700     4232 bytes  lib.swagger_ui.js</tspan>
 
 <tspan x="10" y="202">9.   2018-05-25 21:12:57 +0800     2188 bytes  npm_scripts.sh</tspan>
 
