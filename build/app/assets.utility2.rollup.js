@@ -20866,6 +20866,7 @@ local.assetsDict['/favicon.ico'] = '';
                 env: {
                     NODE_ENV: local.env.NODE_ENV,
                     npm_config_mode_backend: local.env.npm_config_mode_backend,
+                    npm_package_assetsList: local.env.npm_package_assetsList,
                     npm_package_description: local.env.npm_package_description,
                     npm_package_homepage: local.env.npm_package_homepage,
                     npm_package_name: local.env.npm_package_name,
@@ -20873,6 +20874,10 @@ local.assetsDict['/favicon.ico'] = '';
                     npm_package_version: local.env.npm_package_version
                 }
             } };
+            (local.env.npm_package_assetsList || 'undefined').split(' ').forEach(function (key) {
+                state.utility2.assetsDict['/' + key] = local.assetsDict['/' + key] ||
+                    local.fsReadFileOrEmptyStringSync(key, 'utf8');
+            });
             if (request.stateInit) {
                 return state;
             }

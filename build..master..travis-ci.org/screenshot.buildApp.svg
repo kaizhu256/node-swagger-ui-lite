@@ -3,7 +3,7 @@
 <text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
 <tspan x="10" y="26"></tspan>
 
-<tspan x="10" y="42">[MODE_BUILD=buildApp] - 2018-08-12T09:29:40.194Z - npm-testing /home/travis/build/kaizhu256/node\</tspan>
+<tspan x="10" y="42">[MODE_BUILD=buildApp] - 2018-08-12T09:44:37.903Z - npm-testing /home/travis/build/kaizhu256/node\</tspan>
 <tspan x="10" y="58">-swagger-ui-lite</tspan>
 
 <tspan x="10" y="74"></tspan>
@@ -13,9 +13,9 @@
 <tspan x="10" y="106">buildApp - merged test-report from file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/bu\</tspan>
 <tspan x="10" y="122">ild/test-report.json</tspan>
 
-<tspan x="10" y="138">&gt; server listening on http-port 56418</tspan>
+<tspan x="10" y="138">&gt; server listening on http-port 34214</tspan>
 
-<tspan x="10" y="154">&gt; server listening on http-port 60369</tspan>
+<tspan x="10" y="154">&gt; server listening on http-port 60345</tspan>
 
 <tspan x="10" y="170">[node test-case 1 of 1 passed] - testCase_buildApp_default</tspan>
 
@@ -28,37 +28,37 @@
 
 <tspan x="10" y="250">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="266">| test-report - buildApidoc - node - linux v10.8.0 - 2018-08-12T09:26:57.775Z</tspan>
+<tspan x="10" y="266">| test-report - buildApidoc - node - linux v10.8.0 - 2018-08-12T09:44:12.713Z</tspan>
 
-<tspan x="10" y="282">|  168246 ms            0 failed        1 passed      |</tspan>
+<tspan x="10" y="282">|   31003 ms            0 failed        1 passed      |</tspan>
 
 <tspan x="10" y="298">-------------------------------------------------------</tspan>
 
 <tspan x="10" y="314">| test-report - npmTest - browser - /assets.utility2.base.html - Mozilla/5.0 (X11; Linux x86_64)\</tspan>
 <tspan x="10" y="330"> AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537.36 - 201\</tspan>
-<tspan x="10" y="346">8-08-12T09:26:40.164Z</tspan>
+<tspan x="10" y="346">8-08-12T09:43:55.114Z</tspan>
 
-<tspan x="10" y="362">|      36 ms            0 failed        9 passed      |</tspan>
+<tspan x="10" y="362">|      31 ms            0 failed        9 passed      |</tspan>
 
 <tspan x="10" y="378">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="394">| test-report - npmTest - node - linux v10.8.0 - 2018-08-12T09:26:38.338Z</tspan>
+<tspan x="10" y="394">| test-report - npmTest - node - linux v10.8.0 - 2018-08-12T09:43:52.998Z</tspan>
 
-<tspan x="10" y="410">|   16570 ms            0 failed        9 passed      |</tspan>
+<tspan x="10" y="410">|   16871 ms            0 failed        9 passed      |</tspan>
 
 <tspan x="10" y="426">-------------------------------------------------------</tspan>
 
 <tspan x="10" y="442">| test-report - npmTestPublished - browser - /assets.utility2.base.html - Mozilla/5.0 (X11; Linu\</tspan>
 <tspan x="10" y="458">x x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.15 Safari/537\</tspan>
-<tspan x="10" y="474">.36 - 2018-08-12T09:25:33.831Z</tspan>
+<tspan x="10" y="474">.36 - 2018-08-12T09:42:48.499Z</tspan>
 
-<tspan x="10" y="490">|      41 ms            0 failed        9 passed      |</tspan>
+<tspan x="10" y="490">|      20 ms            0 failed        9 passed      |</tspan>
 
 <tspan x="10" y="506">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="522">| test-report - npmTestPublished - node - linux v10.8.0 - 2018-08-12T09:25:31.618Z</tspan>
+<tspan x="10" y="522">| test-report - npmTestPublished - node - linux v10.8.0 - 2018-08-12T09:42:45.889Z</tspan>
 
-<tspan x="10" y="538">|   16894 ms            0 failed        9 passed      |</tspan>
+<tspan x="10" y="538">|   17329 ms            0 failed        9 passed      |</tspan>
 
 <tspan x="10" y="554">-------------------------------------------------------</tspan>
 
@@ -77,7 +77,7 @@
 
 <tspan x="10" y="682"></tspan>
 
-<tspan x="10" y="698">[MODE_BUILD=buildApp] - 2018-08-12T09:29:47.398Z - EXIT_CODE - 0</tspan>
+<tspan x="10" y="698">[MODE_BUILD=buildApp] - 2018-08-12T09:44:45.123Z - EXIT_CODE - 0</tspan>
 
 </text>
 </svg>
