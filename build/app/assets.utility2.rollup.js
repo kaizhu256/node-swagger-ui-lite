@@ -361,8 +361,8 @@
          * https://stackoverflow.com/questions/7381974/which-characters-need-to-be-escaped-on-html
          */
             return text
-                .replace((/"/g), '&quot;')
                 .replace((/&/g), '&amp;')
+                .replace((/"/g), '&quot;')
                 .replace((/'/g), '&apos;')
                 .replace((/</g), '&lt;')
                 .replace((/>/g), '&gt;')
@@ -2048,7 +2048,6 @@ vendor)s{0,1}(\\b|_)\
         /*
          * this function will create a dbTable
          */
-            options = local.objectSetOverride(options);
             this.name = String(options.name);
             // register dbTable in dbTableDict
             local.dbTableDict[this.name] = this;
@@ -2080,12 +2079,7 @@ vendor)s{0,1}(\\b|_)\
                 }
             }
             if (this.sizeLimit && this.dbRowList.length >= 1.5 * this.sizeLimit) {
-                this.dbRowList = this._crudGetManyByQuery(
-                    {},
-                    this.sortDefault,
-                    0,
-                    this.sizeLimit
-                );
+                this.dbRowList = this._crudGetManyByQuery({}, this.sortDefault, 0, this.sizeLimit);
             }
         };
 
@@ -2107,7 +2101,7 @@ vendor)s{0,1}(\\b|_)\
                 result = local.dbRowListGetManyByQuery(this.dbRowList, query);
             }
             // sort
-            Array.from(sort || []).forEach(function (element) {
+            (sort || []).forEach(function (element) {
                 // bug-workaround - v8 does not have stable-sort
                 // optimization - for-loop
                 for (ii = 0; ii < result.length; ii += 1) {
@@ -2305,7 +2299,7 @@ vendor)s{0,1}(\\b|_)\
             this._cleanup();
             self = this;
             return local.setTimeoutOnError(onError, 0, null, local.dbRowProject(
-                Array.from(idDictList || []).map(function (idDict) {
+                (idDictList || []).map(function (idDict) {
                     return self._crudGetOneById(idDict);
                 })
             ));
@@ -2375,10 +2369,7 @@ vendor)s{0,1}(\\b|_)\
             // reset dbTable
             local._DbTable.call(this, this);
             // restore idIndexList
-            local.dbTableCreateOne({
-                name: this.name,
-                idIndexCreateList: idIndexList
-            }, onError);
+            local.dbTableCreateOne({ name: this.name, idIndexCreateList: idIndexList }, onError);
         };
 
         local._DbTable.prototype.crudRemoveManyById = function (idDictList, onError) {
@@ -2388,7 +2379,7 @@ vendor)s{0,1}(\\b|_)\
             var self;
             self = this;
             return local.setTimeoutOnError(onError, 0, null, local.dbRowProject(
-                Array.from(idDictList || []).map(function (dbRow) {
+                (idDictList || []).map(function (dbRow) {
                     return self._crudRemoveOneById(dbRow);
                 })
             ));
@@ -2423,7 +2414,7 @@ vendor)s{0,1}(\\b|_)\
             var self;
             self = this;
             return local.setTimeoutOnError(onError, 0, null, local.dbRowProject(
-                Array.from(dbRowList || []).map(function (dbRow) {
+                (dbRowList || []).map(function (dbRow) {
                     return self._crudSetOneById(dbRow);
                 })
             ));
@@ -2446,7 +2437,7 @@ vendor)s{0,1}(\\b|_)\
             var self;
             self = this;
             return local.setTimeoutOnError(onError, 0, null, local.dbRowProject(
-                Array.from(dbRowList || []).map(function (dbRow) {
+                (dbRowList || []).map(function (dbRow) {
                     return self._crudUpdateOneById(dbRow);
                 })
             ));
@@ -2480,7 +2471,6 @@ vendor)s{0,1}(\\b|_)\
         /*
          * this function will drop the dbTable
          */
-            console.error('dropping dbTable ' + this.name + ' ...');
             // cancel pending save
             this.timerSave = null;
             while (this.onSaveList.length) {
@@ -2490,6 +2480,7 @@ vendor)s{0,1}(\\b|_)\
             local._DbTable.call(this, this);
             // clear persistence
             local.storageRemoveItem('dbTable.' + this.name + '.json', onError);
+            console.error('db - dropped dbTable ' + this.name);
         };
 
         local._DbTable.prototype.export = function (onError) {
@@ -2617,6 +2608,7 @@ vendor)s{0,1}(\\b|_)\
                 onParallel.counter += 1;
                 local.dbTableDict[key].drop(onParallel);
             });
+            console.error('db - dropped database');
             onParallel();
         };
 
@@ -2629,6 +2621,7 @@ vendor)s{0,1}(\\b|_)\
             Object.keys(local.dbTableDict).forEach(function (key) {
                 result += local.dbTableDict[key].export();
                 result += '\n\n';
+                console.error('db - exported dbTable ' + local.dbTableDict[key].name);
             });
             return local.setTimeoutOnError(onError, 0, null, result.trim());
         };
@@ -2637,7 +2630,8 @@ vendor)s{0,1}(\\b|_)\
         /*
          * this function will import the serialized text into the db
          */
-            var dbTable;
+            var dbTable, dbTableDict;
+            dbTableDict = {};
             local.modeImport = true;
             setTimeout(function () {
                 local.modeImport = null;
@@ -2652,23 +2646,32 @@ vendor)s{0,1}(\\b|_)\
                 local.nop(match0);
                 switch (match2) {
                 case 'dbRowSet':
+                    dbTableDict[match1] = true;
                     dbTable = local.dbTableCreateOne({ isLoaded: true, name: match1 });
                     dbTable.crudSetOneById(JSON.parse(match3));
                     break;
                 case 'idIndexCreate':
+                    dbTableDict[match1] = true;
                     dbTable = local.dbTableCreateOne({ isLoaded: true, name: match1 });
                     dbTable.idIndexCreate(JSON.parse(match3));
                     break;
                 case 'sizeLimit':
+                    dbTableDict[match1] = true;
                     dbTable = local.dbTableCreateOne({ isLoaded: true, name: match1 });
                     dbTable.sizeLimit = JSON.parse(match3);
                     break;
                 case 'sortDefault':
+                    dbTableDict[match1] = true;
                     dbTable = local.dbTableCreateOne({ isLoaded: true, name: match1 });
+                    dbTable.sortDefault = JSON.parse(match3);
                     break;
                 default:
-                    local.onErrorDefault(new Error('dbImport - invalid operation - ' + match0));
+                    local.onErrorDefault(new Error('db - dbImport - invalid operation - ' +
+                        match0));
                 }
+            });
+            Object.keys(dbTableDict).forEach(function (name) {
+                console.error('db - imported dbTable ' + name);
             });
             local.modeImport = null;
             return local.setTimeoutOnError(onError);
@@ -2686,7 +2689,7 @@ vendor)s{0,1}(\\b|_)\
                 onParallel.counter += 1;
                 onParallel.counter += 1;
                 onParallel(error);
-                Array.from(data || []).forEach(function (key) {
+                (data || []).forEach(function (key) {
                     if (key.indexOf('dbTable.') !== 0) {
                         return;
                     }
@@ -2699,6 +2702,19 @@ vendor)s{0,1}(\\b|_)\
                 });
                 onParallel();
             });
+        };
+
+        local.dbReset = function (options, onError) {
+        /*
+         * this function will drop and seed the db with options.dbSeedList
+         */
+            var onParallel;
+            // reset db
+            onParallel = (options && options.onResetBefore) || local.onParallel(onError);
+            onParallel.counter += 1;
+            local.dbDrop(onParallel);
+            // seed db
+            local.dbSeed(options, onParallel);
         };
 
         local.dbRowGetItem = function (dbRow, key) {
@@ -2942,16 +2958,39 @@ vendor)s{0,1}(\\b|_)\
             onParallel();
         };
 
+        local.dbSeed = function (options, onError) {
+        /*
+         * this function will seed the db with options.dbSeedList
+         */
+            var dbTableDict, onParallel;
+            dbTableDict = {};
+            options = Object.assign({ dbSeedList: [] }, options);
+            // seed db
+            onParallel = options.onReadyBefore || local.onParallel(onError);
+            onParallel.counter += 1;
+            (options.onResetAfter || function (onError) {
+                onError();
+            })(function () {
+                local.dbTableCreateMany(options.dbSeedList, onParallel);
+            });
+            options.dbSeedList.forEach(function (options) {
+                dbTableDict[options.name] = true;
+            });
+            Object.keys(dbTableDict).forEach(function (name) {
+                console.error('db - seeded dbTable ' + name);
+            });
+        };
+
         local.dbTableCreateMany = function (optionsList, onError) {
         /*
-         * this function will set the optionsList into the db
+         * this function will create many dbTables with the given optionsList
          */
             var onParallel, result;
             onParallel = local.onParallel(function (error) {
                 local.setTimeoutOnError(onError, 0, error, result);
             });
             onParallel.counter += 1;
-            result = Array.from(optionsList || []).map(function (options) {
+            result = (optionsList || []).map(function (options) {
                 onParallel.counter += 1;
                 return local.dbTableCreateOne(options, onParallel);
             });
@@ -2971,11 +3010,11 @@ vendor)s{0,1}(\\b|_)\
                 self.sortDefault ||
                 [{ fieldName: '_timeUpdated', isDescending: true }];
             // remove idIndex
-            Array.from(options.idIndexRemoveList || []).forEach(function (idIndex) {
+            (options.idIndexRemoveList || []).forEach(function (idIndex) {
                 self.idIndexRemove(idIndex);
             });
             // create idIndex
-            Array.from(options.idIndexCreateList || []).forEach(function (idIndex) {
+            (options.idIndexCreateList || []).forEach(function (idIndex) {
                 self.idIndexCreate(idIndex);
             });
             // upsert dbRow
@@ -2998,6 +3037,53 @@ vendor)s{0,1}(\\b|_)\
         };
 
         local.dbTableDict = {};
+
+        local.domOnEventDb = function (event) {
+        /*
+         * this function will handle db dom-events
+         */
+            var ajaxProgressUpdate, reader, tmp, utility2;
+            utility2 = local.global.utility2 || {};
+            ajaxProgressUpdate = (utility2 && utility2.ajaxProgressUpdate) || local.nop;
+            switch (event.target.dataset.domOnEventDb || event.target.id) {
+            case 'dbExportButton1':
+                tmp = local.global.URL.createObjectURL(new local.global.Blob([local.dbExport()]));
+                document.querySelector('#dbExportA1').href = tmp;
+                document.querySelector('#dbExportA1').click();
+                setTimeout(function () {
+                    local.global.URL.revokeObjectURL(tmp);
+                }, 30000);
+                break;
+            case 'dbImportButton1':
+                tmp = document.querySelector('#dbImportInput1');
+                if (!tmp.domOnEventDb) {
+                    tmp.domOnEventDb = local.domOnEventDb;
+                    tmp.addEventListener('change', local.domOnEventDb);
+                }
+                tmp.click();
+                break;
+            case 'dbImportInput1':
+                if (event.type !== 'change') {
+                    return;
+                }
+                ajaxProgressUpdate();
+                reader = new local.global.FileReader();
+                tmp = document.querySelector('#dbImportInput1').files[0];
+                if (!tmp) {
+                    return;
+                }
+                reader.addEventListener('load', function () {
+                    local.dbImport(reader.result);
+                    ajaxProgressUpdate();
+                });
+                reader.readAsText(tmp);
+                break;
+            case 'dbResetButton1':
+                ajaxProgressUpdate();
+                local.dbReset(utility2, local.onErrorDefault);
+                break;
+            }
+        };
 
         local.sortCompare = function (aa, bb, ii, jj) {
         /*
@@ -3324,7 +3410,7 @@ vendor)s{0,1}(\\b|_)\
                 console.log(xhr.responseText);
             });
          */
-            var ajaxProgressUpdate, isBrowser, isDone, nop, streamCleanup, xhr;
+            var ajaxProgressUpdate, bufferToString, isBrowser, isDone, nop, streamCleanup, xhr;
             // init standalone handling-behavior
             nop = function () {
             /*
@@ -3337,6 +3423,7 @@ vendor)s{0,1}(\\b|_)\
             if (local.onErrorWithStack) {
                 onError = local.onErrorWithStack(onError);
             }
+            bufferToString = local.bufferToString || String;
             streamCleanup = function (stream) {
             /*
              * this function will try to end or destroy the stream
@@ -3358,8 +3445,8 @@ vendor)s{0,1}(\\b|_)\
                 window.document &&
                 typeof window.document.querySelectorAll === 'function';
             // init xhr
-            xhr = !options.httpRequest && (!isBrowser ||
-                (local.serverLocalUrlTest && local.serverLocalUrlTest(options.url)))
+            xhr = !options.httpRequest &&
+                (!isBrowser || (local.serverLocalUrlTest && local.serverLocalUrlTest(options.url)))
                 ? local._http && local._http.XMLHttpRequest && new local._http.XMLHttpRequest()
                 : isBrowser && new window.XMLHttpRequest();
             if (!xhr) {
@@ -3381,9 +3468,6 @@ vendor)s{0,1}(\\b|_)\
                         })
                         .on('end', function () {
                             xhr.response = Buffer.concat(chunkList);
-                            if (xhr.responseType === 'text' || !xhr.responseType) {
-                                xhr.responseText = String(xhr.response);
-                            }
                             xhr.onEvent({ type: 'load' });
                         })
                         .on('error', xhr.onEvent);
@@ -3391,7 +3475,6 @@ vendor)s{0,1}(\\b|_)\
                 xhr.addEventListener = nop;
                 xhr.open = nop;
                 xhr.requestStream = xhr;
-                xhr.responseText = '';
                 xhr.send = xhr.end;
                 xhr.setRequestHeader = nop;
                 setTimeout(function () {
@@ -3445,12 +3528,24 @@ vendor)s{0,1}(\\b|_)\
                     // update responseHeaders
                     if (xhr.getAllResponseHeaders) {
                         xhr.getAllResponseHeaders().replace((
-                            /(.*?): *?(.*?)\r\n/g
+                            /(.*?): *(.*?)\r\n/g
                         ), function (match0, match1, match2) {
                             match0 = match1;
                             xhr.responseHeaders[match0.toLowerCase()] = match2;
                         });
                     }
+                    // init responseText
+                    if (!(isBrowser && (xhr instanceof XMLHttpRequest)) &&
+                            (xhr.responseType === 'text' || !xhr.responseType)) {
+                        xhr.response = xhr.responseText = bufferToString(xhr.response || '');
+                    }
+                    // init responseBuffer
+                    xhr.responseBuffer = xhr.response;
+                    if (xhr.responseBuffer instanceof ArrayBuffer) {
+                        xhr.responseBuffer = new Uint8Array(xhr.responseBuffer);
+                    }
+                    xhr.responseContentLength =
+                        (xhr.response && (xhr.response.byteLength || xhr.response.length)) || 0;
                     xhr.timeElapsed = Date.now() - xhr.timeStart;
                     // debug ajaxResponse
                     if (xhr.modeDebug) {
@@ -3462,6 +3557,7 @@ vendor)s{0,1}(\\b|_)\
                             statusCode: xhr.statusCode,
                             timeElapsed: xhr.timeElapsed,
                             // extra
+                            responseContentLength: xhr.responseContentLength,
                             data: (function () {
                                 try {
                                     return String(xhr.data.slice(0, 256));
@@ -3979,7 +4075,7 @@ vendor)s{0,1}(\\b|_)\
                     xhr &&
                     ('githubCrud - ' + xhr.responseText));
                 try {
-                    options.responseJson = JSON.parse(xhr.response);
+                    options.responseJson = JSON.parse(xhr.responseText);
                 } catch (ignore) {
                 }
                 onError(
@@ -4442,8 +4538,6 @@ vendor)s{0,1}(\\b|_)\
             local.buffer = require('buffer');
             local.child_process = require('child_process');
             local.cluster = require('cluster');
-            local.console = require('console');
-            local.constants = require('constants');
             local.crypto = require('crypto');
             local.dgram = require('dgram');
             local.dns = require('dns');
@@ -4452,12 +4546,9 @@ vendor)s{0,1}(\\b|_)\
             local.fs = require('fs');
             local.http = require('http');
             local.https = require('https');
-            local.module = require('module');
             local.net = require('net');
             local.os = require('os');
             local.path = require('path');
-            local.process = require('process');
-            local.punycode = require('punycode');
             local.querystring = require('querystring');
             local.readline = require('readline');
             local.repl = require('repl');
@@ -4931,16 +5022,19 @@ substr(0,3),n==="==="||n==="!=="||n===">>>"||n==="<<="||n===">>="?l+=3:(n=n.subs
 n==="++"||n==="--"||n==="<<"||n===">>"||n==="&="||n==="|="||n==="^="||n==="%="||
 n==="<="||n===">="||n==="=>"?l+=2:(n=a[l],"<>=!+-*%&|^/".indexOf(n)>=0&&++l)))}return l===
 e.start&&Lt(),e.end=l,e.value=n,e}function Z(e){var n="";while(l<E){if(!O(a[l]))
+// break;n+=a[l++]}return n.length===0&&Lt(),B(a.charCodeAt(l))&&Lt(),{type:t.NumericLiteral
 break;n+=a[l++]}return n.length===0&&Lt(),
 a[l]==='n'&&(n+=a[l++]), // Bigint
 B(a.charCodeAt(l))&&Lt(),{type:t.NumericLiteral
 ,value:parseInt("0x"+n,16),lineNumber:c,lineStart:h,start:e,end:l}}function et(e
 ){var n,r;r="";while(l<E){n=a[l];if(n!=="0"&&n!=="1")break;r+=a[l++]}return r.length===0&&
+// Lt(),l<E&&(n=a.charCodeAt(l),(B(n)||A(n))&&Lt()),{type:t.NumericLiteral,value:parseInt
 Lt(),
 a[l]==='n'&&(r+=a[l++]), // Bigint
 l<E&&(n=a.charCodeAt(l),(B(n)||A(n))&&Lt()),{type:t.NumericLiteral,value:parseInt
 (r,2),lineNumber:c,lineStart:h,start:e,end:l}}function tt(e,n){var r,i;M(e)?(i=!0
 ,r="0"+a[l++]):(i=!1,++l,r="");while(l<E){if(!M(a[l]))break;r+=a[l++]}return!i&&
+// r.length===0&&Lt(),(B(a.charCodeAt(l))||A(a.charCodeAt(l)))&&Lt(),{type:t.NumericLiteral
 r.length===0&&Lt(),
 a[l]==='n'&&(r+=a[l++]), // Bigint
 (B(a.charCodeAt(l))||A(a.charCodeAt(l)))&&Lt(),{type:t.NumericLiteral
@@ -4952,6 +5046,7 @@ a[l]==='n'&&(r+=a[l++]), // Bigint
 M(r)&&nt())return tt(r,n)}while(A(a.charCodeAt(l)))e+=a[l++];r=a[l]}if(r==="."){
 e+=a[l++];while(A(a.charCodeAt(l)))e+=a[l++];r=a[l]}if(r==="e"||r==="E"){e+=a[l++
 ],r=a[l];if(r==="+"||r==="-")e+=a[l++];if(A(a.charCodeAt(l)))while(A(a.charCodeAt
+// (l)))e+=a[l++];else Lt()}return B(a.charCodeAt(l))&&Lt(),{type:t.NumericLiteral,
 (l)))e+=a[l++];else Lt()}
 a[l]==='n'&&(e+=a[l++]) // Bigint
 return B(a.charCodeAt(l))&&Lt(),{type:t.NumericLiteral,
@@ -9227,7 +9322,9 @@ var JSLINT = (function () {
             'clearInterval', 'clearTimeout', 'document', 'event', 'FormData',
             'frames', 'history', 'Image', 'localStorage', 'location', 'name',
             'navigator', 'Option', 'parent', 'screen', 'sessionStorage',
-            'setInterval', 'setTimeout', 'Storage', 'window', 'XMLHttpRequest'
+            // 'setInterval', 'setTimeout', 'Storage', 'window', 'XMLHttpRequest'
+            'setInterval', 'setTimeout', 'Storage', 'window', 'XMLHttpRequest',
+            'ArrayBuffer', 'TextDecoder', 'TextEncoder', 'Uint8Array', 'crypto'
         ], false),
 
 // bundle contains the text messages.
@@ -9435,7 +9532,9 @@ var JSLINT = (function () {
             'Buffer', 'clearImmediate', 'clearInterval', 'clearTimeout',
             'console', 'exports', 'global', 'module', 'process',
             'require', 'setImmediate', 'setInterval', 'setTimeout',
-            '__dirname', '__filename'
+            // '__dirname', '__filename'
+            '__dirname', '__filename',
+            'Uint8Array'
         ], false),
         node_js,
         numbery = array_to_object(['indexOf', 'lastIndexOf', 'search'], true),
@@ -15960,6 +16059,8 @@ textarea {\n\
 <body>\n\
 <div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>\n\
 <div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>\n\
+<a class="zeroPixel" download="db.persistence.json" href="" id="dbExportA1"></a>\n\
+<input class="zeroPixel" id="dbImportInput1" type="file">\n\
 <script>\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
@@ -16029,87 +16130,6 @@ textarea {\n\
         clearInterval(window.timerIntervalAjaxProgressUpdate);\n\
         ajaxProgressUpdate();\n\
     });\n\
-}());\n\
-// init domOnEventMediaHotkeys\n\
-(function () {\n\
-/*\n\
- * this function will add media-hotkeys to elements with class=".domOnEventMediaHotkeysInit"\n\
- */\n\
-    "use strict";\n\
-    var input, onEvent;\n\
-    if (window.domOnEventMediaHotkeys) {\n\
-        return;\n\
-    }\n\
-    onEvent = window.domOnEventMediaHotkeys = function (event) {\n\
-        var media;\n\
-        if (event === "init") {\n\
-            Array.from(document.querySelectorAll(\n\
-                ".domOnEventMediaHotkeysInit"\n\
-            )).forEach(function (media) {\n\
-                media.classList.remove("domOnEventMediaHotkeysInit");\n\
-                media.classList.add("domOnEventMediaHotkeys");\n\
-                ["play", "pause", "seeking"].forEach(function (event) {\n\
-                    media.addEventListener(event, onEvent);\n\
-                });\n\
-            });\n\
-            return;\n\
-        }\n\
-        if (event.currentTarget.classList.contains("domOnEventMediaHotkeys")) {\n\
-            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\n\
-            window.domOnEventMediaHotkeysInput.focus();\n\
-            return;\n\
-        }\n\
-        media = window.domOnEventMediaHotkeysMedia1;\n\
-        try {\n\
-            switch (event.key || event.type) {\n\
-            case ",":\n\
-            case ".":\n\
-                media.currentTime += (event.key === "," && -0.03125) || 0.03125;\n\
-                break;\n\
-            case "<":\n\
-            case ">":\n\
-                media.playbackRate *= (event.key === "<" && 0.5) || 2;\n\
-                break;\n\
-            case "ArrowDown":\n\
-            case "ArrowUp":\n\
-                media.volume += (event.key === "ArrowDown" && -0.05) || 0.05;\n\
-                break;\n\
-            case "ArrowLeft":\n\
-            case "ArrowRight":\n\
-                media.currentTime += (event.key === "ArrowLeft" && -5) || 5;\n\
-                break;\n\
-            case "j":\n\
-            case "l":\n\
-                media.currentTime += (event.key === "j" && -10) || 10;\n\
-                break;\n\
-            case "k":\n\
-            case " ":\n\
-                if (media.paused) {\n\
-                    media.play();\n\
-                } else {\n\
-                    media.pause();\n\
-                }\n\
-                break;\n\
-            case "m":\n\
-                media.muted = !media.muted;\n\
-                break;\n\
-            default:\n\
-                if (event.key >= 0) {\n\
-                    media.currentTime = 0.1 * event.key * media.duration;\n\
-                    break;\n\
-                }\n\
-                return;\n\
-            }\n\
-        } catch (ignore) {\n\
-        }\n\
-        event.preventDefault();\n\
-    };\n\
-    input = window.domOnEventMediaHotkeysInput = document.createElement("button");\n\
-    input.style = "border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;";\n\
-    input.addEventListener("click", onEvent);\n\
-    input.addEventListener("keydown", onEvent);\n\
-    document.body.appendChild(input);\n\
-    onEvent("init");\n\
 }());\n\
 // init domOnEventSelectAllWithinPre\n\
 (function () {\n\
@@ -16416,6 +16436,7 @@ instruction\n\
         /* validateLineSortedReset */\n\
         local.assetsDict[\'/\'] =\n\
             local.assetsDict[\'/assets.example.html\'] =\n\
+            local.assetsDict[\'/index.html\'] =\n\
             local.assetsDict[\'/assets.index.template.html\']\n\
             .replace((/\\{\\{env\\.(\\w+?)\\}\\}/g), function (match0, match1) {\n\
                 switch (match1) {\n\
@@ -17653,62 +17674,10 @@ local.assetsDict['/favicon.ico'] = '';
          * It must be called before any other method calls.
          * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest#XMLHttpRequest()
          */
-            var xhr;
-            xhr = this;
-            ['onError', 'onResponse'].forEach(function (key) {
-                xhr[key] = xhr[key].bind(xhr);
-            });
-            xhr.headers = {};
-            xhr.onLoadList = [];
-            /*
-             * The XMLHttpRequest response property returns the response's body content
-             * as an ArrayBuffer, Blob, Document, JavaScript Object, or DOMString,
-             * depending on the value of the request's responseType property.
-             * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/response
-             */
-            xhr.response = null;
-            /*
-             * The read-only XMLHttpRequest property responseText returns the text
-             * received from a server following a request being sent.
-             * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseText
-             */
-            xhr.responseText = '';
-            /*
-             * The XMLHttpRequest property responseType is an enumerated string value
-             * specifying the type of data contained in the response. It also lets the author
-             * change the response type. If an empty string is set as the value of responseType,
-             * the default value of "text" is used.
-             * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType
-             */
-            xhr.responseType = '';
-            /*
-             * The read-only XMLHttpRequest.status property returns the numerical status code
-             * of the response of the XMLHttpRequest. status will be an unsigned short.
-             * Before the request is complete, the value of status will be 0. It is worth noting
-             * that browsers report a status of 0 in case of XMLHttpRequest errors too.
-             * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/status
-             */
-            xhr.status = xhr.statusCode = 0;
-            /*
-             * The read-only XMLHttpRequest.statusText property returns a DOMString
-             * containing the response's status message as returned by the HTTP server.
-             * Unlike XMLHTTPRequest.status which indicates a numerical status code,
-             * this property contains the text of the response status, such as "OK" or "Not Found".
-             * If the request's readyState is in UNSENT or OPENED state,
-             * the value of statusText will be an empty string.
-             * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/statusText
-             */
-            xhr.statusText = '';
-            /*
-             * The XMLHttpRequest.timeout property is an unsigned long representing the number
-             * of milliseconds a request can take before automatically being terminated.
-             * The default value is 0, which means there is no timeout. Timeout shouldn't be used
-             * for synchronous XMLHttpRequests requests used in a document environment
-             * or it will throw an InvalidAccessError exception. When a timeout happens,
-             * a timeout event is fired.
-             * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/timeout
-             */
-            xhr.timeout = local.timeoutDefault;
+            this.headers = {};
+            this.onError = this.onError.bind(this);
+            this.onLoadList = [];
+            this.onResponse = this.onResponse.bind(this);
         };
 
         local._http.XMLHttpRequest.prototype.abort = function () {
@@ -17739,13 +17708,8 @@ local.assetsDict['/favicon.ico'] = '';
             if (this._isDone) {
                 return;
             }
-            data = local.bufferToNodeBuffer(data);
             this.error = error;
             this.response = data;
-            // init responseText
-            if (this.responseType === 'text' || !this.responseType) {
-                this.responseText = local.bufferToString(data);
-            }
             // handle data
             this.onLoadList.forEach(function (onError) {
                 onError({ type: error
@@ -17761,7 +17725,6 @@ local.assetsDict['/favicon.ico'] = '';
             this.responseHeaders = responseStream.headers;
             this.responseStream = responseStream;
             this.status = this.statusCode = responseStream.statusCode;
-            this.statusText = local.http.STATUS_CODES[responseStream.statusCode] || '';
             local.streamReadAll(responseStream, this.onError);
         };
 
@@ -17793,8 +17756,13 @@ local.assetsDict['/favicon.ico'] = '';
          * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest#send()
          */
             var xhr;
-            data = local.bufferToNodeBuffer(data);
             xhr = this;
+            if (data instanceof Uint8Array &&
+                    typeof Buffer === 'function' &&
+                    typeof Buffer.isBuffer === 'function' &&
+                    !Buffer.isBuffer(data)) {
+                Object.setPrototypeOf(data, Buffer.prototype);
+            }
             xhr.data = data;
             // asynchronously send data
             setTimeout(function () {
@@ -17935,13 +17903,6 @@ local.assetsDict['/favicon.ico'] = '';
             local.buildTest({}, onError);
         };
 
-        local._testCase_domOnEventWindowOnloadTimeElapsed_default = function (options, onError) {
-        /*
-         * this function will test domOnEventWindowOnloadTimeElapsed's default handling-behavior
-         */
-            onError(null, options);
-        };
-
         local._testCase_webpage_default = function (options, onError) {
         /*
          * this function will test webpage's default handling-behavior
@@ -17977,7 +17938,7 @@ local.assetsDict['/favicon.ico'] = '';
                 console.log(xhr.responseText);
             });
          */
-            var ajaxProgressUpdate, isBrowser, isDone, nop, streamCleanup, xhr;
+            var ajaxProgressUpdate, bufferToString, isBrowser, isDone, nop, streamCleanup, xhr;
             // init standalone handling-behavior
             nop = function () {
             /*
@@ -17990,6 +17951,7 @@ local.assetsDict['/favicon.ico'] = '';
             if (local.onErrorWithStack) {
                 onError = local.onErrorWithStack(onError);
             }
+            bufferToString = local.bufferToString || String;
             streamCleanup = function (stream) {
             /*
              * this function will try to end or destroy the stream
@@ -18011,8 +17973,8 @@ local.assetsDict['/favicon.ico'] = '';
                 window.document &&
                 typeof window.document.querySelectorAll === 'function';
             // init xhr
-            xhr = !options.httpRequest && (!isBrowser ||
-                (local.serverLocalUrlTest && local.serverLocalUrlTest(options.url)))
+            xhr = !options.httpRequest &&
+                (!isBrowser || (local.serverLocalUrlTest && local.serverLocalUrlTest(options.url)))
                 ? local._http && local._http.XMLHttpRequest && new local._http.XMLHttpRequest()
                 : isBrowser && new window.XMLHttpRequest();
             if (!xhr) {
@@ -18034,9 +17996,6 @@ local.assetsDict['/favicon.ico'] = '';
                         })
                         .on('end', function () {
                             xhr.response = Buffer.concat(chunkList);
-                            if (xhr.responseType === 'text' || !xhr.responseType) {
-                                xhr.responseText = String(xhr.response);
-                            }
                             xhr.onEvent({ type: 'load' });
                         })
                         .on('error', xhr.onEvent);
@@ -18044,7 +18003,6 @@ local.assetsDict['/favicon.ico'] = '';
                 xhr.addEventListener = nop;
                 xhr.open = nop;
                 xhr.requestStream = xhr;
-                xhr.responseText = '';
                 xhr.send = xhr.end;
                 xhr.setRequestHeader = nop;
                 setTimeout(function () {
@@ -18098,12 +18056,24 @@ local.assetsDict['/favicon.ico'] = '';
                     // update responseHeaders
                     if (xhr.getAllResponseHeaders) {
                         xhr.getAllResponseHeaders().replace((
-                            /(.*?): *?(.*?)\r\n/g
+                            /(.*?): *(.*?)\r\n/g
                         ), function (match0, match1, match2) {
                             match0 = match1;
                             xhr.responseHeaders[match0.toLowerCase()] = match2;
                         });
                     }
+                    // init responseText
+                    if (!(isBrowser && (xhr instanceof XMLHttpRequest)) &&
+                            (xhr.responseType === 'text' || !xhr.responseType)) {
+                        xhr.response = xhr.responseText = bufferToString(xhr.response || '');
+                    }
+                    // init responseBuffer
+                    xhr.responseBuffer = xhr.response;
+                    if (xhr.responseBuffer instanceof ArrayBuffer) {
+                        xhr.responseBuffer = new Uint8Array(xhr.responseBuffer);
+                    }
+                    xhr.responseContentLength =
+                        (xhr.response && (xhr.response.byteLength || xhr.response.length)) || 0;
                     xhr.timeElapsed = Date.now() - xhr.timeStart;
                     // debug ajaxResponse
                     if (xhr.modeDebug) {
@@ -18115,6 +18085,7 @@ local.assetsDict['/favicon.ico'] = '';
                             statusCode: xhr.statusCode,
                             timeElapsed: xhr.timeElapsed,
                             // extra
+                            responseContentLength: xhr.responseContentLength,
                             data: (function () {
                                 try {
                                     return String(xhr.data.slice(0, 256));
@@ -18312,7 +18283,7 @@ local.assetsDict['/favicon.ico'] = '';
                         statusCode: options.xhr.statusCode,
                         timeElapsed: options.xhr.timeElapsed,
                         // extra
-                        responseContentLength: options.xhr.response && options.xhr.response.length,
+                        responseContentLength: options.xhr.responseContentLength,
                         depth: options.depth,
                         ii: options.ii,
                         listLength: options.list.length,
@@ -18440,19 +18411,17 @@ local.assetsDict['/favicon.ico'] = '';
             local.assert(aa !== bb, [aa]);
         };
 
-        local.base64FromBuffer = function (bff, mode) {
+        local.base64FromBuffer = function (bff) {
         /*
          * this function will convert Uint8Array bff to base64
          * https://developer.mozilla.org/en-US/Add-ons/Code_snippets/StringView#The_code
          */
             var ii, mod3, text, uint24, uint6ToB64;
             // convert utf8-string bff to Uint8Array
-            if (bff && mode === 'string') {
-                bff = typeof window === 'object' &&
-                    window &&
-                    typeof window.TextEncoder === 'function'
-                    ? new window.TextEncoder().encode(bff)
-                    : Buffer.from(bff);
+            if (typeof bff === 'string') {
+                bff = typeof Buffer === 'function' && typeof Buffer.isBuffer === 'function'
+                    ? Buffer.from(bff)
+                    : new TextEncoder().encode(bff);
             }
             bff = bff || [];
             text = '';
@@ -18484,19 +18453,11 @@ local.assetsDict['/favicon.ico'] = '';
             return text.replace(/A(?=A$|$)/g, '=');
         };
 
-        local.base64FromString = function (text) {
-        /*
-         * this function will convert utf8-string text to base64
-         */
-            return local.base64FromBuffer(text, 'string');
-        };
-
         local.base64ToBuffer = function (b64, mode) {
         /*
          * this function will convert b64 to Uint8Array
          * https://gist.github.com/wang-bin/7332335
          */
-            /*globals Uint8Array*/
             var bff, byte, chr, ii, jj, map64, mod4;
             b64 = b64 || '';
             bff = new Uint8Array(b64.length); // 3/4
@@ -18520,17 +18481,13 @@ local.assetsDict['/favicon.ico'] = '';
             }
             // optimization - create resized-view of bff
             bff = bff.subarray(0, jj);
-            // mode !== 'string'
-            if (mode !== 'string') {
-                return bff;
-            }
-            // mode === 'string' - browser js-env
-            if (typeof window === 'object' && window && typeof window.TextDecoder === 'function') {
-                return new window.TextDecoder().decode(bff);
-            }
-            // mode === 'string' - node js-env
-            Object.setPrototypeOf(bff, Buffer.prototype);
-            return String(bff);
+            return mode !== 'string'
+                // return Uint8Array
+                ? bff
+                // return utf8-string
+                : typeof Buffer === 'function' && typeof Buffer.isBuffer === 'function'
+                ? String(Object.setPrototypeOf(bff, Buffer.prototype))
+                : new TextDecoder().decode(bff);
         };
 
         local.base64ToString = function (b64) {
@@ -18579,7 +18536,7 @@ local.assetsDict['/favicon.ico'] = '';
                     onError(new Error('blobRead - ' + event.type));
                     break;
                 case 'load':
-                    onError(null, reader.result instanceof local.global.ArrayBuffer
+                    onError(null, reader.result instanceof ArrayBuffer
                         // convert ArrayBuffer to Uint8Array
                         ? local.bufferCreate(reader.result)
                         : reader.result);
@@ -18966,7 +18923,6 @@ local.assetsDict['/favicon.ico'] = '';
         /*
          * this function will emulate node's Buffer.concat for Uint8Array in the browser
          */
-            /*globals UintArray*/
             var ii, jj, length, result;
             length = 0;
             bffList = bffList
@@ -18998,7 +18954,6 @@ local.assetsDict['/favicon.ico'] = '';
          * this function will create a Uint8Array from text,
          * with either 'utf8' (default) or 'base64' encoding
          */
-            /*globals Uint8Array*/
             if (typeof text !== 'string') {
                 return new Uint8Array(text);
             }
@@ -19031,42 +18986,28 @@ local.assetsDict['/favicon.ico'] = '';
          * this function will create create a Uint8Array with the given length,
          * filled with cryptographically-strong random bytes
          */
-            /*globals Uint8Array, crypto*/
             return typeof crypto === 'object' && crypto && crypto.getRandomValues
                 ? crypto.getRandomValues(new Uint8Array(length))
                 : require('crypto').randomBytes(length);
-        };
-
-        local.bufferToNodeBuffer = function (bff) {
-        /*
-         * this function will coerce Uint8Array bff to nodejs Buffer
-         */
-            /*globals Uint8Array*/
-            if (typeof Buffer === 'function' &&
-                    Buffer &&
-                    typeof Buffer.isBuffer === 'function' &&
-                    bff instanceof Uint8Array &&
-                    !Buffer.isBuffer(bff)) {
-                bff = bff.subarray();
-                Object.setPrototypeOf(bff, Buffer.prototype);
-            }
-            return bff;
         };
 
         local.bufferToString = function (bff) {
         /*
          * this function will convert Uint8Array bff to utf8 string
          */
+            // null-case
             bff = bff || '';
             if (typeof bff === 'string') {
                 return bff;
             }
-            // browser js-env
-            if (typeof window === 'object' && window && typeof window.TextDecoder === 'function') {
-                return new window.TextDecoder().decode(bff);
+            // use Buffer api
+            if (typeof Buffer === 'function' && typeof Buffer.isBuffer === 'function') {
+                return String(bff instanceof Uint8Array && !Buffer.isBuffer(bff)
+                    ? Object.setPrototypeOf(bff, Buffer.prototype)
+                    : Buffer.from(bff));
             }
-            // node js-env
-            return String(local.bufferToNodeBuffer(bff));
+            // use TextDecoder api
+            return new TextDecoder().decode(bff);
         };
 
         local.buildApidoc = function (options, onError) {
@@ -19313,11 +19254,11 @@ local.assetsDict['/favicon.ico'] = '';
                 'lib.' + local.env.npm_package_nameLib + '.sh',
                 'npm_scripts.sh'
             ].forEach(function (file) {
-                options.dataFunctionBefore = local.fsReadFileOrEmptyStringSync(
+                options.dataLib = local.fsReadFileOrEmptyStringSync(
                     file,
                     'utf8'
                 ).replace((
-                    /^ {8}local\.(\w+) = function \([\S\s]+?\n {8}\};$/gm
+                    /^ {8}local\.(\w+) = function \([\S\s]*?\n {8}\};$/gm
                 ), function (match0, match1) {
                     [local, local.github_crud, local.swgg].some(function (dict) {
                         if (match1[0] !== '_' && typeof dict[match1] === 'function') {
@@ -19328,8 +19269,8 @@ local.assetsDict['/favicon.ico'] = '';
                     return match0;
                 });
                 /* istanbul ignore next */
-                if (options.dataFunctionBefore && !local.env.npm_config_mode_coverage) {
-                    local.fs.writeFileSync(file, options.dataFunctionBefore);
+                if (options.dataLib && !local.env.npm_config_mode_coverage) {
+                    local.fs.writeFileSync(file, options.dataLib);
                 }
             });
             onError();
@@ -19464,7 +19405,7 @@ local.assetsDict['/favicon.ico'] = '';
             if (local.assetsDict['/index.html']
                     .indexOf('<script src="assets.example.js"></script>') < 0) {
                 options.dataTo = options.dataTo.replace(
-                    (/\n {8}if \(!local\.isBrowser\) \{\n[\S\s]+?\n {4}\}\(\)\);\n/g),
+                    (/\n {8}if \(!local\.isBrowser\) \{\n[\S\s]*?\n {4}\}\(\)\);\n/g),
                     "\n        if (!local.isBrowser) {\n            return;\n        }\n    }());\n"
                 );
             }
@@ -19477,6 +19418,7 @@ local.assetsDict['/favicon.ico'] = '';
                     '\n' + match0 + '\n'
                 );
             });
+            // customize - user-defined
             options.customize(options);
             // customize assets.index.template.html
             if (local.assetsDict['/assets.index.template.html']
@@ -19893,7 +19835,6 @@ local.assetsDict['/favicon.ico'] = '';
                 local.cryptoAesXxxCbcRawDecrypt({ data: data, key: key, mode: mode }, console.log);
             });
          */
-            /*globals Uint8Array*/
             var cipher, crypto, data, ii, iv, key;
             // init key
             key = new Uint8Array(0.5 * options.key.length);
@@ -19950,7 +19891,6 @@ local.assetsDict['/favicon.ico'] = '';
                 local.cryptoAesXxxCbcRawDecrypt({ data: data, key: key, mode: mode }, console.log);
             });
          */
-            /*globals Uint8Array*/
             var cipher, crypto, data, ii, iv, key;
             // init key
             key = new Uint8Array(0.5 * options.key.length);
@@ -20192,7 +20132,7 @@ local.assetsDict['/favicon.ico'] = '';
             var rgx, tmp;
             rgx = new RegExp('^0 (?:(body > )?(?:form > )?(?:' +
                 '\\.testReportDiv .+|\\.x-istanbul .+|' +
-                '\\.button|\\.colorError|\\.uiAnimateShake|\\.uiAnimateSlide|\\.zeroPixel|' +
+                '\\.button|\\.colorError|\\.uiAnimateShake|\\.uiAnimateSlide|' +
                 'a|body|code|div|input|pre|textarea' +
                 ')(?:\\[readonly\\])?(?:,| \\{))');
             tmp = [];
@@ -20331,7 +20271,7 @@ local.assetsDict['/favicon.ico'] = '';
             }
             // recurse - csslint <style>...</style>
             script.replace(
-                (/^<style>(?:\\n\\)?\n([\S\s]+?)\n<\/style>(?:\\n\\)?$/gm),
+                (/^<style>(?:\\n\\)?\n([\S\s]*?)\n<\/style>(?:\\n\\)?$/gm),
                 function (match0, match1, ii, text) {
                     match0 = match1;
                     local.jslintAndPrintConditional(
@@ -20347,7 +20287,7 @@ local.assetsDict['/favicon.ico'] = '';
             );
             // recurse - jslint <script>...</script>
             script.replace((
-                /^(?:\/\/ )?<script>(?:\\n\\)?\n([\S\s]+?)\n(?:\/\/ )?<\/script>(?:\\n\\)?$/gm
+                /^(?:\/\/ )?<script>(?:\\n\\)?\n([\S\s]*?)\n(?:\/\/ )?<\/script>(?:\\n\\)?$/gm
             ), function (match0, match1, ii, text) {
                 match0 = match1;
                 local.jslintAndPrintConditional(
@@ -20533,7 +20473,7 @@ local.assetsDict['/favicon.ico'] = '';
          * https://jwt.io/
          */
             data = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
-                local.normalizeJwtBase64Url(local.base64FromString(JSON.stringify(data)));
+                local.normalizeJwtBase64Url(local.base64FromBuffer(JSON.stringify(data)));
             return data + '.' + local.sjcl.codec.base64url.fromBits(
                 new local.sjcl.misc.hmac(local.sjcl.codec.base64url.toBits(
                     local.jwtAes256KeyInit(key)
@@ -20815,12 +20755,16 @@ local.assetsDict['/favicon.ico'] = '';
             }
             // init response.end and response.write to accept Uint8Array instance
             ['end', 'write'].forEach(function (key) {
-                response['_' + key] = response['_' + key] || response[key];
-                response[key] = function () {
-                    var argList;
-                    argList = Array.from(arguments);
-                    argList[0] = local.bufferToNodeBuffer(argList[0]);
-                    response['_' + key].apply(response, argList);
+                var fnc;
+                if (local.isBrowser) {
+                    return;
+                }
+                fnc = response[key].bind(response);
+                response[key] = function (bff, encoding, callback) {
+                    if (bff instanceof Uint8Array && !Buffer.isBuffer(bff)) {
+                        Object.setPrototypeOf(bff, Buffer.prototype);
+                    }
+                    return fnc(bff, encoding, callback);
                 };
             });
             // default to nextMiddleware
@@ -21623,7 +21567,7 @@ vendor)s{0,1}(\\b|_)\
             );
             local.tryCatchOnError(function () {
                 tmp = !local.env.npm_package_buildCustomOrg &&
-                    (/```\w*?(\n[\W\s]*?example\.js[\n\"][\S\s]+?)\n```/).exec(
+                    (/```\w*?(\n[\W\s]*?example\.js[\n\"][\S\s]*?)\n```/).exec(
                         local.fs.readFileSync('README.md', 'utf8')
                     );
                 script = tmp.input.slice(0, tmp.index).replace((/.+/g), '') + tmp[1];
@@ -21680,7 +21624,7 @@ vendor)s{0,1}(\\b|_)\
                     ) || local.templateRender(
                         // uncomment utility2-comment
                         local.assetsDict['/' + tmp].replace(
-                            (/<!-- utility2-comment\b([\S\s]+?)\butility2-comment -->/g),
+                            (/<!-- utility2-comment\b([\S\s]*?)\butility2-comment -->/g),
                             '$1'
                         ),
                         { env: local.env, isRollup: isRollup }
@@ -22660,9 +22604,6 @@ instruction\n\
                     if (!testCase.isDone) {
                         local.timeElapsedPoll(testCase);
                     }
-                    if (testCase.name === 'testCase_domOnEventWindowOnloadTimeElapsed_default') {
-                        testCase.timeElapsed = local.global.domOnEventWindowOnloadTimeElapsed | 0;
-                    }
                     testPlatform.timeElapsed = Math.max(
                         testPlatform.timeElapsed,
                         testCase.timeElapsed
@@ -22783,6 +22724,7 @@ instruction\n\
                         ? local.modeTestCase.split(',').indexOf(key) >= 0
                         : key.indexOf('testCase_') === 0)) {
                     testPlatform.testCaseList.push({
+                        isBrowser: local.isBrowser,
                         name: key,
                         status: 'pending',
                         onTestCase: options[key]
@@ -22924,9 +22866,7 @@ instruction\n\
          */
             // init testCase_buildXxx
             Object.keys(local).forEach(function (key) {
-                if (key.indexOf('_testCase_build') === 0 ||
-                        key === '_testCase_domOnEventWindowOnloadTimeElapsed_default' ||
-                        key === '_testCase_webpage_default') {
+                if (key.indexOf('_testCase_build') === 0 || key === '_testCase_webpage_default') {
                     local[key.slice(1)] = local[key.slice(1)] || local[key];
                 }
             });
@@ -22974,11 +22914,7 @@ instruction\n\
                         return;
                     }
                     // recurse with next middleware in middlewareList
-                    local.middlewareList[self.modeNext](
-                        request,
-                        response,
-                        self.onNext
-                    );
+                    local.middlewareList[self.modeNext](request, response, self.onNext);
                 });
                 self.modeNext = -1;
                 self.onNext();
@@ -23438,7 +23374,7 @@ instruction\n\
          * # run browserTest on the url with the given mode
          */
             local.onParallelList({
-                list: process.argv[3].split(/\s+/).filter(function (element) {
+                list: process.argv[3].split(',').filter(function (element) {
                     return element;
                 })
             }, function (options2, onParallel) {
@@ -23836,7 +23772,7 @@ instruction\n\
                             .replace((/npm_package_/g), '')
                             // uncomment utility2-comment
                             .replace(
-                                (/<!-- utility2-comment\b([\S\s]+?)\butility2-comment -->/g),
+                                (/<!-- utility2-comment\b([\S\s]*?)\butility2-comment -->/g),
                                 '$1'
                             ), {
                                 env: local.objectSetDefault({
@@ -24909,18 +24845,17 @@ local.templateUiMain = '\
         download standalone app\n\
     </a><br>\n\
     {{/if x-swgg-downloadStandaloneApp}}\n\
-    {{#if x-swgg-buttonDatabase}}\n\
-    <button class="button onEventDbReset" id="swggDbResetButton1">\n\
+    {{#if x-swgg-domOnEventDb}}\n\
+    <button class="button domOnEventDb" data-dom-on-event-db="dbResetButton1">\n\
         reset database\n\
     </button><br>\n\
-    <button class="button onEventDbReset" id="swggDbExportButton1">\n\
+    <button class="button domOnEventDb" data-dom-on-event-db="dbExportButton1">\n\
         export database -&gt; file\n\
-    </button><a download="db.persistence.json" href="" id="swggDbExportA1"></a><br>\n\
-    <button class="button onEventDbReset" id="swggDbImportButton1">\n\
+    </button><br>\n\
+    <button class="button domOnEventDb" data-dom-on-event-db="dbImportButton1">\n\
         import database &lt;- file\n\
     </button><br>\n\
-    <input class="onEventDbReset zeroPixel" type="file" id="swggDbImportInput1">\n\
-    {{/if x-swgg-buttonDatabase}}\n\
+    {{/if x-swgg-domOnEventDb}}\n\
     <ul>\n\
         {{#if externalDocs.url}}\n\
         <li>\n\
@@ -25353,7 +25288,7 @@ local.assetsDict['/assets.swgg.html'] = local.assetsDict['/assets.utility2.templ
     border-radius: 5px;\n\
 }\n\
 .swggUiContainer .resource > .thead > .td2 {\n\
-    border-left: 1px solid #037;\n\
+    border-left: 1px solid #333;\n\
 }\n\
 /* validateLineSortedReset */\n\
 /* color */\n\
@@ -25566,7 +25501,87 @@ local.assetsDict['/assets.swgg.html'] = local.assetsDict['/assets.utility2.templ
     regexp: true,\n\
     stupid: true\n\
 */\n\
-"use strict";\n\
+// init domOnEventMediaHotkeys\n\
+(function () {\n\
+/*\n\
+ * this function will add media-hotkeys to elements with class=".domOnEventMediaHotkeysInit"\n\
+ */\n\
+    "use strict";\n\
+    var input, onEvent;\n\
+    if (window.domOnEventMediaHotkeys) {\n\
+        return;\n\
+    }\n\
+    onEvent = window.domOnEventMediaHotkeys = function (event) {\n\
+        var media;\n\
+        if (event === "init") {\n\
+            Array.from(document.querySelectorAll(\n\
+                ".domOnEventMediaHotkeysInit"\n\
+            )).forEach(function (media) {\n\
+                media.classList.remove("domOnEventMediaHotkeysInit");\n\
+                media.classList.add("domOnEventMediaHotkeys");\n\
+                ["play", "pause", "seeking"].forEach(function (event) {\n\
+                    media.addEventListener(event, onEvent);\n\
+                });\n\
+            });\n\
+            return;\n\
+        }\n\
+        if (event.currentTarget.classList.contains("domOnEventMediaHotkeys")) {\n\
+            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\n\
+            window.domOnEventMediaHotkeysInput.focus();\n\
+            return;\n\
+        }\n\
+        media = window.domOnEventMediaHotkeysMedia1;\n\
+        try {\n\
+            switch (event.key || event.type) {\n\
+            case ",":\n\
+            case ".":\n\
+                media.currentTime += (event.key === "," && -0.03125) || 0.03125;\n\
+                break;\n\
+            case "<":\n\
+            case ">":\n\
+                media.playbackRate *= (event.key === "<" && 0.5) || 2;\n\
+                break;\n\
+            case "ArrowDown":\n\
+            case "ArrowUp":\n\
+                media.volume += (event.key === "ArrowDown" && -0.05) || 0.05;\n\
+                break;\n\
+            case "ArrowLeft":\n\
+            case "ArrowRight":\n\
+                media.currentTime += (event.key === "ArrowLeft" && -5) || 5;\n\
+                break;\n\
+            case "j":\n\
+            case "l":\n\
+                media.currentTime += (event.key === "j" && -10) || 10;\n\
+                break;\n\
+            case "k":\n\
+            case " ":\n\
+                if (media.paused) {\n\
+                    media.play();\n\
+                } else {\n\
+                    media.pause();\n\
+                }\n\
+                break;\n\
+            case "m":\n\
+                media.muted = !media.muted;\n\
+                break;\n\
+            default:\n\
+                if (event.key >= 0) {\n\
+                    media.currentTime = 0.1 * event.key * media.duration;\n\
+                    break;\n\
+                }\n\
+                return;\n\
+            }\n\
+        } catch (ignore) {\n\
+        }\n\
+        event.preventDefault();\n\
+    };\n\
+    input = window.domOnEventMediaHotkeysInput = document.createElement("button");\n\
+    input.style = "border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;";\n\
+    input.addEventListener("click", onEvent);\n\
+    input.addEventListener("keydown", onEvent);\n\
+    document.body.appendChild(input);\n\
+    onEvent("init");\n\
+}());\n\
 document.querySelector(".swggUiContainer > .thead > .td2").value =\n\
     ((/\\bmodeSwaggerJsonUrl=([^&]+)/g).exec(location.search) || {})[1] ||\n\
     "assets.swgg.swagger.json";\n\
@@ -26184,7 +26199,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                     : ((1 + Math.random()) * 0x10000000000000).toString(36).slice(1);
                 switch (schemaP.format) {
                 case 'byte':
-                    value = local.base64FromString(value);
+                    value = local.base64FromBuffer(value);
                     break;
                 case 'date':
                 case 'date-time':
@@ -27144,7 +27159,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                 // JSON.parse paramDict
                 } else if (local.schemaPType(schemaP) !== 'file' &&
                         local.schemaPType(schemaP) !== 'string' &&
-                        (typeof tmp === 'string' || tmp instanceof local.global.Uint8Array)) {
+                        (typeof tmp === 'string' || tmp instanceof Uint8Array)) {
                     // try to JSON.parse the string
                     local.tryCatchOnError(function () {
                         tmp = JSON.parse(local.bufferToString(tmp));
@@ -28143,7 +28158,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                     schema: schema
                 });
                 // 5.4.3. required
-                Array.from(schema.required || []).forEach(function (key) {
+                (schema.required || []).forEach(function (key) {
                     // validate semanticItemsRequiredForArrayObjects2
                     test = !local.isNullOrUndefined(data[key]);
                     local.throwSwaggerError(!test && {
@@ -28240,7 +28255,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                         swaggerJson: options.swaggerJson
                     });
                     // 5.4.5.2.2. Property dependencies
-                    Array.from(schema.dependencies[key]).every(function (key2) {
+                    schema.dependencies[key].every(function (key2) {
                         test = !local.isNullOrUndefined(data[key2]);
                         local.throwSwaggerError(!test && {
                             data: data,
@@ -28461,7 +28476,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
             event.targetOperation = event.target2.closest('.operation');
             Object.keys(local.uiEventListenerDict).sort().some(function (key) {
                 switch (key) {
-                case '.onEventDbReset':
+                case '.domOnEventDb':
                 case '.onEventOperationDisplayShow':
                     event.target2 = event.target2.closest(key) || event.target2;
                     break;
@@ -28491,46 +28506,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
 
         local.uiEventListenerDict = {};
 
-        local.uiEventListenerDict['.onEventDbReset'] = function (event) {
-        /*
-         * this function will show/hide the textarea's multiline placeholder
-         */
-            var reader, tmp;
-            switch (event.target2.id) {
-            case 'swggDbExportButton1':
-                tmp = local.global.URL.createObjectURL(
-                    new local.global.Blob([local.db.dbExport()])
-                );
-                document.querySelector('#swggDbExportA1').href = tmp;
-                document.querySelector('#swggDbExportA1').click();
-                setTimeout(function () {
-                    local.global.URL.revokeObjectURL(tmp);
-                }, 30000);
-                break;
-            case 'swggDbImportButton1':
-                document.querySelector('#swggDbImportInput1').click();
-                break;
-            case 'swggDbImportInput1':
-                if (event.type !== 'change') {
-                    return;
-                }
-                local.ajaxProgressUpdate();
-                reader = new local.global.FileReader();
-                tmp = document.querySelector('#swggDbImportInput1').files[0];
-                if (!tmp) {
-                    return;
-                }
-                reader.addEventListener('load', function () {
-                    local.db.dbImport(reader.result);
-                    local.ajaxProgressUpdate();
-                });
-                reader.readAsText(tmp);
-                break;
-            case 'swggDbResetButton1':
-                local.utility2.testRunBefore();
-                break;
-            }
-        };
+        local.uiEventListenerDict['.domOnEventDb'] = local.db.domOnEventDb;
 
         local.uiEventListenerDict['.onEventInputTextareaChange'] = function (event) {
         /*
@@ -28736,7 +28712,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                             '<' + data.mediaType +
                             ' class="domOnEventMediaHotkeysInit" controls src="data:' +
                             data.contentType +
-                            ';base64,' + local.base64FromBuffer(data.response) + '"></' +
+                            ';base64,' + local.base64FromBuffer(data.responseBuffer) + '"></' +
                             data.mediaType + '>';
                         local.global.domOnEventMediaHotkeys('init');
                         break;
@@ -28744,7 +28720,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                         options.targetOperation.querySelector('.responseBody').textContent =
                             data.responseJson
                             ? JSON.stringify(data.responseJson, null, 4)
-                            : data.responseText;
+                            : data.response;
                     }
                     // shake response on error
                     Array.from(options.targetOperation.querySelectorAll(
@@ -28773,9 +28749,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
             // show the operation, but hide all other operations
             local.uiAnimateSlideAccordian(
                 element.querySelector('.operation > form'),
-                Array.from(element.closest('.operationList').querySelectorAll(
-                    '.operation > form'
-                )),
+                Array.from(element.closest('.operationList').querySelectorAll('.operation > form')),
                 function () {
                     // scrollTo operation
                     element.querySelector('[tabIndex]').blur();
@@ -29727,6 +29701,8 @@ textarea {\\n\
 <body>\\n\
 <div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\\n\
 <div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\\n\
+<a class=\"zeroPixel\" download=\"db.persistence.json\" href=\"\" id=\"dbExportA1\"></a>\\n\
+<input class=\"zeroPixel\" id=\"dbImportInput1\" type=\"file\">\\n\
 <script>\\n\
 /* jslint-utility2 */\\n\
 /*jslint\\n\
@@ -29796,87 +29772,6 @@ textarea {\\n\
         clearInterval(window.timerIntervalAjaxProgressUpdate);\\n\
         ajaxProgressUpdate();\\n\
     });\\n\
-}());\\n\
-// init domOnEventMediaHotkeys\\n\
-(function () {\\n\
-/*\\n\
- * this function will add media-hotkeys to elements with class=\".domOnEventMediaHotkeysInit\"\\n\
- */\\n\
-    \"use strict\";\\n\
-    var input, onEvent;\\n\
-    if (window.domOnEventMediaHotkeys) {\\n\
-        return;\\n\
-    }\\n\
-    onEvent = window.domOnEventMediaHotkeys = function (event) {\\n\
-        var media;\\n\
-        if (event === \"init\") {\\n\
-            Array.from(document.querySelectorAll(\\n\
-                \".domOnEventMediaHotkeysInit\"\\n\
-            )).forEach(function (media) {\\n\
-                media.classList.remove(\"domOnEventMediaHotkeysInit\");\\n\
-                media.classList.add(\"domOnEventMediaHotkeys\");\\n\
-                [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\\n\
-                    media.addEventListener(event, onEvent);\\n\
-                });\\n\
-            });\\n\
-            return;\\n\
-        }\\n\
-        if (event.currentTarget.classList.contains(\"domOnEventMediaHotkeys\")) {\\n\
-            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\\n\
-            window.domOnEventMediaHotkeysInput.focus();\\n\
-            return;\\n\
-        }\\n\
-        media = window.domOnEventMediaHotkeysMedia1;\\n\
-        try {\\n\
-            switch (event.key || event.type) {\\n\
-            case \",\":\\n\
-            case \".\":\\n\
-                media.currentTime += (event.key === \",\" && -0.03125) || 0.03125;\\n\
-                break;\\n\
-            case \"<\":\\n\
-            case \">\":\\n\
-                media.playbackRate *= (event.key === \"<\" && 0.5) || 2;\\n\
-                break;\\n\
-            case \"ArrowDown\":\\n\
-            case \"ArrowUp\":\\n\
-                media.volume += (event.key === \"ArrowDown\" && -0.05) || 0.05;\\n\
-                break;\\n\
-            case \"ArrowLeft\":\\n\
-            case \"ArrowRight\":\\n\
-                media.currentTime += (event.key === \"ArrowLeft\" && -5) || 5;\\n\
-                break;\\n\
-            case \"j\":\\n\
-            case \"l\":\\n\
-                media.currentTime += (event.key === \"j\" && -10) || 10;\\n\
-                break;\\n\
-            case \"k\":\\n\
-            case \" \":\\n\
-                if (media.paused) {\\n\
-                    media.play();\\n\
-                } else {\\n\
-                    media.pause();\\n\
-                }\\n\
-                break;\\n\
-            case \"m\":\\n\
-                media.muted = !media.muted;\\n\
-                break;\\n\
-            default:\\n\
-                if (event.key >= 0) {\\n\
-                    media.currentTime = 0.1 * event.key * media.duration;\\n\
-                    break;\\n\
-                }\\n\
-                return;\\n\
-            }\\n\
-        } catch (ignore) {\\n\
-        }\\n\
-        event.preventDefault();\\n\
-    };\\n\
-    input = window.domOnEventMediaHotkeysInput = document.createElement(\"button\");\\n\
-    input.style = \"border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;\";\\n\
-    input.addEventListener(\"click\", onEvent);\\n\
-    input.addEventListener(\"keydown\", onEvent);\\n\
-    document.body.appendChild(input);\\n\
-    onEvent(\"init\");\\n\
 }());\\n\
 // init domOnEventSelectAllWithinPre\\n\
 (function () {\\n\
@@ -30026,6 +29921,7 @@ utility2-comment -->\\n\
         /* validateLineSortedReset */\n\
         local.assetsDict['/'] =\n\
             local.assetsDict['/assets.example.html'] =\n\
+            local.assetsDict['/index.html'] =\n\
             local.assetsDict['/assets.index.template.html']\n\
             .replace((/\\{\\{env\\.(\\w+?)\\}\\}/g), function (match0, match1) {\n\
                 switch (match1) {\n\
@@ -30217,6 +30113,8 @@ textarea {\n\
 <body>\n\
 <div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\n\
 <div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\n\
+<a class=\"zeroPixel\" download=\"db.persistence.json\" href=\"\" id=\"dbExportA1\"></a>\n\
+<input class=\"zeroPixel\" id=\"dbImportInput1\" type=\"file\">\n\
 <script>\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
@@ -30286,87 +30184,6 @@ textarea {\n\
         clearInterval(window.timerIntervalAjaxProgressUpdate);\n\
         ajaxProgressUpdate();\n\
     });\n\
-}());\n\
-// init domOnEventMediaHotkeys\n\
-(function () {\n\
-/*\n\
- * this function will add media-hotkeys to elements with class=\".domOnEventMediaHotkeysInit\"\n\
- */\n\
-    \"use strict\";\n\
-    var input, onEvent;\n\
-    if (window.domOnEventMediaHotkeys) {\n\
-        return;\n\
-    }\n\
-    onEvent = window.domOnEventMediaHotkeys = function (event) {\n\
-        var media;\n\
-        if (event === \"init\") {\n\
-            Array.from(document.querySelectorAll(\n\
-                \".domOnEventMediaHotkeysInit\"\n\
-            )).forEach(function (media) {\n\
-                media.classList.remove(\"domOnEventMediaHotkeysInit\");\n\
-                media.classList.add(\"domOnEventMediaHotkeys\");\n\
-                [\"play\", \"pause\", \"seeking\"].forEach(function (event) {\n\
-                    media.addEventListener(event, onEvent);\n\
-                });\n\
-            });\n\
-            return;\n\
-        }\n\
-        if (event.currentTarget.classList.contains(\"domOnEventMediaHotkeys\")) {\n\
-            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;\n\
-            window.domOnEventMediaHotkeysInput.focus();\n\
-            return;\n\
-        }\n\
-        media = window.domOnEventMediaHotkeysMedia1;\n\
-        try {\n\
-            switch (event.key || event.type) {\n\
-            case \",\":\n\
-            case \".\":\n\
-                media.currentTime += (event.key === \",\" && -0.03125) || 0.03125;\n\
-                break;\n\
-            case \"<\":\n\
-            case \">\":\n\
-                media.playbackRate *= (event.key === \"<\" && 0.5) || 2;\n\
-                break;\n\
-            case \"ArrowDown\":\n\
-            case \"ArrowUp\":\n\
-                media.volume += (event.key === \"ArrowDown\" && -0.05) || 0.05;\n\
-                break;\n\
-            case \"ArrowLeft\":\n\
-            case \"ArrowRight\":\n\
-                media.currentTime += (event.key === \"ArrowLeft\" && -5) || 5;\n\
-                break;\n\
-            case \"j\":\n\
-            case \"l\":\n\
-                media.currentTime += (event.key === \"j\" && -10) || 10;\n\
-                break;\n\
-            case \"k\":\n\
-            case \" \":\n\
-                if (media.paused) {\n\
-                    media.play();\n\
-                } else {\n\
-                    media.pause();\n\
-                }\n\
-                break;\n\
-            case \"m\":\n\
-                media.muted = !media.muted;\n\
-                break;\n\
-            default:\n\
-                if (event.key >= 0) {\n\
-                    media.currentTime = 0.1 * event.key * media.duration;\n\
-                    break;\n\
-                }\n\
-                return;\n\
-            }\n\
-        } catch (ignore) {\n\
-        }\n\
-        event.preventDefault();\n\
-    };\n\
-    input = window.domOnEventMediaHotkeysInput = document.createElement(\"button\");\n\
-    input.style = \"border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;\";\n\
-    input.addEventListener(\"click\", onEvent);\n\
-    input.addEventListener(\"keydown\", onEvent);\n\
-    document.body.appendChild(input);\n\
-    onEvent(\"init\");\n\
 }());\n\
 // init domOnEventSelectAllWithinPre\n\
 (function () {\n\
@@ -30738,6 +30555,36 @@ $/).test(xhr.responseText), xhr.responseText);\n\
             options.onNext();\n\
         };\n\
 \n\
+        local.testCase_ajax_echo = function (options, onError) {\n\
+            // test /test.echo handling-behavior\n\
+            local.ajax({\n\
+                data: 'aa',\n\
+                // test request-header handling-behavior\n\
+                headers: { 'X-Request-Header-Test': 'aa' },\n\
+                method: 'POST',\n\
+                // test modeDebug handling-behavior\n\
+                modeDebug: true,\n\
+                url: '/test.echo'\n\
+            }, function (error, xhr) {\n\
+                // validate no error occurred\n\
+                local.assert(!error, error);\n\
+                // validate statusCode\n\
+                local.assertJsonEqual(xhr.statusCode, 200);\n\
+                // validate response\n\
+                local.assert((/\\r\\n\
+aa$/).test(xhr.responseText), xhr.responseText);\n\
+                local.assert(\n\
+                    (/\\r\\n\
+x-request-header-test: aa\\r\\n\
+/).test(xhr.responseText),\n\
+                    xhr.responseText\n\
+                );\n\
+                // validate responseHeaders\n\
+                local.assertJsonEqual(xhr.responseHeaders['x-response-header-test'], 'bb');\n\
+                onError(null, options);\n\
+            });\n\
+        };\n\
+\n\
         local.testCase_ajax_error = function (options, onError) {\n\
         /*\n\
          * this function will test ajax's error handling-behavior\n\
@@ -30785,7 +30632,6 @@ $/).test(xhr.responseText), xhr.responseText);\n\
         /*\n\
          * this function will test ajax's POST handling-behavior\n\
          */\n\
-            options = {};\n\
             // test /test.body handling-behavior\n\
             local.onParallelList({ list: [\n\
                 '',\n\
@@ -30796,9 +30642,9 @@ $/).test(xhr.responseText), xhr.responseText);\n\
                 onParallel.counter += 1;\n\
                 local.ajax({\n\
                     data: responseType === 'arraybuffer'\n\
-                        // test buffer post handling-behavior\n\
+                        // test POST buffer-data handling-behavior\n\
                         ? local.bufferCreate('aa')\n\
-                        // test string post handling-behavior\n\
+                        // test POST string-data handling-behavior\n\
                         : 'aa',\n\
                     method: 'POST',\n\
                     // test nodejs response handling-behavior\n\
@@ -30809,70 +30655,82 @@ $/).test(xhr.responseText), xhr.responseText);\n\
                     local.assert(!error, error);\n\
                     // validate statusCode\n\
                     local.assertJsonEqual(xhr.statusCode, 200);\n\
-                    // validate response\n\
-                    local.assertJsonEqual(xhr.response.length, 2);\n\
-                    local.assertJsonEqual(xhr.response[0], 97);\n\
-                    local.assertJsonEqual(xhr.response[1], 97);\n\
                     // validate responseText\n\
                     switch (responseType) {\n\
                     case 'arraybuffer':\n\
-                        local.assertJsonEqual(xhr.responseText, '');\n\
+                        local.assertJsonEqual(xhr.responseBuffer.byteLength, 2);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[0], 97);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[1], 97);\n\
                         break;\n\
                     default:\n\
                         local.assertJsonEqual(xhr.responseText, 'aa');\n\
                     }\n\
                     onParallel(null, options);\n\
                 });\n\
-            }, function (error) {\n\
-                // validate no error occurred\n\
-                local.assert(!error, error);\n\
-                // test /test.echo handling-behavior\n\
+            }, onError);\n\
+        };\n\
+\n\
+        local.testCase_ajax_responseType = function (options, onError) {\n\
+        /*\n\
+         * this function will test ajax's responseType handling-behavior\n\
+         */\n\
+            options = {};\n\
+            // test /test.body handling-behavior\n\
+            local.onParallelList({ list: [\n\
+                '',\n\
+                'arraybuffer',\n\
+                'text'\n\
+            ] }, function (responseType, onParallel) {\n\
+                responseType = responseType.element;\n\
+                onParallel.counter += 1;\n\
                 local.ajax({\n\
-                    data: 'aa',\n\
-                    // test request-header handling-behavior\n\
-                    headers: { 'X-Request-Header-Test': 'aa' },\n\
-                    method: 'POST',\n\
-                    // test modeDebug handling-behavior\n\
-                    modeDebug: true,\n\
-                    url: '/test.echo'\n\
+                    // test nodejs response handling-behavior\n\
+                    responseType: responseType,\n\
+                    url: '/assets.hello'\n\
                 }, function (error, xhr) {\n\
                     // validate no error occurred\n\
                     local.assert(!error, error);\n\
                     // validate statusCode\n\
                     local.assertJsonEqual(xhr.statusCode, 200);\n\
-                    // validate response\n\
-                    options.data = xhr.responseText;\n\
-                    local.assert((/\\r\\n\
-aa$/).test(options.data), options.data);\n\
-                    local.assert(\n\
-                        (/\\r\\n\
-x-request-header-test: aa\\r\\n\
-/).test(options.data),\n\
-                        options.data\n\
-                    );\n\
-                    // validate responseHeaders\n\
-                    options.data = xhr.responseHeaders['x-response-header-test'];\n\
-                    local.assertJsonEqual(options.data, 'bb');\n\
-                    onError(null, options);\n\
+                    // validate responseText\n\
+                    switch (responseType) {\n\
+                    case 'arraybuffer':\n\
+                        local.assertJsonEqual(xhr.responseBuffer.byteLength, 6);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[0], 104);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[1], 101);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[2], 108);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[3], 108);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[4], 111);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[5], 10);\n\
+                        break;\n\
+                    default:\n\
+                        local.assertJsonEqual(xhr.responseText, 'hello\\n\
+');\n\
+                    }\n\
+                    onParallel(null, options);\n\
                 });\n\
-            });\n\
+            }, onError);\n\
         };\n\
 \n\
         local.testCase_ajax_standalone = function (options, onError) {\n\
         /*\n\
          * this function will test ajax's standalone handling-behavior\n\
          */\n\
+            var onParallel;\n\
+            onParallel = local.onParallel(onError);\n\
             local.testMock([\n\
                 [local, {\n\
                     _http: null,\n\
                     ajaxProgressCounter: null,\n\
                     ajaxProgressUpdate: null,\n\
-                    bufferToNodeBuffer: null,\n\
+                    bufferToString: null,\n\
                     onErrorWithStack: null,\n\
+                    serverLocalUrlTest: null,\n\
                     timeoutDefault: null\n\
                 }]\n\
             ], function (onError) {\n\
                 // test default handling-behavior\n\
+                onParallel.counter += 1;\n\
                 local.ajax({\n\
                     url: local.isBrowser\n\
                         ? location.href\n\
@@ -30882,22 +30740,25 @@ x-request-header-test: aa\\r\\n\
                     local.assertJsonEqual(xhr.statusCode, 200);\n\
                     // validate no error occurred\n\
                     local.assert(!error, error);\n\
+                    onParallel();\n\
                 });\n\
                 // test error handling-behavior\n\
+                onParallel.counter += 1;\n\
                 local.ajax({\n\
                     responseType: 'undefined',\n\
                     undefined: undefined,\n\
                     url: (local.isBrowser\n\
-                        ? location.href\n\
+                        ? location.href.replace((/\\?.*$/), '')\n\
                         : local.serverLocalHost) + '/undefined'\n\
                 }, function (error, xhr) {\n\
                     // validate statusCode\n\
                     local.assertJsonEqual(xhr.statusCode, 404);\n\
                     // validate error occurred\n\
                     local.assert(error, error);\n\
+                    onParallel();\n\
                 });\n\
                 onError(null, options);\n\
-            }, onError);\n\
+            }, local.onErrorThrow);\n\
         };\n\
 \n\
         local.testCase_ajax_timeout = function (options, onError) {\n\
@@ -30972,21 +30833,20 @@ x-request-header-test: aa\\r\\n\
          * this function will test base64Xxx's default handling-behavior\n\
          */\n\
             options = {};\n\
-            options.base64 = local.base64FromString(local.stringCharsetAscii + '\\u1234');\n\
+            options.base64 = local.base64FromBuffer(local.stringCharsetAscii + '\\u1234');\n\
             // test null-case handling-behavior\n\
             local.assertJsonEqual(local.base64FromBuffer(), '');\n\
-            local.assertJsonEqual(local.base64FromString(), '');\n\
-            local.assertJsonEqual(local.base64ToBuffer(), {});\n\
+            local.assertJsonEqual(local.bufferToString(local.base64ToBuffer()), '');\n\
             local.assertJsonEqual(local.base64ToString(), '');\n\
             local.assertJsonEqual(local.base64FromBuffer(local.base64ToBuffer()), '');\n\
-            local.assertJsonEqual(local.base64FromString(local.base64ToString()), '');\n\
+            local.assertJsonEqual(local.base64FromBuffer(local.base64ToString()), '');\n\
             // test identity handling-behavior\n\
             local.assertJsonEqual(\n\
                 local.base64FromBuffer(local.base64ToBuffer(options.base64)),\n\
                 options.base64\n\
             );\n\
             local.assertJsonEqual(\n\
-                local.base64FromString(local.base64ToString(options.base64)),\n\
+                local.base64FromBuffer(local.base64ToString(options.base64)),\n\
                 options.base64\n\
             );\n\
             onError(null, options);\n\
@@ -31024,10 +30884,7 @@ x-request-header-test: aa\\r\\n\
                             local.assertJsonEqual(data, 'aabb\\u1234 0');\n\
                             break;\n\
                         default:\n\
-                            local.assertJsonEqual(\n\
-                                local.bufferToString(data),\n\
-                                'aabb\\u1234 0'\n\
-                            );\n\
+                            local.assertJsonEqual(local.bufferToString(data), 'aabb\\u1234 0');\n\
                         }\n\
                         onParallel(null, options);\n\
                     });\n\
@@ -31206,12 +31063,11 @@ x-request-header-test: aa\\r\\n\
                 { buffer: 'aabbaa', subBuffer: 'bb', validate: 2 },\n\
                 { buffer: 'aabbaa', subBuffer: 'ba', validate: 3 }\n\
             ].forEach(function (options) {\n\
-                options.data = local.bufferIndexOfSubBuffer(\n\
+                local.assertJsonEqual(local.bufferIndexOfSubBuffer(\n\
                     local.bufferCreate(options.buffer),\n\
                     local.bufferCreate(options.subBuffer),\n\
                     options.fromIndex\n\
-                );\n\
-                local.assertJsonEqual(options.data, options.validate);\n\
+                ), options.validate);\n\
             });\n\
             onError(null, options);\n\
         };\n\
@@ -31355,6 +31211,7 @@ x-request-header-test: aa\\r\\n\
                     .replace('  shNpmTestPublished', '# shNpmTestPublished')\n\
                     // test no-assets.index.template.html handling-behavior\n\
                     .replace('assets.utility2.template.html', '');\n\
+                local.env.npm_package_isPrivate = '';\n\
             };\n\
             options.fsReadFileSync = local.fs.readFileSync;\n\
             local.testMock([\n\
@@ -31604,14 +31461,12 @@ x-request-header-test: aa\\r\\n\
          * this function will cryptoAesXxxCbcRawXxx's default handling-behavior\n\
          */\n\
             options = {};\n\
+            // bug-workaround - unavailable crypto.subtle\n\
+            setTimeout(function () {\n\
+                onError(null, options);\n\
+                onError = local.nop;\n\
+            }, 5000);\n\
             local.onNext(options, function (error, data) {\n\
-                // bug-workaround - crypto.subtle sometimes freezes in browser\n\
-                /* istanbul ignore next */\n\
-                setTimeout(function () {\n\
-                    if (local.isBrowser && options.modeNext <= 6) {\n\
-                        options.onNext();\n\
-                    }\n\
-                }, 1000);\n\
                 switch (options.modeNext) {\n\
                 case 1:\n\
                     // encrypt data\n\
@@ -31868,9 +31723,11 @@ console.log(\"aa\");',\n\
             options = {};\n\
             options.key = local.jwtAes256KeyCreate();\n\
             // use canonical example at https://jwt.io/\n\
-            options.data = { sub: '1234567890', name: 'John Doe', admin: true };\n\
-            options.data = local.normalizeJwt(options.data);\n\
-            options.data = JSON.parse(local.jsonStringifyOrdered(options.data));\n\
+            options.data = JSON.parse(local.jsonStringifyOrdered(local.normalizeJwt({\n\
+                sub: '1234567890',\n\
+                name: 'John Doe',\n\
+                admin: true\n\
+            })));\n\
             // encrypt token\n\
             options.token = local.jwtAes256GcmEncrypt(options.data, options.key);\n\
             // validate encrypted-token\n\
@@ -31888,7 +31745,7 @@ console.log(\"aa\");',\n\
          * this function will test jwtHs256Xxx's default handling-behavior\n\
          */\n\
             options = {};\n\
-            options.key = local.normalizeJwtBase64Url(local.base64FromString('secret'));\n\
+            options.key = local.normalizeJwtBase64Url(local.base64FromBuffer('secret'));\n\
             // use canonical example at https://jwt.io/\n\
             options.data = { sub: '1234567890', name: 'John Doe', admin: true };\n\
             options.token = local.jwtHs256Encode(options.data, options.key);\n\
@@ -31899,15 +31756,13 @@ console.log(\"aa\");',\n\
                     '.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9' +\n\
                     '.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ'\n\
             );\n\
-            options.data = local.jwtHs256Decode(options.token, options.key);\n\
             // validate decoded-data\n\
             local.assertJsonEqual(\n\
-                options.data,\n\
+                local.jwtHs256Decode(options.token, options.key),\n\
                 { admin: true, name: 'John Doe', sub: '1234567890' }\n\
             );\n\
             // test decoding-failed handling-behavior\n\
-            options.data = local.jwtHs256Decode(options.token, 'undefined');\n\
-            local.assertJsonEqual(options.data, {});\n\
+            local.assertJsonEqual(local.jwtHs256Decode(options.token, 'undefined'), {});\n\
             onError(null, options);\n\
         };\n\
 \n\
