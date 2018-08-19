@@ -1,0 +1,115 @@
+<svg height="990" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="990" fill="#555" width="720"></rect>
+<text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
+<tspan x="10" y="26"></tspan>
+
+<tspan x="10" y="42">[MODE_BUILD=buildApidoc] - 2018-04-09T00:39:42.392Z - npm-testing /home/travis/build/kaizhu256/n\</tspan>
+<tspan x="10" y="58">ode-swagger-ui-lite</tspan>
+
+<tspan x="10" y="74"></tspan>
+
+<tspan x="10" y="90"></tspan>
+
+<tspan x="10" y="106">buildApidoc - merged test-report from file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp\</tspan>
+<tspan x="10" y="122">/build/test-report.json</tspan>
+
+<tspan x="10" y="138">override assets assets.index.template.html</tspan>
+
+<tspan x="10" y="154">&gt; server listening on http-port 45256</tspan>
+
+<tspan x="10" y="170">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/package.json</tspan>
+
+<tspan x="10" y="186">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/assets.index.templa\</tspan>
+<tspan x="10" y="202">te.html</tspan>
+
+<tspan x="10" y="218">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/assets.swagger_ui.p\</tspan>
+<tspan x="10" y="234">etstore.json</tspan>
+
+<tspan x="10" y="250">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/.gitignore</tspan>
+
+<tspan x="10" y="266">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/lib.swagger_ui.js</tspan>
+
+<tspan x="10" y="282">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/LICENSE</tspan>
+
+<tspan x="10" y="298">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/package.json</tspan>
+
+<tspan x="10" y="314">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/package-lock.json</tspan>
+
+<tspan x="10" y="330">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/README.md</tspan>
+
+<tspan x="10" y="346">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/test.js</tspan>
+
+<tspan x="10" y="362">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/.travis.yml</tspan>
+
+<tspan x="10" y="378">apidocCreate - requiring /home/travis/build/kaizhu256/node-swagger-ui-lite ...</tspan>
+
+<tspan x="10" y="394">apidocCreate - ... required /home/travis/build/kaizhu256/node-swagger-ui-lite</tspan>
+
+<tspan x="10" y="410">created apidoc file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/apidoc.html</tspan>
+
+<tspan x="10" y="426"></tspan>
+
+<tspan x="10" y="442">[node test-case 1 of 1 passed] - testCase_buildApidoc_default</tspan>
+
+<tspan x="10" y="458"></tspan>
+
+<tspan x="10" y="474">buildApidoc - merged test-report from file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp\</tspan>
+<tspan x="10" y="490">/build/test-report.json</tspan>
+
+<tspan x="10" y="506"></tspan>
+
+<tspan x="10" y="522">-------------------------------------------------------</tspan>
+
+<tspan x="10" y="538">| test-report - buildApidoc - node - linux v9.11.1 - 2018-04-09T00:39:42.585Z</tspan>
+
+<tspan x="10" y="554">|     338 ms            0 failed        1 passed      |</tspan>
+
+<tspan x="10" y="570">-------------------------------------------------------</tspan>
+
+<tspan x="10" y="586">| test-report - npmTest - browser - /index.default.html - Mozilla/5.0 (X11; Linux x86_64) AppleW\</tspan>
+<tspan x="10" y="602">ebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.13 Safari/537.36 - 2018-04-09\</tspan>
+<tspan x="10" y="618">T00:39:25.006Z</tspan>
+
+<tspan x="10" y="634">|      32 ms            0 failed        8 passed      |</tspan>
+
+<tspan x="10" y="650">-------------------------------------------------------</tspan>
+
+<tspan x="10" y="666">| test-report - npmTest - node - linux v9.11.1 - 2018-04-09T00:39:23.234Z</tspan>
+
+<tspan x="10" y="682">|   16486 ms            0 failed        8 passed      |</tspan>
+
+<tspan x="10" y="698">-------------------------------------------------------</tspan>
+
+<tspan x="10" y="714">| test-report - npmTestPublished - browser - /index.default.html - Mozilla/5.0 (X11; Linux x86_6\</tspan>
+<tspan x="10" y="730">4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.13 Safari/537.36 - 2\</tspan>
+<tspan x="10" y="746">018-04-09T00:38:18.939Z</tspan>
+
+<tspan x="10" y="762">|      28 ms            0 failed        8 passed      |</tspan>
+
+<tspan x="10" y="778">-------------------------------------------------------</tspan>
+
+<tspan x="10" y="794">| test-report - npmTestPublished - node - linux v9.11.1 - 2018-04-09T00:38:16.100Z</tspan>
+
+<tspan x="10" y="810">|   17514 ms            0 failed        8 passed      |</tspan>
+
+<tspan x="10" y="826">-------------------------------------------------------</tspan>
+
+<tspan x="10" y="842"></tspan>
+
+<tspan x="10" y="858">created test-report file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/test-report\</tspan>
+<tspan x="10" y="874">.html</tspan>
+
+<tspan x="10" y="890"></tspan>
+
+<tspan x="10" y="906"></tspan>
+
+<tspan x="10" y="922">buildApidoc - 0 failed tests</tspan>
+
+<tspan x="10" y="938"></tspan>
+
+<tspan x="10" y="954"></tspan>
+
+<tspan x="10" y="970">[MODE_BUILD=buildApidoc] - 2018-04-09T00:39:44.352Z - EXIT_CODE - 0</tspan>
+
+</text>
+</svg>
