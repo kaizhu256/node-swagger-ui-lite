@@ -1,3 +1,4 @@
+// usr/bin/env node
 /* istanbul instrument in package swagger_ui */
 /* jslint-utility2 */
 /*jslint
