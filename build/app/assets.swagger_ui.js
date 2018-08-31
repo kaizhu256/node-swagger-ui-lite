@@ -22,21 +22,18 @@
         // init debug_inline
         (function () {
             var consoleError, context, key;
-            context = (typeof window === "object" && window) || global;
-            key = "debug_inline".replace("_i", "I");
-            if (context[key]) {
-                return;
-            }
             consoleError = console.error;
-            context[key] = function (arg0) {
+            context = (typeof window === 'object' && window) || global;
+            key = 'debug_inline'.replace('_i', 'I');
+            context[key] = context[key] || function (arg0) {
             /*
              * this function will both print arg0 to stderr and return it
              */
                 // debug arguments
-                context["_" + key + "Arguments"] = arguments;
-                consoleError("\n\n" + key);
+                context['_' + key + 'Arguments'] = arguments;
+                consoleError('\n\n' + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + '\n');
                 // return arg0 for inspection
                 return arg0;
             };
@@ -44,10 +41,10 @@
         // init local
         local = {};
         // init isBrowser
-        local.isBrowser = typeof window === "object" &&
-            typeof window.XMLHttpRequest === "function" &&
+        local.isBrowser = typeof window === 'object' &&
+            typeof window.XMLHttpRequest === 'function' &&
             window.document &&
-            typeof window.document.querySelectorAll === "function";
+            typeof window.document.querySelectorAll === 'function';
         // init global
         local.global = local.isBrowser
             ? window
@@ -56,13 +53,6 @@
         local = local.global.utility2_rollup ||
             // local.global.utility2_rollup_old || require('./assets.utility2.rollup.js') ||
             local;
-        // init nop
-        local.nop = function () {
-        /*
-         * this function will do nothing
-         */
-            return;
-        };
         // init exports
         if (local.isBrowser) {
             local.global.utility2_swagger_ui = local;
@@ -93,7 +83,6 @@
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;

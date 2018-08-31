@@ -111,21 +111,18 @@ instruction
         // init debug_inline
         (function () {
             var consoleError, context, key;
-            context = (typeof window === "object" && window) || global;
-            key = "debug_inline".replace("_i", "I");
-            if (context[key]) {
-                return;
-            }
             consoleError = console.error;
-            context[key] = function (arg0) {
+            context = (typeof window === 'object' && window) || global;
+            key = 'debug_inline'.replace('_i', 'I');
+            context[key] = context[key] || function (arg0) {
             /*
              * this function will both print arg0 to stderr and return it
              */
                 // debug arguments
-                context["_" + key + "Arguments"] = arguments;
-                consoleError("\n\n" + key);
+                context['_' + key + 'Arguments'] = arguments;
+                consoleError('\n\n' + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + '\n');
                 // return arg0 for inspection
                 return arg0;
             };
@@ -133,10 +130,10 @@ instruction
         // init local
         local = {};
         // init isBrowser
-        local.isBrowser = typeof window === "object" &&
-            typeof window.XMLHttpRequest === "function" &&
+        local.isBrowser = typeof window === 'object' &&
+            typeof window.XMLHttpRequest === 'function' &&
             window.document &&
-            typeof window.document.querySelectorAll === "function";
+            typeof window.document.querySelectorAll === 'function';
         // init global
         local.global = local.isBrowser
             ? window
@@ -145,13 +142,6 @@ instruction
         local = local.global.utility2_rollup ||
             // local.global.utility2_rollup_old || require('./assets.utility2.rollup.js') ||
             local;
-        // init nop
-        local.nop = function () {
-        /*
-         * this function will do nothing
-         */
-            return;
-        };
         // init exports
         if (local.isBrowser) {
             local.global.utility2_apidoc = local;
@@ -182,7 +172,6 @@ instruction
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -202,7 +191,7 @@ instruction
             if (passed) {
                 return;
             }
-            error = message && message.message
+            error = message && message.stack
                 // if message is an error-object, then leave it as is
                 ? message
                 : new Error(typeof message === 'string'
@@ -232,7 +221,7 @@ instruction
             local.cliDict._eval = local.cliDict._eval || function () {
             /*
              * <code>
-             * # eval code
+             * will eval <code>
              */
                 local.global.local = local;
                 require('vm').runInThisContext(process.argv[3]);
@@ -242,13 +231,17 @@ instruction
             local.cliDict._help = local.cliDict._help || function (options) {
             /*
              *
-             * # print help
+             * will print help
              */
                 var commandList, file, packageJson, text, textDict;
                 commandList = [{
-                    arg: '<arg2> ...',
+                    argList: '<arg2>  ...',
                     description: 'usage:',
                     command: ['<arg1>']
+                }, {
+                    argList: '\'console.log("hello world")\'',
+                    description: 'example:',
+                    command: ['--eval']
                 }];
                 file = __filename.replace((/.*\//), '');
                 packageJson = require('./package.json');
@@ -259,9 +252,9 @@ instruction
                     }
                     text = String(local.cliDict[key]);
                     if (key === '_default') {
-                        key = '<>';
+                        key = '';
                     }
-                    ii = textDict[text] = textDict[text] || (ii + 1);
+                    ii = textDict[text] = textDict[text] || (ii + 2);
                     if (commandList[ii]) {
                         commandList[ii].command.push(key);
                     } else {
@@ -271,7 +264,7 @@ instruction
                             commandList[ii] = commandList[ii] || ['', '', ''];
                         }()));
                         commandList[ii] = {
-                            arg: commandList[ii][1].trim(),
+                            argList: commandList[ii][1].trim(),
                             command: [key],
                             description: commandList[ii][2].trim()
                         };
@@ -279,21 +272,37 @@ instruction
                 });
                 (options && options.modeError
                     ? console.error
-                    : console.log)((options && options.modeError
+                    : console.log)(
+                    (options && options.modeError
                     ? '\u001b[31merror: missing <arg1>\u001b[39m\n\n'
-                    : '') + packageJson.name + ' (' + packageJson.version + ')\n\n' + commandList
-                    .filter(function (element) {
-                        return element;
-                    }).map(function (element) {
-                        return (element.description + '\n' +
-                            file + '  ' +
-                            element.command.sort().join('|') + '  ' +
-                            element.arg.replace((/ +/g), '  '))
-                                .replace((/<>\||\|<>|<> {2}/), '')
-                                .trim();
-                    })
-                    .join('\n\n') + '\n\nexample:\n' + file +
-                    '  --eval  \'console.log("hello world")\'');
+                    : '') +
+                        packageJson.name + ' (' + packageJson.version + ')\n\n' +
+                        commandList
+                        .filter(function (element) {
+                            return element;
+                        })
+                        .map(function (element, ii) {
+                            element.command = element.command.filter(function (element) {
+                                return element;
+                            });
+                            switch (ii) {
+                            case 0:
+                            case 1:
+                                element.argList = [element.argList];
+                                break;
+                            default:
+                                element.argList = element.argList.split(' ');
+                                element.description = '# COMMAND ' +
+                                    (element.command[0] || '<none>') + '\n# ' +
+                                    element.description;
+                            }
+                            return element.description + '\n  ' + file +
+                                ('  ' + element.command.sort().join('|') + '  ')
+                                .replace((/^ {4}$/), '  ') +
+                                element.argList.join('  ');
+                        })
+                        .join('\n\n')
+                );
             };
             local.cliDict['--help'] = local.cliDict['--help'] || local.cliDict._help;
             local.cliDict['-h'] = local.cliDict['-h'] || local.cliDict._help;
@@ -302,12 +311,12 @@ instruction
             local.cliDict._interactive = local.cliDict._interactive || function () {
             /*
              *
-             * # start interactive-mode
+             * will start interactive-mode
              */
                 local.global.local = local;
                 local.replStart();
             };
-            if (local.replStart) {
+            if (typeof local.replStart === 'function') {
                 local.cliDict['--interactive'] = local.cliDict['--interactive'] ||
                     local.cliDict._interactive;
                 local.cliDict['-i'] = local.cliDict['-i'] || local.cliDict._interactive;
@@ -315,7 +324,7 @@ instruction
             local.cliDict._version = local.cliDict._version || function () {
             /*
              *
-             * # print version
+             * will print version
              */
                 console.log(require(__dirname + '/package.json').version);
             };
@@ -365,15 +374,22 @@ instruction
             return result || '';
         };
 
-        local.objectSetDefault = function (arg0, defaults, depth) {
+        local.nop = function () {
         /*
-         * this function will recursively set defaults for undefined-items in arg0
+         * this function will do nothing
          */
-            arg0 = arg0 || {};
+            return;
+        };
+
+        local.objectSetDefault = function (dict, defaults, depth) {
+        /*
+         * this function will recursively set defaults for undefined-items in dict
+         */
+            dict = dict || {};
             defaults = defaults || {};
             Object.keys(defaults).forEach(function (key) {
-                var arg2, defaults2;
-                arg2 = arg0[key];
+                var dict2, defaults2;
+                dict2 = dict[key];
                 // handle misbehaving getter
                 try {
                     defaults2 = defaults[key];
@@ -382,26 +398,26 @@ instruction
                 if (defaults2 === undefined) {
                     return;
                 }
-                // init arg0[key] to default value defaults[key]
-                switch (arg2) {
+                // init dict[key] to default value defaults[key]
+                switch (dict2) {
                 case '':
                 case null:
                 case undefined:
-                    arg0[key] = defaults2;
+                    dict[key] = defaults2;
                     return;
                 }
-                // if arg2 and defaults2 are both non-null and non-array objects,
-                // then recurse with arg2 and defaults2
+                // if dict2 and defaults2 are both non-null and non-array objects,
+                // then recurse with dict2 and defaults2
                 if (depth > 1 &&
-                        // arg2 is a non-null and non-array object
-                        typeof arg2 === 'object' && arg2 && !Array.isArray(arg2) &&
+                        // dict2 is a non-null and non-array object
+                        typeof dict2 === 'object' && dict2 && !Array.isArray(dict2) &&
                         // defaults2 is a non-null and non-array object
                         typeof defaults2 === 'object' && defaults2 && !Array.isArray(defaults2)) {
                     // recurse
-                    local.objectSetDefault(arg2, defaults2, depth - 1);
+                    local.objectSetDefault(dict2, defaults2, depth - 1);
                 }
             });
-            return arg0;
+            return dict;
         };
 
         local.stringHtmlSafe = function (text) {
@@ -566,7 +582,7 @@ instruction
 
         local.tryCatchOnError = function (fnc, onError) {
         /*
-         * this function will try to run the fnc in a try-catch block,
+         * this function will run the fnc in a tryCatch block,
          * else call onError with the errorCaught
          */
             var result;
@@ -1151,7 +1167,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
         local.cliDict._default = function () {
         /*
          * <moduleDirectory>
-         * # create apidoc from <moduleDirectory>
+         * will create apidoc from <moduleDirectory>
          */
             // jslint files
             process.stdout.write(local.apidocCreate({
@@ -1228,21 +1244,18 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
         // init debug_inline
         (function () {
             var consoleError, context, key;
-            context = (typeof window === "object" && window) || global;
-            key = "debug_inline".replace("_i", "I");
-            if (context[key]) {
-                return;
-            }
             consoleError = console.error;
-            context[key] = function (arg0) {
+            context = (typeof window === 'object' && window) || global;
+            key = 'debug_inline'.replace('_i', 'I');
+            context[key] = context[key] || function (arg0) {
             /*
              * this function will both print arg0 to stderr and return it
              */
                 // debug arguments
-                context["_" + key + "Arguments"] = arguments;
-                consoleError("\n\n" + key);
+                context['_' + key + 'Arguments'] = arguments;
+                consoleError('\n\n' + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + '\n');
                 // return arg0 for inspection
                 return arg0;
             };
@@ -1250,10 +1263,10 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
         // init local
         local = {};
         // init isBrowser
-        local.isBrowser = typeof window === "object" &&
-            typeof window.XMLHttpRequest === "function" &&
+        local.isBrowser = typeof window === 'object' &&
+            typeof window.XMLHttpRequest === 'function' &&
             window.document &&
-            typeof window.document.querySelectorAll === "function";
+            typeof window.document.querySelectorAll === 'function';
         // init global
         local.global = local.isBrowser
             ? window
@@ -1262,13 +1275,6 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
         local = local.global.utility2_rollup ||
             // local.global.utility2_rollup_old || require('./assets.utility2.rollup.js') ||
             local;
-        // init nop
-        local.nop = function () {
-        /*
-         * this function will do nothing
-         */
-            return;
-        };
         // init exports
         if (local.isBrowser) {
             local.global.utility2_db = local;
@@ -1299,7 +1305,6 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -1319,7 +1324,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             if (passed) {
                 return;
             }
-            error = message && message.message
+            error = message && message.stack
                 // if message is an error-object, then leave it as is
                 ? message
                 : new Error(typeof message === 'string'
@@ -1349,7 +1354,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             local.cliDict._eval = local.cliDict._eval || function () {
             /*
              * <code>
-             * # eval code
+             * will eval <code>
              */
                 local.global.local = local;
                 require('vm').runInThisContext(process.argv[3]);
@@ -1359,13 +1364,17 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             local.cliDict._help = local.cliDict._help || function (options) {
             /*
              *
-             * # print help
+             * will print help
              */
                 var commandList, file, packageJson, text, textDict;
                 commandList = [{
-                    arg: '<arg2> ...',
+                    argList: '<arg2>  ...',
                     description: 'usage:',
                     command: ['<arg1>']
+                }, {
+                    argList: '\'console.log("hello world")\'',
+                    description: 'example:',
+                    command: ['--eval']
                 }];
                 file = __filename.replace((/.*\//), '');
                 packageJson = require('./package.json');
@@ -1376,9 +1385,9 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
                     }
                     text = String(local.cliDict[key]);
                     if (key === '_default') {
-                        key = '<>';
+                        key = '';
                     }
-                    ii = textDict[text] = textDict[text] || (ii + 1);
+                    ii = textDict[text] = textDict[text] || (ii + 2);
                     if (commandList[ii]) {
                         commandList[ii].command.push(key);
                     } else {
@@ -1388,7 +1397,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
                             commandList[ii] = commandList[ii] || ['', '', ''];
                         }()));
                         commandList[ii] = {
-                            arg: commandList[ii][1].trim(),
+                            argList: commandList[ii][1].trim(),
                             command: [key],
                             description: commandList[ii][2].trim()
                         };
@@ -1396,21 +1405,37 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
                 });
                 (options && options.modeError
                     ? console.error
-                    : console.log)((options && options.modeError
+                    : console.log)(
+                    (options && options.modeError
                     ? '\u001b[31merror: missing <arg1>\u001b[39m\n\n'
-                    : '') + packageJson.name + ' (' + packageJson.version + ')\n\n' + commandList
-                    .filter(function (element) {
-                        return element;
-                    }).map(function (element) {
-                        return (element.description + '\n' +
-                            file + '  ' +
-                            element.command.sort().join('|') + '  ' +
-                            element.arg.replace((/ +/g), '  '))
-                                .replace((/<>\||\|<>|<> {2}/), '')
-                                .trim();
-                    })
-                    .join('\n\n') + '\n\nexample:\n' + file +
-                    '  --eval  \'console.log("hello world")\'');
+                    : '') +
+                        packageJson.name + ' (' + packageJson.version + ')\n\n' +
+                        commandList
+                        .filter(function (element) {
+                            return element;
+                        })
+                        .map(function (element, ii) {
+                            element.command = element.command.filter(function (element) {
+                                return element;
+                            });
+                            switch (ii) {
+                            case 0:
+                            case 1:
+                                element.argList = [element.argList];
+                                break;
+                            default:
+                                element.argList = element.argList.split(' ');
+                                element.description = '# COMMAND ' +
+                                    (element.command[0] || '<none>') + '\n# ' +
+                                    element.description;
+                            }
+                            return element.description + '\n  ' + file +
+                                ('  ' + element.command.sort().join('|') + '  ')
+                                .replace((/^ {4}$/), '  ') +
+                                element.argList.join('  ');
+                        })
+                        .join('\n\n')
+                );
             };
             local.cliDict['--help'] = local.cliDict['--help'] || local.cliDict._help;
             local.cliDict['-h'] = local.cliDict['-h'] || local.cliDict._help;
@@ -1419,12 +1444,12 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             local.cliDict._interactive = local.cliDict._interactive || function () {
             /*
              *
-             * # start interactive-mode
+             * will start interactive-mode
              */
                 local.global.local = local;
                 local.replStart();
             };
-            if (local.replStart) {
+            if (typeof local.replStart === 'function') {
                 local.cliDict['--interactive'] = local.cliDict['--interactive'] ||
                     local.cliDict._interactive;
                 local.cliDict['-i'] = local.cliDict['-i'] || local.cliDict._interactive;
@@ -1432,7 +1457,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             local.cliDict._version = local.cliDict._version || function () {
             /*
              *
-             * # print version
+             * will print version
              */
                 console.log(require(__dirname + '/package.json').version);
             };
@@ -1528,7 +1553,7 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
 
         local.listShuffle = function (list) {
         /*
-         * this function will inplace shuffle the list, via fisher-yates algorithm
+         * this function will inplace shuffle the list using fisher-yates algorithm
          * https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
          */
             var ii, random, swap;
@@ -1541,43 +1566,50 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
             return list;
         };
 
-        local.objectSetOverride = function (arg0, overrides, depth, env) {
+        local.nop = function () {
         /*
-         * this function will recursively set overrides for items in arg0
+         * this function will do nothing
          */
-            arg0 = arg0 || {};
+            return;
+        };
+
+        local.objectSetOverride = function (dict, overrides, depth, env) {
+        /*
+         * this function will recursively set overrides for items in dict
+         */
+            dict = dict || {};
             env = env || (typeof process === 'object' && process.env) || {};
             overrides = overrides || {};
             Object.keys(overrides).forEach(function (key) {
-                var arg2, overrides2;
-                arg2 = arg0[key];
+                var dict2, overrides2;
+                dict2 = dict[key];
                 overrides2 = overrides[key];
                 if (overrides2 === undefined) {
                     return;
                 }
-                // if both arg2 and overrides2 are non-null and non-array objects,
-                // then recurse with arg2 and overrides2
+                // if both dict2 and overrides2 are non-null and non-array objects,
+                // then recurse with dict2 and overrides2
                 if (depth > 1 &&
-                        // arg2 is a non-null and non-array object
-                        typeof arg2 === 'object' && arg2 && !Array.isArray(arg2) &&
+                        // dict2 is a non-null and non-array object
+                        typeof dict2 === 'object' && dict2 && !Array.isArray(dict2) &&
                         // overrides2 is a non-null and non-array object
                         typeof overrides2 === 'object' && overrides2 &&
                         !Array.isArray(overrides2)) {
-                    local.objectSetOverride(arg2, overrides2, depth - 1, env);
+                    local.objectSetOverride(dict2, overrides2, depth - 1, env);
                     return;
                 }
-                // else set arg0[key] with overrides[key]
-                arg0[key] = arg0 === env
-                    // if arg0 is env, then overrides falsey value with empty string
+                // else set dict[key] with overrides[key]
+                dict[key] = dict === env
+                    // if dict is env, then overrides falsey value with empty string
                     ? overrides2 || ''
                     : overrides2;
             });
-            return arg0;
+            return dict;
         };
 
         local.onErrorDefault = function (error) {
         /*
-         * this function will if error exists, then print error.stack to stderr
+         * this function will if error exists, then print it to stderr
          */
             if (error && !local.global.__coverage__) {
                 console.error(error);
@@ -1625,12 +1657,10 @@ vendor\\)s\\{0,1\\}\\(\\b\\|_\\)\
                 // decrement counter
                 onParallel.counter -= 1;
                 // validate counter
-                local.assert(
-                    onParallel.counter >= 0 || error || onParallel.error,
-                    'invalid onParallel.counter = ' + onParallel.counter
-                );
+                if (!(onParallel.counter >= 0 || error || onParallel.error)) {
+                    error = new Error('invalid onParallel.counter = ' + onParallel.counter);
                 // ensure onError is run only once
-                if (onParallel.counter < 0) {
+                } else if (onParallel.counter < 0) {
                     return;
                 }
                 // handle error
@@ -1806,7 +1836,7 @@ vendor)s{0,1}(\\b|_)\
 
         local.setTimeoutOnError = function (onError, timeout, error, data) {
         /*
-         * this function will async-call onError
+         * this function will after timeout has passed, then call onError(error, data)
          */
             if (typeof onError === 'function') {
                 setTimeout(function () {
@@ -2520,6 +2550,7 @@ vendor)s{0,1}(\\b|_)\
         /*
          * this function will drop the dbTable
          */
+            console.error('db - dropping dbTable ' + this.name + ' ...');
             // cancel pending save
             this.timerSave = null;
             while (this.onSaveList.length) {
@@ -2529,7 +2560,6 @@ vendor)s{0,1}(\\b|_)\
             local._DbTable.call(this, this);
             // clear persistence
             local.storageRemoveItem('dbTable.' + this.name + '.json', onError);
-            console.error('db - dropped dbTable ' + this.name);
         };
 
         local._DbTable.prototype.export = function (onError) {
@@ -2647,6 +2677,7 @@ vendor)s{0,1}(\\b|_)\
          * this function will drop the db
          */
             var onParallel;
+            console.error('db - dropping database ...');
             onParallel = local.onParallel(function (error) {
                 local.setTimeoutOnError(onError, 0, error);
             });
@@ -2657,7 +2688,6 @@ vendor)s{0,1}(\\b|_)\
                 onParallel.counter += 1;
                 local.dbTableDict[key].drop(onParallel);
             });
-            console.error('db - dropped database');
             onParallel();
         };
 
@@ -2668,9 +2698,9 @@ vendor)s{0,1}(\\b|_)\
             var result;
             result = '';
             Object.keys(local.dbTableDict).forEach(function (key) {
+                console.error('db - exporting dbTable ' + local.dbTableDict[key].name + ' ...');
                 result += local.dbTableDict[key].export();
                 result += '\n\n';
-                console.error('db - exported dbTable ' + local.dbTableDict[key].name);
             });
             return local.setTimeoutOnError(onError, 0, null, result.trim());
         };
@@ -2720,7 +2750,7 @@ vendor)s{0,1}(\\b|_)\
                 }
             });
             Object.keys(dbTableDict).forEach(function (name) {
-                console.error('db - imported dbTable ' + name);
+                console.error('db - importing dbTable ' + name + ' ...');
             });
             local.modeImport = null;
             return local.setTimeoutOnError(onError);
@@ -2753,17 +2783,23 @@ vendor)s{0,1}(\\b|_)\
             });
         };
 
-        local.dbReset = function (options, onError) {
+        local.dbReset = function (dbSeedList, onError) {
         /*
-         * this function will drop and seed the db with options.dbSeedList
+         * this function will drop and seed the db with the given dbSeedList
          */
             var onParallel;
-            // reset db
-            onParallel = (options && options.onResetBefore) || local.onParallel(onError);
+            onParallel = local.global.utility2_onReadyBefore || local.onParallel(onError);
             onParallel.counter += 1;
-            local.dbDrop(onParallel);
-            // seed db
-            local.dbSeed(options, onParallel);
+            // drop db
+            onParallel.counter += 1;
+            local.dbDrop(function (error) {
+                local.onErrorDefault(error);
+                // seed db
+                local.dbSeed(dbSeedList, !local.global.utility2_onReadyBefore && onParallel);
+                (local.global.utility2_onReadyBefore || local.nop)();
+            });
+            (local.global.utility2_onReadyAfter || local.nop)(onError);
+            onParallel();
         };
 
         local.dbRowGetItem = function (dbRow, key) {
@@ -3007,27 +3043,25 @@ vendor)s{0,1}(\\b|_)\
             onParallel();
         };
 
-        local.dbSeed = function (options, onError) {
+        local.dbSeed = function (dbSeedList, onError) {
         /*
-         * this function will seed the db with options.dbSeedList
+         * this function will seed the db with the given dbSeedList
          */
             var dbTableDict, onParallel;
             dbTableDict = {};
-            options = Object.assign({ dbSeedList: [] }, options);
-            // seed db
-            onParallel = options.onReadyBefore || local.onParallel(onError);
+            onParallel = local.global.utility2_onReadyBefore || local.onParallel(onError);
             onParallel.counter += 1;
-            (options.onResetAfter || function (onError) {
-                onError();
-            })(function () {
-                local.dbTableCreateMany(options.dbSeedList, onParallel);
-            });
-            options.dbSeedList.forEach(function (options) {
+            // seed db
+            onParallel.counter += 1;
+            local.dbTableCreateMany(dbSeedList, onParallel);
+            (dbSeedList || []).forEach(function (options) {
                 dbTableDict[options.name] = true;
             });
             Object.keys(dbTableDict).forEach(function (name) {
-                console.error('db - seeded dbTable ' + name);
+                console.error('db - seeding dbTable ' + name + ' ...');
             });
+            (local.global.utility2_onReadyAfter || local.nop)(onError);
+            onParallel();
         };
 
         local.dbTableCreateMany = function (optionsList, onError) {
@@ -3087,14 +3121,14 @@ vendor)s{0,1}(\\b|_)\
 
         local.dbTableDict = {};
 
-        local.domOnEventDb = function (event) {
+        local.onEventDomDb = function (event) {
         /*
          * this function will handle db dom-events
          */
             var ajaxProgressUpdate, reader, tmp, utility2;
             utility2 = local.global.utility2 || {};
-            ajaxProgressUpdate = (utility2 && utility2.ajaxProgressUpdate) || local.nop;
-            switch (event.target.dataset.domOnEventDb || event.target.id) {
+            ajaxProgressUpdate = utility2.ajaxProgressUpdate || local.nop;
+            switch (event.target.dataset.onEventDomDb || event.target.id) {
             case 'dbExportButton1':
                 tmp = local.global.URL.createObjectURL(new local.global.Blob([local.dbExport()]));
                 document.querySelector('#dbExportA1').href = tmp;
@@ -3105,9 +3139,9 @@ vendor)s{0,1}(\\b|_)\
                 break;
             case 'dbImportButton1':
                 tmp = document.querySelector('#dbImportInput1');
-                if (!tmp.domOnEventDb) {
-                    tmp.domOnEventDb = local.domOnEventDb;
-                    tmp.addEventListener('change', local.domOnEventDb);
+                if (!tmp.onEventDomDb) {
+                    tmp.onEventDomDb = local.onEventDomDb;
+                    tmp.addEventListener('change', local.onEventDomDb);
                 }
                 tmp.click();
                 break;
@@ -3129,7 +3163,10 @@ vendor)s{0,1}(\\b|_)\
                 break;
             case 'dbResetButton1':
                 ajaxProgressUpdate();
-                local.dbReset(utility2, local.onErrorDefault);
+                local.dbReset(local.global.utility2_dbSeedList, function (error) {
+                    local.onErrorDefault(error);
+                    ((utility2.uiEventListenerDict || {})['.onEventUiReload'] || local.nop)();
+                });
                 break;
             }
         };
@@ -3202,7 +3239,7 @@ vendor)s{0,1}(\\b|_)\
         local.cliDict.dbTableCrudGetManyByQuery = function () {
         /*
          * <dbTable> <query>
-         * # get <dbRowList> from <dbTable> with the given json-format <query>
+         * will get json-formatted <dbRowList> from <dbTable> with json-formatted <query>
          */
             local.dbTableCreateOne({ name: process.argv[3] }, function (error, self) {
                 // validate no error occurred
@@ -3215,7 +3252,7 @@ vendor)s{0,1}(\\b|_)\
         local.cliDict.dbTableCrudRemoveManyByQuery = function () {
         /*
          * <dbTable> <query>
-         * # remove <dbRowList> from <dbTable> with the given json-format <query>
+         * will remove json-formatted <dbRowList> from <dbTable> with json-formatted <query>
          */
             local.dbTableCreateOne({ name: process.argv[3] }, function (error, self) {
                 // validate no error occurred
@@ -3228,7 +3265,7 @@ vendor)s{0,1}(\\b|_)\
         local.cliDict.dbTableCrudSetManyById = function () {
         /*
          * <dbTable> <dbRowList>
-         * # set json-format <dbRowList> into <dbTable>
+         * will set json-formatted <dbRowList> to <dbTable>
          */
             local.dbTableCreateOne({ name: process.argv[3] }, function (error, self) {
                 // validate no error occurred
@@ -3239,7 +3276,7 @@ vendor)s{0,1}(\\b|_)\
         local.cliDict.dbTableHeaderDictGet = function () {
         /*
          * <dbTable>
-         * # get <headerDict> from <dbTable>
+         * will get json-formatted <headerDict> from <dbTable>
          */
             local.dbTableCreateOne({ name: process.argv[3] }, function (error, self) {
                 // validate no error occurred
@@ -3259,7 +3296,7 @@ vendor)s{0,1}(\\b|_)\
         local.cliDict.dbTableHeaderDictSet = function () {
         /*
          * <dbTable> <headerDict>
-         * # set json-format <headerDict> into <dbTable>
+         * will set json-formatted <headerDict> to <dbTable>
          */
             local.dbTableCreateOne({ name: process.argv[3] }, function (error, self) {
                 // validate no error occurred
@@ -3278,7 +3315,7 @@ vendor)s{0,1}(\\b|_)\
         local.cliDict.dbTableIdIndexCreate = function () {
         /*
          * <dbTable> <idIndex>
-         * # create json-format <idIndex> in <dbTable>
+         * will create json-formatted <idIndex> in <dbTable>
          */
             local.dbTableCreateOne({ name: process.argv[3] }, function (error, self) {
                 // validate no error occurred
@@ -3295,7 +3332,7 @@ vendor)s{0,1}(\\b|_)\
         local.cliDict.dbTableIdIndexRemove = function () {
         /*
          * <dbTable> <idIndex>
-         * # remove json-format <idIndex> from <dbTable>
+         * will remove json-formatted <idIndex> from <dbTable>
          */
             local.dbTableCreateOne({ name: process.argv[3] }, function (error, self) {
                 // validate no error occurred
@@ -3308,7 +3345,7 @@ vendor)s{0,1}(\\b|_)\
         local.cliDict.dbTableList = function () {
         /*
          *
-         * # list <dbTable>'s in db
+         * will get json-formmatted <dbTableList> from db
          */
             local.storageKeys(function (error, data) {
                 // validate no error occurred
@@ -3321,7 +3358,7 @@ vendor)s{0,1}(\\b|_)\
         local.cliDict.dbTableRemove = function () {
         /*
          * <dbTable>
-         * # remove <dbTable> from db
+         * will remove <dbTable> from db
          */
             local.storageRemoveItem('dbTable.' + process.argv[3] + '.json', function (error) {
                 // validate no error occurred
@@ -3362,21 +3399,18 @@ vendor)s{0,1}(\\b|_)\
         // init debug_inline
         (function () {
             var consoleError, context, key;
-            context = (typeof window === "object" && window) || global;
-            key = "debug_inline".replace("_i", "I");
-            if (context[key]) {
-                return;
-            }
             consoleError = console.error;
-            context[key] = function (arg0) {
+            context = (typeof window === 'object' && window) || global;
+            key = 'debug_inline'.replace('_i', 'I');
+            context[key] = context[key] || function (arg0) {
             /*
              * this function will both print arg0 to stderr and return it
              */
                 // debug arguments
-                context["_" + key + "Arguments"] = arguments;
-                consoleError("\n\n" + key);
+                context['_' + key + 'Arguments'] = arguments;
+                consoleError('\n\n' + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + '\n');
                 // return arg0 for inspection
                 return arg0;
             };
@@ -3384,10 +3418,10 @@ vendor)s{0,1}(\\b|_)\
         // init local
         local = {};
         // init isBrowser
-        local.isBrowser = typeof window === "object" &&
-            typeof window.XMLHttpRequest === "function" &&
+        local.isBrowser = typeof window === 'object' &&
+            typeof window.XMLHttpRequest === 'function' &&
             window.document &&
-            typeof window.document.querySelectorAll === "function";
+            typeof window.document.querySelectorAll === 'function';
         // init global
         local.global = local.isBrowser
             ? window
@@ -3396,13 +3430,6 @@ vendor)s{0,1}(\\b|_)\
         local = local.global.utility2_rollup ||
             // local.global.utility2_rollup_old || require('./assets.utility2.rollup.js') ||
             local;
-        // init nop
-        local.nop = function () {
-        /*
-         * this function will do nothing
-         */
-            return;
-        };
         // init exports
         if (local.isBrowser) {
             local.global.utility2_github_crud = local;
@@ -3433,7 +3460,6 @@ vendor)s{0,1}(\\b|_)\
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -3459,7 +3485,16 @@ vendor)s{0,1}(\\b|_)\
                 console.log(xhr.responseText);
             });
          */
-            var ajaxProgressUpdate, bufferToString, isBrowser, isDone, nop, streamCleanup, xhr;
+            var ajaxProgressUpdate,
+                bufferToString,
+                isBrowser,
+                isDone,
+                nop,
+                self,
+                streamCleanup,
+                xhr;
+            // init local
+            self = local.utility2 || {};
             // init standalone handling-behavior
             nop = function () {
             /*
@@ -3467,12 +3502,12 @@ vendor)s{0,1}(\\b|_)\
              */
                 return;
             };
-            ajaxProgressUpdate = local.ajaxProgressUpdate || nop;
+            ajaxProgressUpdate = self.ajaxProgressUpdate || nop;
             // init onError
-            if (local.onErrorWithStack) {
-                onError = local.onErrorWithStack(onError);
+            if (self.onErrorWithStack) {
+                onError = self.onErrorWithStack(onError);
             }
-            bufferToString = local.bufferToString || String;
+            bufferToString = self.bufferToString || String;
             streamCleanup = function (stream) {
             /*
              * this function will try to end or destroy the stream
@@ -3495,14 +3530,14 @@ vendor)s{0,1}(\\b|_)\
                 typeof window.document.querySelectorAll === 'function';
             // init xhr
             xhr = !options.httpRequest &&
-                (!isBrowser || (local.serverLocalUrlTest && local.serverLocalUrlTest(options.url)))
-                ? local._http && local._http.XMLHttpRequest && new local._http.XMLHttpRequest()
+                (!isBrowser || (self.serverLocalUrlTest && self.serverLocalUrlTest(options.url)))
+                ? self._http && self._http.XMLHttpRequest && new self._http.XMLHttpRequest()
                 : isBrowser && new window.XMLHttpRequest();
             if (!xhr) {
                 xhr = require('url').parse(options.url);
                 xhr.headers = options.headers;
                 xhr.method = options.method;
-                xhr.timeout = xhr.timeout || local.timeoutDefault || 30000;
+                xhr.timeout = xhr.timeout || self.timeoutDefault || 30000;
                 xhr = (
                     options.httpRequest || require(xhr.protocol.slice(0, -1)).request
                 )(xhr, function (response) {
@@ -3531,7 +3566,7 @@ vendor)s{0,1}(\\b|_)\
                 });
             }
             // debug xhr
-            local._debugXhr = xhr;
+            self._debugXhr = xhr;
             // init options
             Object.keys(options).forEach(function (key) {
                 if (options[key] !== undefined) {
@@ -3546,7 +3581,7 @@ vendor)s{0,1}(\\b|_)\
             xhr.method = xhr.method || 'GET';
             xhr.responseHeaders = {};
             xhr.timeStart = Date.now();
-            xhr.timeout = xhr.timeout || local.timeoutDefault || 30000;
+            xhr.timeout = xhr.timeout || self.timeoutDefault || 30000;
             // init timerTimeout
             xhr.timerTimeout = setTimeout(function () {
                 xhr.error = xhr.error || new Error('onTimeout - timeout-error - ' +
@@ -3629,9 +3664,7 @@ vendor)s{0,1}(\\b|_)\
                         streamCleanup(xhr.responseStream);
                     });
                     // decrement ajaxProgressCounter
-                    if (local.ajaxProgressCounter) {
-                        local.ajaxProgressCounter -= 1;
-                    }
+                    self.ajaxProgressCounter = Math.max(self.ajaxProgressCounter - 1, 0);
                     // handle abort or error event
                     if (!xhr.error &&
                             (event.type === 'abort' ||
@@ -3642,8 +3675,8 @@ vendor)s{0,1}(\\b|_)\
                     // debug statusCode
                     (xhr.error || {}).statusCode = xhr.statusCode;
                     // debug statusCode / method / url
-                    if (local.errorMessagePrepend && xhr.error) {
-                        local.errorMessagePrepend(xhr.error, (isBrowser
+                    if (self.errorMessagePrepend && xhr.error) {
+                        self.errorMessagePrepend(xhr.error, (isBrowser
                             ? 'browser'
                             : 'node') + ' - ' +
                             xhr.statusCode + ' ' + xhr.method + ' ' + xhr.url + '\n' +
@@ -3662,8 +3695,8 @@ vendor)s{0,1}(\\b|_)\
                 ajaxProgressUpdate();
             };
             // increment ajaxProgressCounter
-            local.ajaxProgressCounter = local.ajaxProgressCounter || 0;
-            local.ajaxProgressCounter += 1;
+            self.ajaxProgressCounter = self.ajaxProgressCounter || 0;
+            self.ajaxProgressCounter += 1;
             xhr.addEventListener('abort', xhr.onEvent);
             xhr.addEventListener('error', xhr.onEvent);
             xhr.addEventListener('load', xhr.onEvent);
@@ -3673,10 +3706,10 @@ vendor)s{0,1}(\\b|_)\
                 xhr.upload.addEventListener('progress', ajaxProgressUpdate);
             }
             // open url through corsForwardProxyHost
-            xhr.corsForwardProxyHost = xhr.corsForwardProxyHost || local.corsForwardProxyHost;
-            xhr.location = xhr.location || (local.global && local.global.location) || {};
-            if (local.corsForwardProxyHostIfNeeded && local.corsForwardProxyHostIfNeeded(xhr)) {
-                xhr.open(xhr.method, local.corsForwardProxyHostIfNeeded(xhr));
+            xhr.corsForwardProxyHost = xhr.corsForwardProxyHost || self.corsForwardProxyHost;
+            xhr.location = xhr.location || (self.global && self.global.location) || {};
+            if (self.corsForwardProxyHostIfNeeded && self.corsForwardProxyHostIfNeeded(xhr)) {
+                xhr.open(xhr.method, self.corsForwardProxyHostIfNeeded(xhr));
                 xhr.setRequestHeader('forward-proxy-headers', JSON.stringify(xhr.headers));
                 xhr.setRequestHeader('forward-proxy-url', xhr.url);
             // open url
@@ -3686,7 +3719,7 @@ vendor)s{0,1}(\\b|_)\
             Object.keys(xhr.headers).forEach(function (key) {
                 xhr.setRequestHeader(key, xhr.headers[key]);
             });
-            if (local.FormData && xhr.data instanceof local.FormData) {
+            if (self.FormData && xhr.data instanceof self.FormData) {
                 // handle formData
                 xhr.data.read(function (error, data) {
                     if (error) {
@@ -3703,30 +3736,6 @@ vendor)s{0,1}(\\b|_)\
             return xhr;
         };
 
-        local.assert = function (passed, message, onError) {
-        /*
-         * this function will throw the error message if passed is falsey
-         */
-            var error;
-            if (passed) {
-                return;
-            }
-            error = message && message.message
-                // if message is an error-object, then leave it as is
-                ? message
-                : new Error(typeof message === 'string'
-                    // if message is a string, then leave it as is
-                    ? message
-                    // else JSON.stringify message
-                    : JSON.stringify(message));
-            // debug error
-            local._debugAssertError = error;
-            onError = onError || function (error) {
-                throw error;
-            };
-            onError(error);
-        };
-
         local.cliRun = function (fnc) {
         /*
          * this function will run the cli
@@ -3741,7 +3750,7 @@ vendor)s{0,1}(\\b|_)\
             local.cliDict._eval = local.cliDict._eval || function () {
             /*
              * <code>
-             * # eval code
+             * will eval <code>
              */
                 local.global.local = local;
                 require('vm').runInThisContext(process.argv[3]);
@@ -3751,13 +3760,17 @@ vendor)s{0,1}(\\b|_)\
             local.cliDict._help = local.cliDict._help || function (options) {
             /*
              *
-             * # print help
+             * will print help
              */
                 var commandList, file, packageJson, text, textDict;
                 commandList = [{
-                    arg: '<arg2> ...',
+                    argList: '<arg2>  ...',
                     description: 'usage:',
                     command: ['<arg1>']
+                }, {
+                    argList: '\'console.log("hello world")\'',
+                    description: 'example:',
+                    command: ['--eval']
                 }];
                 file = __filename.replace((/.*\//), '');
                 packageJson = require('./package.json');
@@ -3768,9 +3781,9 @@ vendor)s{0,1}(\\b|_)\
                     }
                     text = String(local.cliDict[key]);
                     if (key === '_default') {
-                        key = '<>';
+                        key = '';
                     }
-                    ii = textDict[text] = textDict[text] || (ii + 1);
+                    ii = textDict[text] = textDict[text] || (ii + 2);
                     if (commandList[ii]) {
                         commandList[ii].command.push(key);
                     } else {
@@ -3780,7 +3793,7 @@ vendor)s{0,1}(\\b|_)\
                             commandList[ii] = commandList[ii] || ['', '', ''];
                         }()));
                         commandList[ii] = {
-                            arg: commandList[ii][1].trim(),
+                            argList: commandList[ii][1].trim(),
                             command: [key],
                             description: commandList[ii][2].trim()
                         };
@@ -3788,21 +3801,37 @@ vendor)s{0,1}(\\b|_)\
                 });
                 (options && options.modeError
                     ? console.error
-                    : console.log)((options && options.modeError
+                    : console.log)(
+                    (options && options.modeError
                     ? '\u001b[31merror: missing <arg1>\u001b[39m\n\n'
-                    : '') + packageJson.name + ' (' + packageJson.version + ')\n\n' + commandList
-                    .filter(function (element) {
-                        return element;
-                    }).map(function (element) {
-                        return (element.description + '\n' +
-                            file + '  ' +
-                            element.command.sort().join('|') + '  ' +
-                            element.arg.replace((/ +/g), '  '))
-                                .replace((/<>\||\|<>|<> {2}/), '')
-                                .trim();
-                    })
-                    .join('\n\n') + '\n\nexample:\n' + file +
-                    '  --eval  \'console.log("hello world")\'');
+                    : '') +
+                        packageJson.name + ' (' + packageJson.version + ')\n\n' +
+                        commandList
+                        .filter(function (element) {
+                            return element;
+                        })
+                        .map(function (element, ii) {
+                            element.command = element.command.filter(function (element) {
+                                return element;
+                            });
+                            switch (ii) {
+                            case 0:
+                            case 1:
+                                element.argList = [element.argList];
+                                break;
+                            default:
+                                element.argList = element.argList.split(' ');
+                                element.description = '# COMMAND ' +
+                                    (element.command[0] || '<none>') + '\n# ' +
+                                    element.description;
+                            }
+                            return element.description + '\n  ' + file +
+                                ('  ' + element.command.sort().join('|') + '  ')
+                                .replace((/^ {4}$/), '  ') +
+                                element.argList.join('  ');
+                        })
+                        .join('\n\n')
+                );
             };
             local.cliDict['--help'] = local.cliDict['--help'] || local.cliDict._help;
             local.cliDict['-h'] = local.cliDict['-h'] || local.cliDict._help;
@@ -3811,12 +3840,12 @@ vendor)s{0,1}(\\b|_)\
             local.cliDict._interactive = local.cliDict._interactive || function () {
             /*
              *
-             * # start interactive-mode
+             * will start interactive-mode
              */
                 local.global.local = local;
                 local.replStart();
             };
-            if (local.replStart) {
+            if (typeof local.replStart === 'function') {
                 local.cliDict['--interactive'] = local.cliDict['--interactive'] ||
                     local.cliDict._interactive;
                 local.cliDict['-i'] = local.cliDict['-i'] || local.cliDict._interactive;
@@ -3824,7 +3853,7 @@ vendor)s{0,1}(\\b|_)\
             local.cliDict._version = local.cliDict._version || function () {
             /*
              *
-             * # print version
+             * will print version
              */
                 console.log(require(__dirname + '/package.json').version);
             };
@@ -3847,9 +3876,23 @@ vendor)s{0,1}(\\b|_)\
             fnc();
         };
 
+        local.echo = function (arg0) {
+        /*
+         * this function will return arg0
+         */
+            return arg0;
+        };
+
+        local.nop = function () {
+        /*
+         * this function will do nothing
+         */
+            return;
+        };
+
         local.onErrorDefault = function (error) {
         /*
-         * this function will if error exists, then print error.stack to stderr
+         * this function will if error exists, then print it to stderr
          */
             if (error && !local.global.__coverage__) {
                 console.error(error);
@@ -3887,10 +3930,18 @@ vendor)s{0,1}(\\b|_)\
          */
             options.onNext = local.onErrorWithStack(function (error, data, meta) {
                 try {
-                    options.modeNext0 = options.modeNext || 0;
-                    options.modeNext = error && !options.modeErrorIgnore
-                        ? Infinity
-                        : options.modeNext + 1;
+                    options.modeNext += error && !options.modeErrorIgnore
+                        ? 1000
+                        : 1;
+                    if (options.modeDebug) {
+                        console.error('onNext - ' + JSON.stringify({
+                            modeNext: options.modeNext,
+                            errorMessage: error && error.message
+                        }));
+                        if (error && error.stack) {
+                            console.error(error.stack);
+                        }
+                    }
                     onError(error, data, meta);
                 } catch (errorCaught) {
                     // throw errorCaught to break infinite recursion-loop
@@ -3921,12 +3972,10 @@ vendor)s{0,1}(\\b|_)\
                 // decrement counter
                 onParallel.counter -= 1;
                 // validate counter
-                local.assert(
-                    onParallel.counter >= 0 || error || onParallel.error,
-                    'invalid onParallel.counter = ' + onParallel.counter
-                );
+                if (!(onParallel.counter >= 0 || error || onParallel.error)) {
+                    error = new Error('invalid onParallel.counter = ' + onParallel.counter);
                 // ensure onError is run only once
-                if (onParallel.counter < 0) {
+                } else if (onParallel.counter < 0) {
                     return;
                 }
                 // handle error
@@ -3998,16 +4047,6 @@ vendor)s{0,1}(\\b|_)\
             onParallel.counter += 1;
             onEach2();
             onParallel();
-        };
-
-        local.onReadyAfter = function (onError) {
-        /*
-         * this function will call onError when onReadyBefore.counter === 0
-         */
-            local.onReadyBefore.counter += 1;
-            local.taskCreate({ key: 'utility2.onReadyAfter' }, null, onError);
-            local.onResetAfter(local.onReadyBefore);
-            return onError;
         };
     }());
 
@@ -4426,40 +4465,14 @@ vendor)s{0,1}(\\b|_)\
             return;
         }
         local.cliDict = {};
-        local.cliDict.create_repo = function () {
-        /*
-         * <repoUrlList>
-         * # create comma-separated <repoUrlList> on github in parallel
-         */
-            local.githubCrudRepoCreateList({
-                urlList: process.argv[3].split(',').filter(function (element) {
-                    return element;
-                })
-            }, function (error) {
-                process.exit(!!error);
-            });
-        };
         local.cliDict.delete = function () {
         /*
          * <fileRemote|dirRemote> <commitMessage>
-         * # delete <fileRemote|dirRemote> from github
+         * will delete from github <fileRemote|dirRemote>
          */
-            local.githubCrudContentDelete({
+            local.github_crud.githubCrudContentDelete({
                 message: process.argv[4],
                 url: process.argv[3]
-            }, function (error) {
-                process.exit(!!error);
-            });
-        };
-        local.cliDict.delete_repo = function () {
-        /*
-         * <repoUrlList>
-         * # delete comma-separated <repoUrlList> from github in parallel
-         */
-            local.githubCrudRepoDeleteList({
-                urlList: process.argv[3].split(',').filter(function (element) {
-                    return element;
-                })
             }, function (error) {
                 process.exit(!!error);
             });
@@ -4467,9 +4480,11 @@ vendor)s{0,1}(\\b|_)\
         local.cliDict.get = function () {
         /*
          * <fileRemote>
-         * # get <fileRemote> from github
+         * will get from github <fileRemote>
          */
-            local.githubCrudContentGet({ url: process.argv[3] }, function (error, data) {
+            local.github_crud.githubCrudContentGet({
+                url: process.argv[3]
+            }, function (error, data) {
                 try {
                     process.stdout.write(data);
                 } catch (ignore) {
@@ -4480,9 +4495,9 @@ vendor)s{0,1}(\\b|_)\
         local.cliDict.put = function () {
         /*
          * <fileRemote> <fileLocal> <commitMessage>
-         * # put <fileLocal> to <fileRemote> on github
+         * will put on github <fileLocal> -> <fileRemote>
          */
-            local.githubCrudContentPutFile({
+            local.github_crud.githubCrudContentPutFile({
                 message: process.argv[5],
                 url: process.argv[3],
                 file: process.argv[4]
@@ -4490,16 +4505,36 @@ vendor)s{0,1}(\\b|_)\
                 process.exit(!!error);
             });
         };
+        local.cliDict.repo_create = function () {
+        /*
+         * <repoList>
+         * will create on github in parallel, comma-separated <repoList>
+         */
+            local.github_crud.githubCrudRepoCreateList({
+                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
+            }, function (error) {
+                process.exit(!!error);
+            });
+        };
+        local.cliDict.repo_delete = function () {
+        /*
+         * <repoList>
+         * will delete from github in parallel, comma-separated <repoList>
+         */
+            local.github_crud.githubCrudRepoDeleteList({
+                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
+            }, function (error) {
+                process.exit(!!error);
+            });
+        };
         local.cliDict.touch = function () {
         /*
          * <fileRemoteList> <commitMessage>
-         * # touch comma-separated <fileRemoteList> on github in parallel
+         * will touch on github in parallel, comma-separated <fileRemoteList>
          */
-            local.githubCrudContentTouchList({
+            local.github_crud.githubCrudContentTouchList({
                 message: process.argv[4],
-                urlList: process.argv[3].split(',').filter(function (element) {
-                    return element;
-                })
+                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
             }, function (error) {
                 process.exit(!!error);
             });
@@ -4537,21 +4572,18 @@ vendor)s{0,1}(\\b|_)\
         // init debug_inline
         (function () {
             var consoleError, context, key;
-            context = (typeof window === "object" && window) || global;
-            key = "debug_inline".replace("_i", "I");
-            if (context[key]) {
-                return;
-            }
             consoleError = console.error;
-            context[key] = function (arg0) {
+            context = (typeof window === 'object' && window) || global;
+            key = 'debug_inline'.replace('_i', 'I');
+            context[key] = context[key] || function (arg0) {
             /*
              * this function will both print arg0 to stderr and return it
              */
                 // debug arguments
-                context["_" + key + "Arguments"] = arguments;
-                consoleError("\n\n" + key);
+                context['_' + key + 'Arguments'] = arguments;
+                consoleError('\n\n' + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + '\n');
                 // return arg0 for inspection
                 return arg0;
             };
@@ -4559,10 +4591,10 @@ vendor)s{0,1}(\\b|_)\
         // init local
         local = {};
         // init isBrowser
-        local.isBrowser = typeof window === "object" &&
-            typeof window.XMLHttpRequest === "function" &&
+        local.isBrowser = typeof window === 'object' &&
+            typeof window.XMLHttpRequest === 'function' &&
             window.document &&
-            typeof window.document.querySelectorAll === "function";
+            typeof window.document.querySelectorAll === 'function';
         // init global
         local.global = local.isBrowser
             ? window
@@ -4571,13 +4603,6 @@ vendor)s{0,1}(\\b|_)\
         local = local.global.utility2_rollup ||
             // local.global.utility2_rollup_old || require('./assets.utility2.rollup.js') ||
             local;
-        // init nop
-        local.nop = function () {
-        /*
-         * this function will do nothing
-         */
-            return;
-        };
         // init exports
         if (local.isBrowser) {
             local.global.utility2_istanbul = local;
@@ -4608,7 +4633,6 @@ vendor)s{0,1}(\\b|_)\
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -4641,7 +4665,7 @@ vendor)s{0,1}(\\b|_)\
             local.cliDict._eval = local.cliDict._eval || function () {
             /*
              * <code>
-             * # eval code
+             * will eval <code>
              */
                 local.global.local = local;
                 require('vm').runInThisContext(process.argv[3]);
@@ -4651,13 +4675,17 @@ vendor)s{0,1}(\\b|_)\
             local.cliDict._help = local.cliDict._help || function (options) {
             /*
              *
-             * # print help
+             * will print help
              */
                 var commandList, file, packageJson, text, textDict;
                 commandList = [{
-                    arg: '<arg2> ...',
+                    argList: '<arg2>  ...',
                     description: 'usage:',
                     command: ['<arg1>']
+                }, {
+                    argList: '\'console.log("hello world")\'',
+                    description: 'example:',
+                    command: ['--eval']
                 }];
                 file = __filename.replace((/.*\//), '');
                 packageJson = require('./package.json');
@@ -4668,9 +4696,9 @@ vendor)s{0,1}(\\b|_)\
                     }
                     text = String(local.cliDict[key]);
                     if (key === '_default') {
-                        key = '<>';
+                        key = '';
                     }
-                    ii = textDict[text] = textDict[text] || (ii + 1);
+                    ii = textDict[text] = textDict[text] || (ii + 2);
                     if (commandList[ii]) {
                         commandList[ii].command.push(key);
                     } else {
@@ -4680,7 +4708,7 @@ vendor)s{0,1}(\\b|_)\
                             commandList[ii] = commandList[ii] || ['', '', ''];
                         }()));
                         commandList[ii] = {
-                            arg: commandList[ii][1].trim(),
+                            argList: commandList[ii][1].trim(),
                             command: [key],
                             description: commandList[ii][2].trim()
                         };
@@ -4688,21 +4716,37 @@ vendor)s{0,1}(\\b|_)\
                 });
                 (options && options.modeError
                     ? console.error
-                    : console.log)((options && options.modeError
+                    : console.log)(
+                    (options && options.modeError
                     ? '\u001b[31merror: missing <arg1>\u001b[39m\n\n'
-                    : '') + packageJson.name + ' (' + packageJson.version + ')\n\n' + commandList
-                    .filter(function (element) {
-                        return element;
-                    }).map(function (element) {
-                        return (element.description + '\n' +
-                            file + '  ' +
-                            element.command.sort().join('|') + '  ' +
-                            element.arg.replace((/ +/g), '  '))
-                                .replace((/<>\||\|<>|<> {2}/), '')
-                                .trim();
-                    })
-                    .join('\n\n') + '\n\nexample:\n' + file +
-                    '  --eval  \'console.log("hello world")\'');
+                    : '') +
+                        packageJson.name + ' (' + packageJson.version + ')\n\n' +
+                        commandList
+                        .filter(function (element) {
+                            return element;
+                        })
+                        .map(function (element, ii) {
+                            element.command = element.command.filter(function (element) {
+                                return element;
+                            });
+                            switch (ii) {
+                            case 0:
+                            case 1:
+                                element.argList = [element.argList];
+                                break;
+                            default:
+                                element.argList = element.argList.split(' ');
+                                element.description = '# COMMAND ' +
+                                    (element.command[0] || '<none>') + '\n# ' +
+                                    element.description;
+                            }
+                            return element.description + '\n  ' + file +
+                                ('  ' + element.command.sort().join('|') + '  ')
+                                .replace((/^ {4}$/), '  ') +
+                                element.argList.join('  ');
+                        })
+                        .join('\n\n')
+                );
             };
             local.cliDict['--help'] = local.cliDict['--help'] || local.cliDict._help;
             local.cliDict['-h'] = local.cliDict['-h'] || local.cliDict._help;
@@ -4711,12 +4755,12 @@ vendor)s{0,1}(\\b|_)\
             local.cliDict._interactive = local.cliDict._interactive || function () {
             /*
              *
-             * # start interactive-mode
+             * will start interactive-mode
              */
                 local.global.local = local;
                 local.replStart();
             };
-            if (local.replStart) {
+            if (typeof local.replStart === 'function') {
                 local.cliDict['--interactive'] = local.cliDict['--interactive'] ||
                     local.cliDict._interactive;
                 local.cliDict['-i'] = local.cliDict['-i'] || local.cliDict._interactive;
@@ -4724,7 +4768,7 @@ vendor)s{0,1}(\\b|_)\
             local.cliDict._version = local.cliDict._version || function () {
             /*
              *
-             * # print version
+             * will print version
              */
                 console.log(require(__dirname + '/package.json').version);
             };
@@ -4747,10 +4791,13 @@ vendor)s{0,1}(\\b|_)\
             fnc();
         };
 
-        local.fsWriteFileWithMkdirpSync = function (file, data) {
+        local.fsWriteFileWithMkdirpSync = function (file, data, mode) {
         /*
          * this function will synchronously 'mkdir -p' and write the data to file
          */
+            if (mode === 'noWrite') {
+                return;
+            }
             // try to write to file
             try {
                 require('fs').writeFileSync(file, data);
@@ -4764,6 +4811,13 @@ vendor)s{0,1}(\\b|_)\
                 // re-write to file
                 require('fs').writeFileSync(file, data);
             }
+        };
+
+        local.nop = function () {
+        /*
+         * this function will do nothing
+         */
+            return;
         };
     }());
 
@@ -4991,6 +5045,7 @@ vendor)s{0,1}(\\b|_)\
                 noAutoWrap: true
             }).instrumentSync(code, file).trimLeft();
         };
+
         local.util = { inherits: local.nop };
 
 
@@ -7122,8 +7177,10 @@ t){var n=e.pct,r=1;return n*r===n?n>=t[1]?"high":n>=t[0]?"medium":"low":""}funct
 (e){Report.call(this),this.opts=e||{},this.opts.dir=this.opts.dir||path.resolve(
 process.cwd(),"html-report"),this.opts.sourceStore=this.opts.sourceStore||Store.
 create("fslookup"),this.opts.linkMapper=this.opts.linkMapper||this.standardLinkMapper
-(),this.opts.writer=this.opts.writer||null,this.opts.templateData={datetime:Date
-()},this.opts.watermarks=this.opts.watermarks||defaults.watermarks()}var handlebars=
+// (),this.opts.writer=this.opts.writer||null,this.opts.templateData={datetime:Date
+// ()},this.opts.watermarks=this.opts.watermarks||defaults.watermarks()}var handlebars=
+(),this.opts.writer=this.opts.writer||null,this.opts.templateData={datetime:new Date
+().toGMTString()},this.opts.watermarks=this.opts.watermarks||defaults.watermarks()}var handlebars=
 require("handlebars"),defaults=require("./common/defaults"),path=require("path")
 ,SEP=path.sep||"/",fs=require("fs"),util=require("util"),FileWriter=require("../util/file-writer"
 ),Report=require("./index"),Store=require("../store"),InsertionText=require("../util/insertion-text"
@@ -7291,7 +7348,7 @@ local.templateCoverageBadgeSvg =
         local.cliDict.cover = function () {
         /*
          * <script>
-         * # run and cover the <script>
+         * will run and cover <script>
          */
             var tmp;
             try {
@@ -7334,7 +7391,7 @@ local.templateCoverageBadgeSvg =
         local.cliDict.instrument = function () {
         /*
          * <script>
-         * # instrument the <script> and print result to stdout
+         * will instrument <script> and print result to stdout
          */
             process.argv[3] = local.path.resolve(process.cwd(), process.argv[3]);
             process.stdout.write(local.instrumentSync(
@@ -7346,7 +7403,7 @@ local.templateCoverageBadgeSvg =
         local.cliDict.test = function () {
         /*
          * <script>
-         * # run and cover the <script> if env var $npm_config_mode_coverage is set
+         * will run and cover <script> if env var $npm_config_mode_coverage is set
          */
             if (process.env.npm_config_mode_coverage) {
                 process.argv[2] = 'cover';
@@ -7354,7 +7411,7 @@ local.templateCoverageBadgeSvg =
                 local.cliDict[process.argv[2]]();
                 return;
             }
-            // init process.argv
+            // restart node with __filename removed from process.argv
             process.argv.splice(1, 2);
             process.argv[1] = local.path.resolve(process.cwd(), process.argv[1]);
             // re-init cli
@@ -7393,21 +7450,18 @@ local.templateCoverageBadgeSvg =
         // init debug_inline
         (function () {
             var consoleError, context, key;
-            context = (typeof window === "object" && window) || global;
-            key = "debug_inline".replace("_i", "I");
-            if (context[key]) {
-                return;
-            }
             consoleError = console.error;
-            context[key] = function (arg0) {
+            context = (typeof window === 'object' && window) || global;
+            key = 'debug_inline'.replace('_i', 'I');
+            context[key] = context[key] || function (arg0) {
             /*
              * this function will both print arg0 to stderr and return it
              */
                 // debug arguments
-                context["_" + key + "Arguments"] = arguments;
-                consoleError("\n\n" + key);
+                context['_' + key + 'Arguments'] = arguments;
+                consoleError('\n\n' + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + '\n');
                 // return arg0 for inspection
                 return arg0;
             };
@@ -7415,10 +7469,10 @@ local.templateCoverageBadgeSvg =
         // init local
         local = {};
         // init isBrowser
-        local.isBrowser = typeof window === "object" &&
-            typeof window.XMLHttpRequest === "function" &&
+        local.isBrowser = typeof window === 'object' &&
+            typeof window.XMLHttpRequest === 'function' &&
             window.document &&
-            typeof window.document.querySelectorAll === "function";
+            typeof window.document.querySelectorAll === 'function';
         // init global
         local.global = local.isBrowser
             ? window
@@ -7427,13 +7481,6 @@ local.templateCoverageBadgeSvg =
         local = local.global.utility2_rollup ||
             // local.global.utility2_rollup_old || require('./assets.utility2.rollup.js') ||
             local;
-        // init nop
-        local.nop = function () {
-        /*
-         * this function will do nothing
-         */
-            return;
-        };
         // init exports
         if (local.isBrowser) {
             local.global.utility2_jslint = local;
@@ -7464,7 +7511,6 @@ local.templateCoverageBadgeSvg =
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -7490,7 +7536,7 @@ local.templateCoverageBadgeSvg =
             local.cliDict._eval = local.cliDict._eval || function () {
             /*
              * <code>
-             * # eval code
+             * will eval <code>
              */
                 local.global.local = local;
                 require('vm').runInThisContext(process.argv[3]);
@@ -7500,13 +7546,17 @@ local.templateCoverageBadgeSvg =
             local.cliDict._help = local.cliDict._help || function (options) {
             /*
              *
-             * # print help
+             * will print help
              */
                 var commandList, file, packageJson, text, textDict;
                 commandList = [{
-                    arg: '<arg2> ...',
+                    argList: '<arg2>  ...',
                     description: 'usage:',
                     command: ['<arg1>']
+                }, {
+                    argList: '\'console.log("hello world")\'',
+                    description: 'example:',
+                    command: ['--eval']
                 }];
                 file = __filename.replace((/.*\//), '');
                 packageJson = require('./package.json');
@@ -7517,9 +7567,9 @@ local.templateCoverageBadgeSvg =
                     }
                     text = String(local.cliDict[key]);
                     if (key === '_default') {
-                        key = '<>';
+                        key = '';
                     }
-                    ii = textDict[text] = textDict[text] || (ii + 1);
+                    ii = textDict[text] = textDict[text] || (ii + 2);
                     if (commandList[ii]) {
                         commandList[ii].command.push(key);
                     } else {
@@ -7529,7 +7579,7 @@ local.templateCoverageBadgeSvg =
                             commandList[ii] = commandList[ii] || ['', '', ''];
                         }()));
                         commandList[ii] = {
-                            arg: commandList[ii][1].trim(),
+                            argList: commandList[ii][1].trim(),
                             command: [key],
                             description: commandList[ii][2].trim()
                         };
@@ -7537,21 +7587,37 @@ local.templateCoverageBadgeSvg =
                 });
                 (options && options.modeError
                     ? console.error
-                    : console.log)((options && options.modeError
+                    : console.log)(
+                    (options && options.modeError
                     ? '\u001b[31merror: missing <arg1>\u001b[39m\n\n'
-                    : '') + packageJson.name + ' (' + packageJson.version + ')\n\n' + commandList
-                    .filter(function (element) {
-                        return element;
-                    }).map(function (element) {
-                        return (element.description + '\n' +
-                            file + '  ' +
-                            element.command.sort().join('|') + '  ' +
-                            element.arg.replace((/ +/g), '  '))
-                                .replace((/<>\||\|<>|<> {2}/), '')
-                                .trim();
-                    })
-                    .join('\n\n') + '\n\nexample:\n' + file +
-                    '  --eval  \'console.log("hello world")\'');
+                    : '') +
+                        packageJson.name + ' (' + packageJson.version + ')\n\n' +
+                        commandList
+                        .filter(function (element) {
+                            return element;
+                        })
+                        .map(function (element, ii) {
+                            element.command = element.command.filter(function (element) {
+                                return element;
+                            });
+                            switch (ii) {
+                            case 0:
+                            case 1:
+                                element.argList = [element.argList];
+                                break;
+                            default:
+                                element.argList = element.argList.split(' ');
+                                element.description = '# COMMAND ' +
+                                    (element.command[0] || '<none>') + '\n# ' +
+                                    element.description;
+                            }
+                            return element.description + '\n  ' + file +
+                                ('  ' + element.command.sort().join('|') + '  ')
+                                .replace((/^ {4}$/), '  ') +
+                                element.argList.join('  ');
+                        })
+                        .join('\n\n')
+                );
             };
             local.cliDict['--help'] = local.cliDict['--help'] || local.cliDict._help;
             local.cliDict['-h'] = local.cliDict['-h'] || local.cliDict._help;
@@ -7560,12 +7626,12 @@ local.templateCoverageBadgeSvg =
             local.cliDict._interactive = local.cliDict._interactive || function () {
             /*
              *
-             * # start interactive-mode
+             * will start interactive-mode
              */
                 local.global.local = local;
                 local.replStart();
             };
-            if (local.replStart) {
+            if (typeof local.replStart === 'function') {
                 local.cliDict['--interactive'] = local.cliDict['--interactive'] ||
                     local.cliDict._interactive;
                 local.cliDict['-i'] = local.cliDict['-i'] || local.cliDict._interactive;
@@ -7573,7 +7639,7 @@ local.templateCoverageBadgeSvg =
             local.cliDict._version = local.cliDict._version || function () {
             /*
              *
-             * # print version
+             * will print version
              */
                 console.log(require(__dirname + '/package.json').version);
             };
@@ -9373,7 +9439,7 @@ var JSLINT = (function () {
             'navigator', 'Option', 'parent', 'screen', 'sessionStorage',
             // 'setInterval', 'setTimeout', 'Storage', 'window', 'XMLHttpRequest'
             'setInterval', 'setTimeout', 'Storage', 'window', 'XMLHttpRequest',
-            'ArrayBuffer', 'TextDecoder', 'TextEncoder', 'Uint8Array', 'crypto'
+            'ArrayBuffer', 'Uint8Array'
         ], false),
 
 // bundle contains the text messages.
@@ -9583,7 +9649,7 @@ var JSLINT = (function () {
             'require', 'setImmediate', 'setInterval', 'setTimeout',
             // '__dirname', '__filename'
             '__dirname', '__filename',
-            'Uint8Array'
+            'ArrayBuffer', 'Uint8Array'
         ], false),
         node_js,
         numbery = array_to_object(['indexOf', 'lastIndexOf', 'search'], true),
@@ -14013,36 +14079,6 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT, local.jslintEs6 = jslint; }());
                             return match0.replace((/^.*?$/gm), '');
                         }
                     );
-                ii = 0;
-                scriptParsed.replace((/^.*?$/gm), function (line) {
-                    ii += 1;
-                    jj = 0;
-                    message = '';
-                    // validate 4-space indent
-                    if (!(/^ +(?:\*|\/\/!!)/).test(line) &&
-                            ((/^ */).exec(line)[0].length % 4 !== 0)) {
-                        jj = jj || 1;
-                        message = message || 'non 4-space indent';
-                    }
-                    // validate trailing-whitespace
-                    if ((/ $| \\n\\$/).test(line)) {
-                        jj = jj || line.length;
-                        message = message || 'trailing whitespace';
-                    }
-                    // validate tab
-                    if (line.indexOf('\t') >= 0) {
-                        jj = jj || (line.indexOf('\t') + 1);
-                        message = message || 'tab detected';
-                    }
-                    if (message) {
-                        local.errorList.push({
-                            col: jj,
-                            line: ii,
-                            message: message,
-                            value: JSON.stringify(line)
-                        });
-                    }
-                });
             }
             switch (file.replace((/^.*\./), '.')) {
             // csslint script
@@ -14096,6 +14132,36 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT, local.jslintEs6 = jslint; }());
             });
             if (!local.errorList.length &&
                     (/^\/\* jslint-utility2 \*\/$|^# jslint-utility2$/m).test(script)) {
+                ii = 0;
+                scriptParsed.replace((/^.*?$/gm), function (line) {
+                    ii += 1;
+                    jj = 0;
+                    message = '';
+                    // validate 4-space indent
+                    if (!(/^ +(?:\*|\/\/!!)/).test(line) &&
+                            ((/^ */).exec(line)[0].length % 4 !== 0)) {
+                        jj = jj || 1;
+                        message = message || 'non 4-space indent';
+                    }
+                    // validate trailing-whitespace
+                    if ((/ $| \\n\\$/).test(line)) {
+                        jj = jj || line.length;
+                        message = message || 'trailing whitespace';
+                    }
+                    // validate tab
+                    if (line.indexOf('\t') >= 0) {
+                        jj = jj || (line.indexOf('\t') + 1);
+                        message = message || 'tab detected';
+                    }
+                    if (message) {
+                        local.errorList.push({
+                            col: jj,
+                            line: ii,
+                            message: message,
+                            value: JSON.stringify(line)
+                        });
+                    }
+                });
                 switch (file.replace((/^.*\./), '.')) {
                 case '.css':
                     local.csslintUtility2(script);
@@ -14117,10 +14183,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT, local.jslintEs6 = jslint; }());
             local.errorText = '\u001b[1m' + (lintType || 'jslint') + ' ' +  file + '\u001b[22m\n';
             local.errorList.forEach(function (error, ii) {
                 local.errorText += (' #' + String(ii + 1) + ' ').slice(-4) +
-                    '\u001b[31m' + error.message +
-                    '\u001b[39m\n    ' + String(error.value).trim() +
-                    '\u001b[90m \/\/ line ' + (error.line) +
-                    ', col ' + (error.col) + '\u001b[39m\n';
+                    '\u001b[31m' + error.message + '\u001b[39m\n' +
+                    '    ' + String(error.value).trim() +
+                    '\u001b[90m \/\/ line ' + error.line + ', col ' + (error.col) + '\u001b[39m\n';
             });
             local.errorText = local.errorText.trim();
             // print error to stderr
@@ -14150,7 +14215,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT, local.jslintEs6 = jslint; }());
                     local.errorList.push({
                         col: 0,
                         line: ii,
-                        message: 'domElement.classList not sorted - ' + tmp,
+                        message: '<domElement>.classList not sorted - ' + tmp,
                         value: line
                     });
                 }
@@ -14221,11 +14286,11 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT, local.jslintEs6 = jslint; }());
          * # jslint <file1> <file2> ... and print result to stdout
          */
             // jslint files
-            process.argv.slice(2).forEach(function (arg) {
-                if (arg[0] !== '-') {
+            process.argv.slice(2).forEach(function (argList) {
+                if (argList[0] !== '-') {
                     local.jslintAndPrint(
-                        local.fs.readFileSync(local.path.resolve(arg), 'utf8'),
-                        arg
+                        local.fs.readFileSync(local.path.resolve(argList), 'utf8'),
+                        argList
                     );
                 }
             });
@@ -14981,21 +15046,18 @@ f,0,f.length*32-u*8)}}}
         // init debug_inline
         (function () {
             var consoleError, context, key;
-            context = (typeof window === "object" && window) || global;
-            key = "debug_inline".replace("_i", "I");
-            if (context[key]) {
-                return;
-            }
             consoleError = console.error;
-            context[key] = function (arg0) {
+            context = (typeof window === 'object' && window) || global;
+            key = 'debug_inline'.replace('_i', 'I');
+            context[key] = context[key] || function (arg0) {
             /*
              * this function will both print arg0 to stderr and return it
              */
                 // debug arguments
-                context["_" + key + "Arguments"] = arguments;
-                consoleError("\n\n" + key);
+                context['_' + key + 'Arguments'] = arguments;
+                consoleError('\n\n' + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + '\n');
                 // return arg0 for inspection
                 return arg0;
             };
@@ -15003,10 +15065,10 @@ f,0,f.length*32-u*8)}}}
         // init local
         local = {};
         // init isBrowser
-        local.isBrowser = typeof window === "object" &&
-            typeof window.XMLHttpRequest === "function" &&
+        local.isBrowser = typeof window === 'object' &&
+            typeof window.XMLHttpRequest === 'function' &&
             window.document &&
-            typeof window.document.querySelectorAll === "function";
+            typeof window.document.querySelectorAll === 'function';
         // init global
         local.global = local.isBrowser
             ? window
@@ -15015,13 +15077,6 @@ f,0,f.length*32-u*8)}}}
         local = local.global.utility2_rollup ||
             // local.global.utility2_rollup_old || require('./assets.utility2.rollup.js') ||
             local;
-        // init nop
-        local.nop = function () {
-        /*
-         * this function will do nothing
-         */
-            return;
-        };
         // init exports
         if (local.isBrowser) {
             local.global.utility2_uglifyjs = local;
@@ -15052,7 +15107,6 @@ f,0,f.length*32-u*8)}}}
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -15078,7 +15132,7 @@ f,0,f.length*32-u*8)}}}
             local.cliDict._eval = local.cliDict._eval || function () {
             /*
              * <code>
-             * # eval code
+             * will eval <code>
              */
                 local.global.local = local;
                 require('vm').runInThisContext(process.argv[3]);
@@ -15088,13 +15142,17 @@ f,0,f.length*32-u*8)}}}
             local.cliDict._help = local.cliDict._help || function (options) {
             /*
              *
-             * # print help
+             * will print help
              */
                 var commandList, file, packageJson, text, textDict;
                 commandList = [{
-                    arg: '<arg2> ...',
+                    argList: '<arg2>  ...',
                     description: 'usage:',
                     command: ['<arg1>']
+                }, {
+                    argList: '\'console.log("hello world")\'',
+                    description: 'example:',
+                    command: ['--eval']
                 }];
                 file = __filename.replace((/.*\//), '');
                 packageJson = require('./package.json');
@@ -15105,9 +15163,9 @@ f,0,f.length*32-u*8)}}}
                     }
                     text = String(local.cliDict[key]);
                     if (key === '_default') {
-                        key = '<>';
+                        key = '';
                     }
-                    ii = textDict[text] = textDict[text] || (ii + 1);
+                    ii = textDict[text] = textDict[text] || (ii + 2);
                     if (commandList[ii]) {
                         commandList[ii].command.push(key);
                     } else {
@@ -15117,7 +15175,7 @@ f,0,f.length*32-u*8)}}}
                             commandList[ii] = commandList[ii] || ['', '', ''];
                         }()));
                         commandList[ii] = {
-                            arg: commandList[ii][1].trim(),
+                            argList: commandList[ii][1].trim(),
                             command: [key],
                             description: commandList[ii][2].trim()
                         };
@@ -15125,21 +15183,37 @@ f,0,f.length*32-u*8)}}}
                 });
                 (options && options.modeError
                     ? console.error
-                    : console.log)((options && options.modeError
+                    : console.log)(
+                    (options && options.modeError
                     ? '\u001b[31merror: missing <arg1>\u001b[39m\n\n'
-                    : '') + packageJson.name + ' (' + packageJson.version + ')\n\n' + commandList
-                    .filter(function (element) {
-                        return element;
-                    }).map(function (element) {
-                        return (element.description + '\n' +
-                            file + '  ' +
-                            element.command.sort().join('|') + '  ' +
-                            element.arg.replace((/ +/g), '  '))
-                                .replace((/<>\||\|<>|<> {2}/), '')
-                                .trim();
-                    })
-                    .join('\n\n') + '\n\nexample:\n' + file +
-                    '  --eval  \'console.log("hello world")\'');
+                    : '') +
+                        packageJson.name + ' (' + packageJson.version + ')\n\n' +
+                        commandList
+                        .filter(function (element) {
+                            return element;
+                        })
+                        .map(function (element, ii) {
+                            element.command = element.command.filter(function (element) {
+                                return element;
+                            });
+                            switch (ii) {
+                            case 0:
+                            case 1:
+                                element.argList = [element.argList];
+                                break;
+                            default:
+                                element.argList = element.argList.split(' ');
+                                element.description = '# COMMAND ' +
+                                    (element.command[0] || '<none>') + '\n# ' +
+                                    element.description;
+                            }
+                            return element.description + '\n  ' + file +
+                                ('  ' + element.command.sort().join('|') + '  ')
+                                .replace((/^ {4}$/), '  ') +
+                                element.argList.join('  ');
+                        })
+                        .join('\n\n')
+                );
             };
             local.cliDict['--help'] = local.cliDict['--help'] || local.cliDict._help;
             local.cliDict['-h'] = local.cliDict['-h'] || local.cliDict._help;
@@ -15148,12 +15222,12 @@ f,0,f.length*32-u*8)}}}
             local.cliDict._interactive = local.cliDict._interactive || function () {
             /*
              *
-             * # start interactive-mode
+             * will start interactive-mode
              */
                 local.global.local = local;
                 local.replStart();
             };
-            if (local.replStart) {
+            if (typeof local.replStart === 'function') {
                 local.cliDict['--interactive'] = local.cliDict['--interactive'] ||
                     local.cliDict._interactive;
                 local.cliDict['-i'] = local.cliDict['-i'] || local.cliDict._interactive;
@@ -15161,7 +15235,7 @@ f,0,f.length*32-u*8)}}}
             local.cliDict._version = local.cliDict._version || function () {
             /*
              *
-             * # print version
+             * will print version
              */
                 console.log(require(__dirname + '/package.json').version);
             };
@@ -15755,19 +15829,37 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
          * this function will uglify the js-code
          */
             var tmp;
-            // uglify css
-            if ((file || '').slice(-4) === '.css') {
+            switch ((/\.\w+?$|$/).exec(file)[0]) {
+            case '.css':
                 return code
                     // remove comment /**/
                     .replace((/\/\*[\S\s]*?\*\//g), '')
                     // remove comment //
-                    .replace((/\/\/.*/g), '')
+                    .replace((/\/\/.*?$/gm), '')
                     // remove whitespace
                     .replace((/\t/g), ' ')
                     .replace((/ {2,}/g), ' ')
                     .replace((/ *?([\n,:;{}]) */g), '$1')
                     .replace((/\n\n+/g), '\n')
                     .trim();
+            case '.htm':
+            case '.html':
+                return code
+                    // remove comment /**/
+                    .replace((/\/\*[\S\s]*?\*\//g), '')
+                    // remove comment //
+                    .replace((/\/\/.*?$/gm), '')
+                    // save whitespace in <pre></pre>
+                    .replace((/<pre>[\S\s]*?<\/pre>/g), function (match0) {
+                        return match0.replace((/\n/g), '\x00');
+                    })
+                    // remove whitespace
+                    .replace((/\s*?\n\s*/g), ' ')
+                    // restore whitespace in <pre></pre>
+                    .replace((/\x00/g), '\n')
+                    .trim();
+            case '.json':
+                return JSON.stringify(JSON.parse(code));
             }
             // parse code and get the initial AST
             tmp = local.parse(code
@@ -15827,7 +15919,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
                 return;
             }
             // uglify file
-            console.log(local.uglify(local.fs.readFileSync(
+            process.stdout.write(local.uglify(local.fs.readFileSync(
                 local.path.resolve(process.cwd(), process.argv[2]),
                 'utf8'
             ), process.argv[2]));
@@ -15865,21 +15957,18 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
         // init debug_inline
         (function () {
             var consoleError, context, key;
-            context = (typeof window === "object" && window) || global;
-            key = "debug_inline".replace("_i", "I");
-            if (context[key]) {
-                return;
-            }
             consoleError = console.error;
-            context[key] = function (arg0) {
+            context = (typeof window === 'object' && window) || global;
+            key = 'debug_inline'.replace('_i', 'I');
+            context[key] = context[key] || function (arg0) {
             /*
              * this function will both print arg0 to stderr and return it
              */
                 // debug arguments
-                context["_" + key + "Arguments"] = arguments;
-                consoleError("\n\n" + key);
+                context['_' + key + 'Arguments'] = arguments;
+                consoleError('\n\n' + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + '\n');
                 // return arg0 for inspection
                 return arg0;
             };
@@ -15887,10 +15976,10 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
         // init local
         local = {};
         // init isBrowser
-        local.isBrowser = typeof window === "object" &&
-            typeof window.XMLHttpRequest === "function" &&
+        local.isBrowser = typeof window === 'object' &&
+            typeof window.XMLHttpRequest === 'function' &&
             window.document &&
-            typeof window.document.querySelectorAll === "function";
+            typeof window.document.querySelectorAll === 'function';
         // init global
         local.global = local.isBrowser
             ? window
@@ -15899,13 +15988,6 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
         local = local.global.utility2_rollup ||
             // local.global.utility2_rollup_old || require('./assets.utility2.rollup.js') ||
             local;
-        // init nop
-        local.nop = function () {
-        /*
-         * this function will do nothing
-         */
-            return;
-        };
         // init exports
         if (local.isBrowser) {
             local.global.utility2_utility2 = local;
@@ -15936,7 +16018,6 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -16238,12 +16319,12 @@ utility2-comment -->\n\
 {{#unless isRollup}}\n\
 utility2-comment -->\n\
 <script src="assets.utility2.rollup.js"></script>\n\
-<script>window.utility2.onResetBefore.counter += 1;</script>\n\
+<script>window.utility2_onReadyBefore.counter += 1;</script>\n\
 <script src="jsonp.utility2.stateInit?callback=window.utility2.stateInit"></script>\n\
 <script src="assets.{{env.npm_package_nameLib}}.js"></script>\n\
 <script src="assets.example.js"></script>\n\
 <script src="assets.test.js"></script>\n\
-<script>window.utility2.onResetBefore();</script>\n\
+<script>window.utility2_onReadyBefore();</script>\n\
 <!-- utility2-comment\n\
 {{/if isRollup}}\n\
 utility2-comment -->\n\
@@ -16273,19 +16354,19 @@ local.assetsDict['/assets.example.template.js'] = '\
 /*\n\
 example.js\n\
 \n\
-this script will run a web-demo of jslint-lite\n\
+this script will run a web-demo of my-app-lite\n\
 \n\
 instruction\n\
     1. save this script as example.js\n\
     2. run the shell command:\n\
-        $ npm install jslint-lite && PORT=8081 node example.js\n\
+        $ npm install my-app-lite && PORT=8081 node example.js\n\
     3. open a browser to http://127.0.0.1:8081 and play with the web-demo\n\
     4. edit this script to suit your needs\n\
 */\n\
 \n\
 \n\
 \n\
-/* istanbul instrument in package jslint */\n\
+/* istanbul instrument in package my_app */\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
     bitwise: true,\n\
@@ -16318,8 +16399,8 @@ instruction\n\
             : global;\n\
         // re-init local\n\
         local = local.global.utility2_rollup || (local.isBrowser\n\
-            ? local.global.utility2_jslint\n\
-            : require(\'jslint-lite\'));\n\
+            ? local.global.utility2_my_app\n\
+            : require(\'my-app-lite\'));\n\
         // init exports\n\
         local.global.local = local;\n\
     }());\n\
@@ -16358,7 +16439,7 @@ instruction\n\
                 if (document.querySelector(\'#testReportDiv1\').style.maxHeight === \'0px\') {\n\
                     local.uiAnimateSlideDown(document.querySelector(\'#testReportDiv1\'));\n\
                     document.querySelector(\'#testRunButton1\').textContent = \'hide internal test\';\n\
-                    local.modeTest = true;\n\
+                    local.modeTest = 1;\n\
                     local.testRunDefault(local);\n\
                 // hide tests\n\
                 } else {\n\
@@ -16384,9 +16465,10 @@ instruction\n\
                 }\n\
             }\n\
         };\n\
+\n\
         // log stderr and stdout to #outputStdoutTextarea1\n\
         [\'error\', \'log\'].forEach(function (key) {\n\
-            console[key + \'_original\'] = console[key];\n\
+            console[key + \'_original\'] = console[key + \'_original\'] || console[key];\n\
             console[key] = function () {\n\
                 var element;\n\
                 console[key + \'_original\'].apply(console, arguments);\n\
@@ -16399,7 +16481,7 @@ instruction\n\
                     return typeof arg === \'string\'\n\
                         ? arg\n\
                         : JSON.stringify(arg, null, 4);\n\
-                }).join(\' \') + \'\\n\';\n\
+                }).join(\' \').replace((/\\u001b\\[\\d*m/g), \'\') + \'\\n\';\n\
                 // scroll textarea to bottom\n\
                 element.scrollTop = element.scrollHeight;\n\
             };\n\
@@ -16450,7 +16532,6 @@ instruction\n\
         local.tty = require(\'tty\');\n\
         local.url = require(\'url\');\n\
         local.util = require(\'util\');\n\
-        local.v8 = require(\'v8\');\n\
         local.vm = require(\'vm\');\n\
         local.zlib = require(\'zlib\');\n\
         /* validateLineSortedReset */\n\
@@ -16477,9 +16558,9 @@ instruction\n\
         /* validateLineSortedReset */\n\
         /* jslint-ignore-begin */\n\
         // bug-workaround - long $npm_package_buildCustomOrg\n\
-        local.assetsDict[\'/assets.jslint.js\'] =\n\
-            local.assetsDict[\'/assets.jslint.js\'] ||\n\
-            local.fs.readFileSync(local.__dirname + \'/lib.jslint.js\', \'utf8\'\n\
+        local.assetsDict[\'/assets.my_app.js\'] =\n\
+            local.assetsDict[\'/assets.my_app.js\'] ||\n\
+            local.fs.readFileSync(local.__dirname + \'/lib.my_app.js\', \'utf8\'\n\
         ).replace((/^#!\\//), \'// \');\n\
         /* jslint-ignore-end */\n\
         /* validateLineSortedReset */\n\
@@ -16492,7 +16573,7 @@ instruction\n\
                 case \'npm_package_description\':\n\
                     return \'the greatest app in the world!\';\n\
                 case \'npm_package_name\':\n\
-                    return \'my-app\';\n\
+                    return \'my-app-lite\';\n\
                 case \'npm_package_nameLib\':\n\
                     return \'my_app\';\n\
                 case \'npm_package_version\':\n\
@@ -16537,7 +16618,7 @@ instruction\n\
 
 local.assetsDict['/assets.lib.template.js'] = '\
 #!/usr/bin/env node\n\
-/* istanbul instrument in package jslint */\n\
+/* istanbul instrument in package my_app */\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
     bitwise: true,\n\
@@ -16561,21 +16642,18 @@ local.assetsDict['/assets.lib.template.js'] = '\
         // init debug_inline\n\
         (function () {\n\
             var consoleError, context, key;\n\
-            context = (typeof window === "object" && window) || global;\n\
-            key = "debug_inline".replace("_i", "I");\n\
-            if (context[key]) {\n\
-                return;\n\
-            }\n\
             consoleError = console.error;\n\
-            context[key] = function (arg0) {\n\
+            context = (typeof window === \'object\' && window) || global;\n\
+            key = \'debug_inline\'.replace(\'_i\', \'I\');\n\
+            context[key] = context[key] || function (arg0) {\n\
             /*\n\
              * this function will both print arg0 to stderr and return it\n\
              */\n\
                 // debug arguments\n\
-                context["_" + key + "Arguments"] = arguments;\n\
-                consoleError("\\n\\n" + key);\n\
+                context[\'_\' + key + \'Arguments\'] = arguments;\n\
+                consoleError(\'\\n\\n\' + key);\n\
                 consoleError.apply(console, arguments);\n\
-                consoleError("\\n");\n\
+                consoleError(new Error().stack + \'\\n\');\n\
                 // return arg0 for inspection\n\
                 return arg0;\n\
             };\n\
@@ -16583,10 +16661,10 @@ local.assetsDict['/assets.lib.template.js'] = '\
         // init local\n\
         local = {};\n\
         // init isBrowser\n\
-        local.isBrowser = typeof window === "object" &&\n\
-            typeof window.XMLHttpRequest === "function" &&\n\
+        local.isBrowser = typeof window === \'object\' &&\n\
+            typeof window.XMLHttpRequest === \'function\' &&\n\
             window.document &&\n\
-            typeof window.document.querySelectorAll === "function";\n\
+            typeof window.document.querySelectorAll === \'function\';\n\
         // init global\n\
         local.global = local.isBrowser\n\
             ? window\n\
@@ -16595,16 +16673,9 @@ local.assetsDict['/assets.lib.template.js'] = '\
         local = local.global.utility2_rollup ||\n\
             // local.global.utility2_rollup_old || require(\'./assets.utility2.rollup.js\') ||\n\
             local;\n\
-        // init nop\n\
-        local.nop = function () {\n\
-        /*\n\
-         * this function will do nothing\n\
-         */\n\
-            return;\n\
-        };\n\
         // init exports\n\
         if (local.isBrowser) {\n\
-            local.global.utility2_jslint = local;\n\
+            local.global.utility2_my_app = local;\n\
         } else {\n\
             // require builtins\n\
             // local.assert = require(\'assert\');\n\
@@ -16632,14 +16703,13 @@ local.assetsDict['/assets.lib.template.js'] = '\
             local.tty = require(\'tty\');\n\
             local.url = require(\'url\');\n\
             local.util = require(\'util\');\n\
-            local.v8 = require(\'v8\');\n\
             local.vm = require(\'vm\');\n\
             local.zlib = require(\'zlib\');\n\
             module.exports = local;\n\
             module.exports.__dirname = __dirname;\n\
         }\n\
         // init lib main\n\
-        local.local = local.jslint = local;\n\
+        local.local = local.my_app = local;\n\
 \n\
 \n\
 \n\
@@ -16652,33 +16722,33 @@ local.assetsDict['/assets.lib.template.js'] = '\
 
 
 local.assetsDict['/assets.readme.template.md'] = '\
-# jslint-lite\n\
+# my-app-lite\n\
 the greatest app in the world!\n\
 \n\
 # live web demo\n\
-- [https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/app](https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/app)\n\
+- [https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/app](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/app)\n\
 \n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployGithub.browser.%252Fnode-jslint-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/app)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployGithub.browser.%252Fnode-my-app-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/app)\n\
 \n\
 \n\
 \n\
-[![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-jslint-lite.svg)](https://travis-ci.org/kaizhu256/node-jslint-lite) [![coverage](https://kaizhu256.github.io/node-jslint-lite/build/coverage.badge.svg)](https://kaizhu256.github.io/node-jslint-lite/build/coverage.html/index.html)\n\
+[![travis-ci.org build-status](https://api.travis-ci.org/kaizhu256/node-my-app-lite.svg)](https://travis-ci.org/kaizhu256/node-my-app-lite) [![coverage](https://kaizhu256.github.io/node-my-app-lite/build/coverage.badge.svg)](https://kaizhu256.github.io/node-my-app-lite/build/coverage.html/index.html)\n\
 \n\
-[![NPM](https://nodei.co/npm/jslint-lite.png?downloads=true)](https://www.npmjs.com/package/jslint-lite)\n\
+[![NPM](https://nodei.co/npm/my-app-lite.png?downloads=true)](https://www.npmjs.com/package/my-app-lite)\n\
 \n\
-[![build commit status](https://kaizhu256.github.io/node-jslint-lite/build/build.badge.svg)](https://travis-ci.org/kaizhu256/node-jslint-lite)\n\
+[![build commit status](https://kaizhu256.github.io/node-my-app-lite/build/build.badge.svg)](https://travis-ci.org/kaizhu256/node-my-app-lite)\n\
 \n\
-| git-branch : | [master](https://github.com/kaizhu256/node-jslint-lite/tree/master) | [beta](https://github.com/kaizhu256/node-jslint-lite/tree/beta) | [alpha](https://github.com/kaizhu256/node-jslint-lite/tree/alpha)|\n\
+| git-branch : | [master](https://github.com/kaizhu256/node-my-app-lite/tree/master) | [beta](https://github.com/kaizhu256/node-my-app-lite/tree/beta) | [alpha](https://github.com/kaizhu256/node-my-app-lite/tree/alpha)|\n\
 |--:|:--|:--|:--|\n\
-| test-server-github : | [![github.com test-server](https://kaizhu256.github.io/node-jslint-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-jslint-lite/build..master..travis-ci.org/app) | [![github.com test-server](https://kaizhu256.github.io/node-jslint-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/app) | [![github.com test-server](https://kaizhu256.github.io/node-jslint-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-jslint-lite/build..alpha..travis-ci.org/app)|\n\
-| test-server-heroku : | [![heroku.com test-server](https://kaizhu256.github.io/node-jslint-lite/heroku-logo.75x25.png)](https://h1-jslint-master.herokuapp.com) | [![heroku.com test-server](https://kaizhu256.github.io/node-jslint-lite/heroku-logo.75x25.png)](https://h1-jslint-beta.herokuapp.com) | [![heroku.com test-server](https://kaizhu256.github.io/node-jslint-lite/heroku-logo.75x25.png)](https://h1-jslint-alpha.herokuapp.com)|\n\
-| test-report : | [![test-report](https://kaizhu256.github.io/node-jslint-lite/build..master..travis-ci.org/test-report.badge.svg)](https://kaizhu256.github.io/node-jslint-lite/build..master..travis-ci.org/test-report.html) | [![test-report](https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/test-report.badge.svg)](https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/test-report.html) | [![test-report](https://kaizhu256.github.io/node-jslint-lite/build..alpha..travis-ci.org/test-report.badge.svg)](https://kaizhu256.github.io/node-jslint-lite/build..alpha..travis-ci.org/test-report.html)|\n\
-| coverage : | [![coverage](https://kaizhu256.github.io/node-jslint-lite/build..master..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-jslint-lite/build..master..travis-ci.org/coverage.html/index.html) | [![coverage](https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/coverage.html/index.html) | [![coverage](https://kaizhu256.github.io/node-jslint-lite/build..alpha..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-jslint-lite/build..alpha..travis-ci.org/coverage.html/index.html)|\n\
-| build-artifacts : | [![build-artifacts](https://kaizhu256.github.io/node-jslint-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-jslint-lite/tree/gh-pages/build..master..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-jslint-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-jslint-lite/tree/gh-pages/build..beta..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-jslint-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-jslint-lite/tree/gh-pages/build..alpha..travis-ci.org)|\n\
+| test-server-github : | [![github.com test-server](https://kaizhu256.github.io/node-my-app-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-my-app-lite/build..master..travis-ci.org/app) | [![github.com test-server](https://kaizhu256.github.io/node-my-app-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/app) | [![github.com test-server](https://kaizhu256.github.io/node-my-app-lite/GitHub-Mark-32px.png)](https://kaizhu256.github.io/node-my-app-lite/build..alpha..travis-ci.org/app)|\n\
+| test-server-heroku : | [![heroku.com test-server](https://kaizhu256.github.io/node-my-app-lite/heroku-logo.75x25.png)](https://h1-my-app-master.herokuapp.com) | [![heroku.com test-server](https://kaizhu256.github.io/node-my-app-lite/heroku-logo.75x25.png)](https://h1-my-app-beta.herokuapp.com) | [![heroku.com test-server](https://kaizhu256.github.io/node-my-app-lite/heroku-logo.75x25.png)](https://h1-my-app-alpha.herokuapp.com)|\n\
+| test-report : | [![test-report](https://kaizhu256.github.io/node-my-app-lite/build..master..travis-ci.org/test-report.badge.svg)](https://kaizhu256.github.io/node-my-app-lite/build..master..travis-ci.org/test-report.html) | [![test-report](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/test-report.badge.svg)](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/test-report.html) | [![test-report](https://kaizhu256.github.io/node-my-app-lite/build..alpha..travis-ci.org/test-report.badge.svg)](https://kaizhu256.github.io/node-my-app-lite/build..alpha..travis-ci.org/test-report.html)|\n\
+| coverage : | [![coverage](https://kaizhu256.github.io/node-my-app-lite/build..master..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-my-app-lite/build..master..travis-ci.org/coverage.html/index.html) | [![coverage](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/coverage.html/index.html) | [![coverage](https://kaizhu256.github.io/node-my-app-lite/build..alpha..travis-ci.org/coverage.badge.svg)](https://kaizhu256.github.io/node-my-app-lite/build..alpha..travis-ci.org/coverage.html/index.html)|\n\
+| build-artifacts : | [![build-artifacts](https://kaizhu256.github.io/node-my-app-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-my-app-lite/tree/gh-pages/build..master..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-my-app-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-my-app-lite/tree/gh-pages/build..beta..travis-ci.org) | [![build-artifacts](https://kaizhu256.github.io/node-my-app-lite/glyphicons_144_folder_open.png)](https://github.com/kaizhu256/node-my-app-lite/tree/gh-pages/build..alpha..travis-ci.org)|\n\
 \n\
-[![npmPackageListing](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.npmPackageListing.svg)](https://github.com/kaizhu256/node-jslint-lite)\n\
+[![npmPackageListing](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.npmPackageListing.svg)](https://github.com/kaizhu256/node-my-app-lite)\n\
 \n\
-![npmPackageDependencyTree](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.npmPackageDependencyTree.svg)\n\
+![npmPackageDependencyTree](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.npmPackageDependencyTree.svg)\n\
 \n\
 \n\
 \n\
@@ -16687,23 +16757,23 @@ the greatest app in the world!\n\
 \n\
 \n\
 # cdn download\n\
-- [https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/app/assets.jslint.js](https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/app/assets.jslint.js)\n\
+- [https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/app/assets.my_app.js](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/app/assets.my_app.js)\n\
 \n\
 \n\
 \n\
 # documentation\n\
 #### cli help\n\
-![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.npmPackageCliHelp.svg)\n\
+![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.npmPackageCliHelp.svg)\n\
 \n\
 #### api doc\n\
-- [https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/apidoc.html](https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/apidoc.html)\n\
+- [https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/apidoc.html](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/apidoc.html)\n\
 \n\
-[![apidoc](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/apidoc.html)\n\
+[![apidoc](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/apidoc.html)\n\
 \n\
 #### swagger doc\n\
-- [https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/app/assets.swgg.html](https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/app/assets.swgg.html)\n\
+- [https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/app/assets.swgg.html](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/app/assets.swgg.html)\n\
 \n\
-[![swaggerdoc](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployGithub.browser.%252Fnode-jslint-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png)](https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/app/assets.swgg.html)\n\
+[![swaggerdoc](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployGithub.browser.%252Fnode-my-app-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png)](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/app/assets.swgg.html)\n\
 \n\
 #### todo\n\
 - none\n\
@@ -16720,14 +16790,14 @@ the greatest app in the world!\n\
 \n\
 # quickstart standalone app\n\
 #### to run this example, follow the instruction in the script below\n\
-- [assets.app.js](https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/app/assets.app.js)\n\
+- [assets.app.js](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/app/assets.app.js)\n\
 ```shell\n\
 # example.sh\n\
 \n\
-# this shell script will download and run a web-demo of jslint-lite as a standalone app\n\
+# this shell script will download and run a web-demo of my-app-lite as a standalone app\n\
 \n\
 # 1. download standalone app\n\
-curl -O https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/app/assets.app.js\n\
+curl -O https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/app/assets.app.js\n\
 # 2. run standalone app\n\
 PORT=8081 node ./assets.app.js\n\
 # 3. open a browser to http://127.0.0.1:8081 and play with the web-demo\n\
@@ -16735,64 +16805,64 @@ PORT=8081 node ./assets.app.js\n\
 ```\n\
 \n\
 #### output from browser\n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.testExampleSh.browser.%252F.png)](https://kaizhu256.github.io/node-jslint-lite/build/app/assets.example.html)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.testExampleSh.browser.%252F.png)](https://kaizhu256.github.io/node-my-app-lite/build/app/assets.example.html)\n\
 \n\
 #### output from shell\n\
-![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.testExampleSh.svg)\n\
+![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.testExampleSh.svg)\n\
 \n\
 \n\
 \n\
 # quickstart example.js\n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.testExampleJs.browser.%252F.png)](https://kaizhu256.github.io/node-jslint-lite/build/app/assets.example.html)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.testExampleJs.browser.%252F.png)](https://kaizhu256.github.io/node-my-app-lite/build/app/assets.example.html)\n\
 \n\
 #### to run this example, follow the instruction in the script below\n\
-- [example.js](https://kaizhu256.github.io/node-jslint-lite/build..beta..travis-ci.org/example.js)\n\
+- [example.js](https://kaizhu256.github.io/node-my-app-lite/build..beta..travis-ci.org/example.js)\n\
 ```javascript\n' + local.assetsDict['/assets.example.template.js'] + '```\n\
 \n\
 #### output from browser\n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.testExampleJs.browser.%252F.png)](https://kaizhu256.github.io/node-jslint-lite/build/app/assets.example.html)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.testExampleJs.browser.%252F.png)](https://kaizhu256.github.io/node-my-app-lite/build/app/assets.example.html)\n\
 \n\
 #### output from shell\n\
-![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.testExampleJs.svg)\n\
+![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.testExampleJs.svg)\n\
 \n\
 \n\
 \n\
 # extra screenshots\n\
-1. [https://kaizhu256.github.io/node-jslint-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)\n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)\n\
+1. [https://kaizhu256.github.io/node-my-app-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)\n\
 \n\
-1. [https://kaizhu256.github.io/node-jslint-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png)\n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png)](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png)\n\
+1. [https://kaizhu256.github.io/node-my-app-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png)](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png)\n\
 \n\
-1. [https://kaizhu256.github.io/node-jslint-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png)\n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png)](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png)\n\
+1. [https://kaizhu256.github.io/node-my-app-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png)](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png)\n\
 \n\
-1. [https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployGithub.browser.%252Fnode-jslint-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployGithub.browser.%252Fnode-jslint-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png)\n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployGithub.browser.%252Fnode-jslint-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png)](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployGithub.browser.%252Fnode-jslint-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png)\n\
+1. [https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployGithub.browser.%252Fnode-my-app-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployGithub.browser.%252Fnode-my-app-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployGithub.browser.%252Fnode-my-app-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png)](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployGithub.browser.%252Fnode-my-app-lite%252Fbuild%252Fapp%252Fassets.swgg.html.png)\n\
 \n\
-1. [https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployGithub.browser.%252Fnode-jslint-lite%252Fbuild%252Fapp.png](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployGithub.browser.%252Fnode-jslint-lite%252Fbuild%252Fapp.png)\n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployGithub.browser.%252Fnode-jslint-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployGithub.browser.%252Fnode-jslint-lite%252Fbuild%252Fapp.png)\n\
+1. [https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployGithub.browser.%252Fnode-my-app-lite%252Fbuild%252Fapp.png](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployGithub.browser.%252Fnode-my-app-lite%252Fbuild%252Fapp.png)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployGithub.browser.%252Fnode-my-app-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployGithub.browser.%252Fnode-my-app-lite%252Fbuild%252Fapp.png)\n\
 \n\
-1. [https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployGithubTest.browser.%252Fnode-jslint-lite%252Fbuild%252Fapp.png](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployGithubTest.browser.%252Fnode-jslint-lite%252Fbuild%252Fapp.png)\n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployGithubTest.browser.%252Fnode-jslint-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployGithubTest.browser.%252Fnode-jslint-lite%252Fbuild%252Fapp.png)\n\
+1. [https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployGithubTest.browser.%252Fnode-my-app-lite%252Fbuild%252Fapp.png](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployGithubTest.browser.%252Fnode-my-app-lite%252Fbuild%252Fapp.png)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployGithubTest.browser.%252Fnode-my-app-lite%252Fbuild%252Fapp.png)](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployGithubTest.browser.%252Fnode-my-app-lite%252Fbuild%252Fapp.png)\n\
 \n\
-1. [https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployHeroku.browser.%252Fassets.swgg.html.png](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployHeroku.browser.%252Fassets.swgg.html.png)\n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployHeroku.browser.%252Fassets.swgg.html.png)](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployHeroku.browser.%252Fassets.swgg.html.png)\n\
+1. [https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployHeroku.browser.%252Fassets.swgg.html.png](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployHeroku.browser.%252Fassets.swgg.html.png)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployHeroku.browser.%252Fassets.swgg.html.png)](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployHeroku.browser.%252Fassets.swgg.html.png)\n\
 \n\
-1. [https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployHeroku.browser.%252F.png](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployHeroku.browser.%252F.png)\n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployHeroku.browser.%252F.png)](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployHeroku.browser.%252F.png)\n\
+1. [https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployHeroku.browser.%252F.png](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployHeroku.browser.%252F.png)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployHeroku.browser.%252F.png)](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployHeroku.browser.%252F.png)\n\
 \n\
-1. [https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployHerokuTest.browser.%252F.png](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployHerokuTest.browser.%252F.png)\n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployHerokuTest.browser.%252F.png)](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.deployHerokuTest.browser.%252F.png)\n\
+1. [https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployHerokuTest.browser.%252F.png](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployHerokuTest.browser.%252F.png)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployHerokuTest.browser.%252F.png)](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.deployHerokuTest.browser.%252F.png)\n\
 \n\
-1. [https://kaizhu256.github.io/node-jslint-lite/build/screenshot.npmTest.browser.%252F.png](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.npmTest.browser.%252F.png)\n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.npmTest.browser.%252F.png)](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.npmTest.browser.%252F.png)\n\
+1. [https://kaizhu256.github.io/node-my-app-lite/build/screenshot.npmTest.browser.%252F.png](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.npmTest.browser.%252F.png)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.npmTest.browser.%252F.png)](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.npmTest.browser.%252F.png)\n\
 \n\
-1. [https://kaizhu256.github.io/node-jslint-lite/build/screenshot.testExampleJs.browser.%252F.png](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.testExampleJs.browser.%252F.png)\n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.testExampleJs.browser.%252F.png)](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.testExampleJs.browser.%252F.png)\n\
+1. [https://kaizhu256.github.io/node-my-app-lite/build/screenshot.testExampleJs.browser.%252F.png](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.testExampleJs.browser.%252F.png)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.testExampleJs.browser.%252F.png)](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.testExampleJs.browser.%252F.png)\n\
 \n\
-1. [https://kaizhu256.github.io/node-jslint-lite/build/screenshot.testExampleSh.browser.%252F.png](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.testExampleSh.browser.%252F.png)\n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.testExampleSh.browser.%252F.png)](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.testExampleSh.browser.%252F.png)\n\
+1. [https://kaizhu256.github.io/node-my-app-lite/build/screenshot.testExampleSh.browser.%252F.png](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.testExampleSh.browser.%252F.png)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.testExampleSh.browser.%252F.png)](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.testExampleSh.browser.%252F.png)\n\
 \n\
 \n\
 \n\
@@ -16808,11 +16878,11 @@ PORT=8081 node ./assets.app.js\n\
     "engines": {\n\
         "node": ">=4.0"\n\
     },\n\
-    "homepage": "https://github.com/kaizhu256/node-jslint-lite",\n\
+    "homepage": "https://github.com/kaizhu256/node-my-app-lite",\n\
     "keywords": [],\n\
     "license": "MIT",\n\
-    "main": "lib.jslint.js",\n\
-    "name": "jslint-lite",\n\
+    "main": "lib.my_app.js",\n\
+    "name": "my-app-lite",\n\
     "nameAliasPublish": "",\n\
     "os": [\n\
         "darwin",\n\
@@ -16820,7 +16890,7 @@ PORT=8081 node ./assets.app.js\n\
     ],\n\
     "repository": {\n\
         "type": "git",\n\
-        "url": "https://github.com/kaizhu256/node-jslint-lite.git"\n\
+        "url": "https://github.com/kaizhu256/node-my-app-lite.git"\n\
     },\n\
     "scripts": {\n\
         "build-ci": "./npm_scripts.sh",\n\
@@ -16839,7 +16909,7 @@ PORT=8081 node ./assets.app.js\n\
 \n\
 \n\
 # changelog of last 50 commits\n\
-[![screenshot](https://kaizhu256.github.io/node-jslint-lite/build/screenshot.gitLog.svg)](https://github.com/kaizhu256/node-jslint-lite/commits)\n\
+[![screenshot](https://kaizhu256.github.io/node-my-app-lite/build/screenshot.gitLog.svg)](https://github.com/kaizhu256/node-my-app-lite/commits)\n\
 \n\
 \n\
 \n\
@@ -17105,7 +17175,7 @@ instruction\n\
 
 
 local.assetsDict['/assets.test.template.js'] = '\
-/* istanbul instrument in package jslint */\n\
+/* istanbul instrument in package my_app */\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
     bitwise: true,\n\
@@ -17140,7 +17210,7 @@ local.assetsDict['/assets.test.template.js'] = '\
         local = local.global.local = (local.global.utility2 ||\n\
             require(\'utility2\')).requireReadme();\n\
         // init test\n\
-        local.testRunInit(local);\n\
+        local.testRunDefault(local);\n\
     }());\n\
 \n\
 \n\
@@ -17263,6 +17333,9 @@ local.assetsDict['/assets.testReport.template.html'] =
     </a>\n\
     <br>\n\
     {{/if screenshot}}\n\
+    {{#if domOnEventWindowOnloadTimeElapsed}}\n\
+    <span>onload-time</span>- {{domOnEventWindowOnloadTimeElapsed}} ms<br>\n\
+    {{/if domOnEventWindowOnloadTimeElapsed}}\n\
     <span>time-elapsed</span>- {{timeElapsed}} ms<br>\n\
     <span>tests failed</span>- {{testsFailed}}<br>\n\
     <span>tests passed</span>- {{testsPassed}}<br>\n\
@@ -17869,19 +17942,6 @@ local.assetsDict['/favicon.ico'] = '';
             return self;
         };
 
-        local._middlewareError = function (error, request, response) {
-        /*
-         * this function will run the middleware that will handle errors
-         */
-            // if error occurred, then respond with '500 Internal Server Error',
-            // else respond with '404 Not Found'
-            local.serverRespondDefault(request, response, error
-                ? (error.statusCode >= 400 && error.statusCode < 600
-                    ? error.statusCode
-                    : 500)
-                : 404, error);
-        };
-
         local._testCase_buildApidoc_default = function (options, onError) {
         /*
          * this function will test buildApidoc's default handling-behavior
@@ -17965,11 +18025,13 @@ local.assetsDict['/favicon.ico'] = '';
                 fileScreenshot: local.env.npm_config_dir_build +
                     '/screenshot.' + local.env.MODE_BUILD + '.browser.%2F.png',
                 modeCoverageMerge: true,
-                url: local.assetsDict['/']
+                url: (local.assetsDict['/']
                     .indexOf('<script src="assets.test.js"></script>') >= 0
                     ? local.serverLocalHost + '?modeTest=1&timeoutDefault=' + local.timeoutDefault
                     : local.serverLocalHost +
-                        '/assets.utility2.base.html?modeTest=1&timeoutDefault=1'
+                        '/assets.utility2.base.html?modeTest=1&timeoutDefault=1') +
+                    '&modeTestCase=' +
+                    local.modeTestCase.replace((/_?testCase_webpage_default/), '')
             }, onError);
         };
 
@@ -17987,7 +18049,16 @@ local.assetsDict['/favicon.ico'] = '';
                 console.log(xhr.responseText);
             });
          */
-            var ajaxProgressUpdate, bufferToString, isBrowser, isDone, nop, streamCleanup, xhr;
+            var ajaxProgressUpdate,
+                bufferToString,
+                isBrowser,
+                isDone,
+                nop,
+                self,
+                streamCleanup,
+                xhr;
+            // init local
+            self = local.utility2 || {};
             // init standalone handling-behavior
             nop = function () {
             /*
@@ -17995,12 +18066,12 @@ local.assetsDict['/favicon.ico'] = '';
              */
                 return;
             };
-            ajaxProgressUpdate = local.ajaxProgressUpdate || nop;
+            ajaxProgressUpdate = self.ajaxProgressUpdate || nop;
             // init onError
-            if (local.onErrorWithStack) {
-                onError = local.onErrorWithStack(onError);
+            if (self.onErrorWithStack) {
+                onError = self.onErrorWithStack(onError);
             }
-            bufferToString = local.bufferToString || String;
+            bufferToString = self.bufferToString || String;
             streamCleanup = function (stream) {
             /*
              * this function will try to end or destroy the stream
@@ -18023,14 +18094,14 @@ local.assetsDict['/favicon.ico'] = '';
                 typeof window.document.querySelectorAll === 'function';
             // init xhr
             xhr = !options.httpRequest &&
-                (!isBrowser || (local.serverLocalUrlTest && local.serverLocalUrlTest(options.url)))
-                ? local._http && local._http.XMLHttpRequest && new local._http.XMLHttpRequest()
+                (!isBrowser || (self.serverLocalUrlTest && self.serverLocalUrlTest(options.url)))
+                ? self._http && self._http.XMLHttpRequest && new self._http.XMLHttpRequest()
                 : isBrowser && new window.XMLHttpRequest();
             if (!xhr) {
                 xhr = require('url').parse(options.url);
                 xhr.headers = options.headers;
                 xhr.method = options.method;
-                xhr.timeout = xhr.timeout || local.timeoutDefault || 30000;
+                xhr.timeout = xhr.timeout || self.timeoutDefault || 30000;
                 xhr = (
                     options.httpRequest || require(xhr.protocol.slice(0, -1)).request
                 )(xhr, function (response) {
@@ -18059,7 +18130,7 @@ local.assetsDict['/favicon.ico'] = '';
                 });
             }
             // debug xhr
-            local._debugXhr = xhr;
+            self._debugXhr = xhr;
             // init options
             Object.keys(options).forEach(function (key) {
                 if (options[key] !== undefined) {
@@ -18074,7 +18145,7 @@ local.assetsDict['/favicon.ico'] = '';
             xhr.method = xhr.method || 'GET';
             xhr.responseHeaders = {};
             xhr.timeStart = Date.now();
-            xhr.timeout = xhr.timeout || local.timeoutDefault || 30000;
+            xhr.timeout = xhr.timeout || self.timeoutDefault || 30000;
             // init timerTimeout
             xhr.timerTimeout = setTimeout(function () {
                 xhr.error = xhr.error || new Error('onTimeout - timeout-error - ' +
@@ -18157,9 +18228,7 @@ local.assetsDict['/favicon.ico'] = '';
                         streamCleanup(xhr.responseStream);
                     });
                     // decrement ajaxProgressCounter
-                    if (local.ajaxProgressCounter) {
-                        local.ajaxProgressCounter -= 1;
-                    }
+                    self.ajaxProgressCounter = Math.max(self.ajaxProgressCounter - 1, 0);
                     // handle abort or error event
                     if (!xhr.error &&
                             (event.type === 'abort' ||
@@ -18170,8 +18239,8 @@ local.assetsDict['/favicon.ico'] = '';
                     // debug statusCode
                     (xhr.error || {}).statusCode = xhr.statusCode;
                     // debug statusCode / method / url
-                    if (local.errorMessagePrepend && xhr.error) {
-                        local.errorMessagePrepend(xhr.error, (isBrowser
+                    if (self.errorMessagePrepend && xhr.error) {
+                        self.errorMessagePrepend(xhr.error, (isBrowser
                             ? 'browser'
                             : 'node') + ' - ' +
                             xhr.statusCode + ' ' + xhr.method + ' ' + xhr.url + '\n' +
@@ -18190,8 +18259,8 @@ local.assetsDict['/favicon.ico'] = '';
                 ajaxProgressUpdate();
             };
             // increment ajaxProgressCounter
-            local.ajaxProgressCounter = local.ajaxProgressCounter || 0;
-            local.ajaxProgressCounter += 1;
+            self.ajaxProgressCounter = self.ajaxProgressCounter || 0;
+            self.ajaxProgressCounter += 1;
             xhr.addEventListener('abort', xhr.onEvent);
             xhr.addEventListener('error', xhr.onEvent);
             xhr.addEventListener('load', xhr.onEvent);
@@ -18201,10 +18270,10 @@ local.assetsDict['/favicon.ico'] = '';
                 xhr.upload.addEventListener('progress', ajaxProgressUpdate);
             }
             // open url through corsForwardProxyHost
-            xhr.corsForwardProxyHost = xhr.corsForwardProxyHost || local.corsForwardProxyHost;
-            xhr.location = xhr.location || (local.global && local.global.location) || {};
-            if (local.corsForwardProxyHostIfNeeded && local.corsForwardProxyHostIfNeeded(xhr)) {
-                xhr.open(xhr.method, local.corsForwardProxyHostIfNeeded(xhr));
+            xhr.corsForwardProxyHost = xhr.corsForwardProxyHost || self.corsForwardProxyHost;
+            xhr.location = xhr.location || (self.global && self.global.location) || {};
+            if (self.corsForwardProxyHostIfNeeded && self.corsForwardProxyHostIfNeeded(xhr)) {
+                xhr.open(xhr.method, self.corsForwardProxyHostIfNeeded(xhr));
                 xhr.setRequestHeader('forward-proxy-headers', JSON.stringify(xhr.headers));
                 xhr.setRequestHeader('forward-proxy-url', xhr.url);
             // open url
@@ -18214,7 +18283,7 @@ local.assetsDict['/favicon.ico'] = '';
             Object.keys(xhr.headers).forEach(function (key) {
                 xhr.setRequestHeader(key, xhr.headers[key]);
             });
-            if (local.FormData && xhr.data instanceof local.FormData) {
+            if (self.FormData && xhr.data instanceof self.FormData) {
                 // handle formData
                 xhr.data.read(function (error, data) {
                     if (error) {
@@ -18310,7 +18379,7 @@ local.assetsDict['/favicon.ico'] = '';
                         local.assert(xhr, error);
                         // handle redirect
                         if (300 <= xhr.statusCode && xhr.statusCode < 400) {
-                            options.modeNext = Infinity;
+                            options.modeNext += 1000;
                             // recurse - redirect
                             local.ajaxCrawl(local.objectSetDefault({
                                 depth: options.depth,
@@ -18424,7 +18493,7 @@ local.assetsDict['/favicon.ico'] = '';
             if (passed) {
                 return;
             }
-            error = message && message.message
+            error = message && message.stack
                 // if message is an error-object, then leave it as is
                 ? message
                 : new Error(typeof message === 'string'
@@ -18470,7 +18539,7 @@ local.assetsDict['/favicon.ico'] = '';
             if (typeof bff === 'string') {
                 bff = typeof Buffer === 'function' && typeof Buffer.isBuffer === 'function'
                     ? Buffer.from(bff)
-                    : new TextEncoder().encode(bff);
+                    : new window.TextEncoder().encode(bff);
             }
             bff = bff || [];
             text = '';
@@ -18536,7 +18605,7 @@ local.assetsDict['/favicon.ico'] = '';
                 // return utf8-string
                 : typeof Buffer === 'function' && typeof Buffer.isBuffer === 'function'
                 ? String(Object.setPrototypeOf(bff, Buffer.prototype))
-                : new TextDecoder().decode(bff);
+                : new window.TextDecoder().decode(bff);
         };
 
         local.base64ToString = function (b64) {
@@ -18611,59 +18680,69 @@ local.assetsDict['/favicon.ico'] = '';
         /*
          * this function will spawn an electron process to test options.url
          */
-            var isDone, modeNext, onNext, onParallel, options2, timerTimeout;
-            // init options
-            try {
-                [
-                    'CI_BRANCH',
-                    'CI_HOST',
-                    'DISPLAY',
-                    'MODE_BUILD',
-                    'PATH',
-                    'fileElectronHtml',
-                    'fileScreenshot',
-                    'fileTestReport',
-                    'modeBrowserTest',
-                    'modeCoverageMerge',
-                    'modeNext',
-                    'modeSilent',
-                    'modeTestIgnore',
-                    'npm_config_dir_build',
-                    'npm_config_dir_tmp',
-                    'npm_config_time_exit',
-                    'npm_config_timeout_default',
-                    'timeExit',
-                    'timeoutDefault',
-                    'timeoutScreenshot',
-                    'url'
-                ].forEach(function (key) {
-                    if (local.env[key] !== undefined && typeof options[key] !== 'number') {
-                        options[key] = options[key] || local.env[key];
+            var isDone, onMessage, onParallel, timerTimeout, window;
+            window = options.window || local.global;
+            // init utility2_testReport
+            window.utility2_testReport = window.utility2_testReport || {
+                coverage: window.__coverage__,
+                testPlatformList: [{
+                    name: local.isBrowser
+                        ? 'browser - ' + location.pathname + ' - ' + navigator.userAgent + ' - ' +
+                            new Date().toISOString()
+                        : 'node - ' + process.platform + ' ' + process.version + ' - ' +
+                            new Date().toISOString(),
+                    screenshot: local.env && local.env.MODE_BUILD_SCREENSHOT_IMG,
+                    testCaseList: []
+                }]
+            };
+            window.utility2_testReportSave = window.utility2_testReportSave || local.nop;
+            if (options.modeTestReportCreate) {
+                return;
+            }
+            onMessage = function (event, type, data) {
+                switch (event && type) {
+                case 'html':
+                    options.fs.writeFile(
+                        options.fileScreenshot.replace((/\.\w+$/), '.html'),
+                        data,
+                        onParallel
+                    );
+                    return;
+                case 'testReport':
+                    if (options.modeBrowserTest !== 'test') {
+                        return;
                     }
-                });
-                options.timeoutDefault = Number(options.timeoutDefault) || local.timeoutDefault;
-            } catch (ignore) {
-            }
-            try {
-                options.require = options.utility2_require || require;
-                options.fs = options.require('fs');
-            } catch (ignore) {
-            }
-            try {
-                options.document = options.utility2_document || document;
-            } catch (ignore) {
-            }
-            try {
-                options.window = options.utility2_window || window;
-            } catch (ignore) {
-            }
-            onNext = function (error, data) {
-                modeNext = error instanceof Error
-                    ? Infinity
-                    : modeNext + 1;
-                switch (modeNext) {
+                    // save browser-coverage
+                    if (data.coverage) {
+                        onParallel.counter += 1;
+                        options.fs.writeFile(
+                            options.fileCoverage,
+                            JSON.stringify(data.coverage),
+                            onParallel
+                        );
+                        data.coverage = null;
+                    }
+                    // save browser-screenshot
+                    data.testPlatformList[0].screenshot =
+                        options.fileScreenshot.replace((/.*\//), '');
+                    // save browser-test-report
+                    onParallel.counter += 1;
+                    options.fs.writeFile(
+                        options.fileTestReport,
+                        JSON.stringify(data, null, 4),
+                        onParallel
+                    );
+                    onParallel();
+                    return;
+                }
+            };
+            local.onNext(options, function (error, data) {
+                switch (options.modeNext) {
                 // node - init
                 case 1:
+                    // init fileElectronHtml
+                    options.fileElectronHtml = options.npm_config_dir_tmp + '/electron.' +
+                        Date.now().toString(16) + Math.random().toString(16) + '.html';
                     // init url
                     if (!(/^\w+:\/\//).test(options.url)) {
                         options.url = local.path.resolve(process.cwd(), options.url);
@@ -18692,121 +18771,104 @@ local.assetsDict['/favicon.ico'] = '';
                     }, 1);
                     // init timerTimeout
                     timerTimeout = local.onTimeout(
-                        onNext,
+                        options.onNext,
                         options.timeoutDefault,
                         options.testName
                     ).unref();
-                    // init file fileElectronHtml
-                    options.browserTestScript = String(local.browserTest)
-                        .replace((/<\//g), '<\\/')
-                        // coverage-hack - un-instrument function
-                        .replace((/\b__cov_.*?\+\+/g), '0');
-                    options.fileElectronHtml = options.npm_config_dir_tmp + '/electron.' +
-                        Date.now().toString(16) + Math.random().toString(16) + '.html';
-                    options2 = {};
+                    data = {};
                     Object.keys(options).forEach(function (key) {
                         if (typeof options[key] !== 'object') {
-                            options2[key] = options[key];
+                            data[key] = options[key];
                         }
                     });
-                    options2.modeNext = 20;
-                    local.fsWriteFileWithMkdirpSync(options.fileElectronHtml, '<style>body {' +
-                            'border: 1px solid black;' +
-                            'margin: 0;' +
-                            'padding: 0;' +
-                        '}</style>' +
-                        '<webview id="webview1" preload="' + options.fileElectronHtml +
-                        '.preload.js" src="' +
-                        options.url.replace('{{timeExit}}', options.timeExit) +
-                        '" style="' +
-                            'border: none;' +
-                            'height: 100%;' +
-                            'margin: 0;' +
-                            'padding: 0;' +
-                            'width: 100%;' +
+                    data.modeNext = 20;
+                    // init file fileElectronHtml
+                    local.fsWriteFileWithMkdirpSync(options.fileElectronHtml, '//<body ' +
+                            'style="border:1px solid black;margin:0;padding:0;">' +
+                        '<webview ' +
+                            'preload="' + options.fileElectronHtml + '" ' +
+                            'src="' + options.url.replace('{{timeExit}}', options.timeExit) + '" ' +
+                            'style="' +
+                            'border:none;height:100%;margin:0;padding:0;width:100%;' +
                         '"></webview>' +
-                        '<script>window.local = {}; (' + options.browserTestScript + '(' +
-                        JSON.stringify(options2) + '))</script>');
-                    console.error('\nbrowserTest - created electron entry-page ' +
+                        '<script>document.body.removeChild(document.body.firstChild);</script>' +
+                        '</body>' +
+                        '<textarea disabled style="display:none;">\n' +
+                        '(function(){"use strict";\n' +
+                            'var local={global:window,isBrowser:true},\n' +
+                            'options=' + JSON.stringify(data) + ';\n' +
+                        ['browserTest', 'nop', 'onErrorWithStack', 'onNext'].map(function (key) {
+                            return 'local.' + key + '=' + String(local[key])
+                                // html-safe
+                                .replace((/<\//g), '<\\/')
+                                // coverage-hack - un-instrument
+                                .replace((/\b__cov_.*?\+\+/g), '0') + ';\n';
+                        }).join('') +
+                            'local.browserTest(options,console.error);\n' +
+                        '}());\n' +
+                        '//</textarea>\n');
+                    console.error('\nbrowserTest - created fileElectronHtml ' +
                         options.fileElectronHtml + '\n');
-                    // init file fileElectronHtml.preload.js
-                    options2.modeNext = 30;
-                    local.fsWriteFileWithMkdirpSync(
-                        options.fileElectronHtml + '.preload.js',
-                        '(' + options.browserTestScript + '(' + JSON.stringify(options2) + '))'
-                    );
                     // spawn an electron process to test a url
-                    options.modeNext = 10;
                     options.npm_config_time_exit = options.timeExit;
+                    data.modeNext = 10;
                     local.childProcessSpawnWithTimeout('electron', [
                         __filename,
                         'utility2.browserTest',
                         options.url,
                         '--enable-logging'
-                    ], { env: options, stdio: options.modeSilent
-                        ? 'ignore'
-                        : ['ignore', 1, 2], timeout: options.timeoutDefault })
-                        .once('error', onNext)
-                        .once('exit', onNext);
-                    break;
+                    ], {
+                        env: data,
+                        stdio: !options.modeDebug && options.modeSilent
+                            ? 'ignore'
+                            : ['ignore', 1, 2],
+                        timeout: options.timeoutDefault
+                    }).once('error', options.onNext).once('exit', options.onNext);
+                    return;
                 // node.electron - init
                 case 11:
-                    local.electron = options.require('electron');
-                    // handle uncaughtexception
-                    process.once('uncaughtException', onNext);
+                    // handle uncaughtException
+                    window.process.once('uncaughtException', options.onNext);
                     // wait for electron to init
-                    local.electron.app.once('ready', onNext);
-                    break;
+                    options.electron.app.once('ready', function () {
+                        options.onNext();
+                    });
+                    return;
                 // node.electron - after ready
                 case 12:
-                    options.BrowserWindow = local.electron.BrowserWindow;
-                    local.objectSetDefault(options, {
+                    Object.assign(options, {
                         frame: false,
                         height: 768,
+                        // disable nodeIntegration
+                        // https://github.com/electron/electron/blob/v2.0.0/docs/tutorial/security.md#how-1
+                        nodeIntegration: false,
                         show: false,
                         width: 1024,
                         x: 0,
                         y: 0
                     });
-                    // init browserWindow
-                    options.browserWindow = new options.BrowserWindow(options);
-                    onParallel = local.onParallel(onNext);
+                    onParallel = local.onParallel(options.onNext);
                     // onParallel - html
                     onParallel.counter += 1;
                     // onParallel - test
                     if (options.modeBrowserTest === 'test') {
                         onParallel.counter += 1;
                     }
-                    options.browserWindow.on('page-title-updated', function (event, title) {
-                        if (event && title.indexOf(options.fileElectronHtml) === 0) {
-                            if (title.split(' ').slice(-1)[0] === 'opened') {
-                                console.error('\nbrowserTest - opened ' + options.url + '\n');
-                                return;
-                            }
-                            onParallel();
+                    // init event-handling - ipc
+                    options.electron.ipcMain.on(options.fileElectronHtml, function () {
+                        try {
+                            onMessage.apply(null, arguments);
+                        } catch (errorCaught) {
+                            options.onNext(errorCaught);
                         }
-                    });
+                    }, false);
+                    // init browserWindow
+                    options.browserWindow = new options.electron.BrowserWindow(options);
                     // load url in browserWindow
                     options.browserWindow.loadURL('file://' + options.fileElectronHtml);
-                    break;
-                // node.electron.browserWindow - init
+                    return;
+                // node.electron.browserWindow.webview.preload - init
                 case 21:
-                    options.webview1 = options.document.querySelector('#webview1');
-                    options.webview1.addEventListener('did-get-response-details', function () {
-                        options.document.title = options.fileElectronHtml + ' opened';
-                    });
-                    options.rgx = new RegExp('^' + options.fileElectronHtml + ' (\\w+) ');
-                    options.webview1.addEventListener('console-message', function (event) {
-                        try {
-                            modeNext = 21;
-                            onNext(null, event);
-                        } catch (errorCaught) {
-                            console.error(errorCaught);
-                        }
-                    });
-                    break;
-                // node.electron.browserWindow.webview - init
-                case 31:
                     // init domOnEventWindowOnloadTimeElapsed
                     (function () {
                     /*
@@ -18825,135 +18887,85 @@ local.assetsDict['/favicon.ico'] = '';
                             }, 100);
                         });
                     }());
-                    // init fileElectronHtml for testRun
-                    if (options.modeBrowserTest === 'test') {
-                        options.window.fileElectronHtml = options.fileElectronHtml;
-                    }
-                    setTimeout(onNext, options.timeoutScreenshot);
-                    break;
-                // node.electron.browserWindow.webview - print html
-                case 32:
-                    console.error(options.fileElectronHtml + ' html ' +
-                        options.document.documentElement.outerHTML);
-                    setTimeout(onNext, 1000);
-                    break;
-                // node.electron.browserWindow.webview - print default-test
-                case 33:
-                    if (options.modeBrowserTest !== 'test' || options.window.utility2_modeTestRun) {
+                    // cleanup fileElectronHtml
+                    options.fs.unlink(options.fileElectronHtml, console.error);
+                    // init event-handling - load
+                    window.addEventListener('load', function () {
+                        setTimeout(options.onNext, 5000);
+                    });
+                    // wait for render before screenshot
+                    setTimeout(options.onNext, options.timeoutScreenshot);
+                    if (options.modeBrowserTest !== 'test') {
                         return;
                     }
-                    console.error(options.fileElectronHtml + ' global_test_results ' +
-                        JSON.stringify({ global_test_results: {
-                            coverage: options.window.__coverage__,
-                            testReport: { testPlatformList: [{}] }
-                        } }));
-                    break;
-                // node.electron.browserWindow - handle event console-message
+                    // init utility2_testReportSave
+                    window.utility2_testReportSave = function () {
+                        window.utility2_testReportSave = local.nop;
+                        window.utility2_testReport.coverage = window.__coverage__;
+                        options.electron.ipcRenderer.send(
+                            options.fileElectronHtml,
+                            'testReport',
+                            window.utility2_testReport
+                        );
+                    };
+                    return;
+                // node.electron.browserWindow.webview.preload - screenshot
                 case 22:
-                    data.message.replace(options.rgx, function (match0, match1) {
-                        data.type2 = match1;
-                        data.data = data.message.slice(match0.length);
-                    });
-                    switch (data.type2) {
-                    case 'global_test_results':
-                        if (options.modeBrowserTest !== 'test') {
-                            return;
-                        }
-                        options.global_test_results = JSON.parse(data.data).global_test_results;
-                        if (options.global_test_results.testReport) {
-                            // merge screenshot into test-report
-                            options.global_test_results.testReport.testPlatformList[0].screenshot =
-                                options.fileScreenshot.replace((/.*\//), '');
-                            // save browser test-report
-                            options.fs.writeFileSync(
-                                options.fileTestReport,
-                                JSON.stringify(options.global_test_results.testReport)
-                            );
-                            // save browser coverage
-                            if (options.global_test_results.coverage) {
-                                options.fs.writeFileSync(
-                                    options.fileCoverage,
-                                    JSON.stringify(options.global_test_results.coverage)
-                                );
-                            }
-                            setTimeout(function () {
-                                options.document.title = options.fileElectronHtml +
-                                    ' testReport written';
-                            });
-                        }
-                        break;
-                    case 'html':
-                        options.fs.writeFile(options.fileScreenshot.replace((
-                            /\.\w+$/
-                        ), '.html'), data.data, function () {
-                            options.document.title = options.fileElectronHtml + ' html written';
-                        });
-                        break;
-                    default:
-                        console.error(data.message);
+                    options.electron.ipcRenderer.send(
+                        options.fileElectronHtml,
+                        'html',
+                        window.document.documentElement.outerHTML
+                    );
+                    if (options.modeBrowserTest === 'test' && !window.utility2_modeTest) {
+                        window.utility2_testReportSave();
                     }
-                    break;
+                    return;
                 // node.electron - screenshot
                 case 13:
-                    options.browserWindow.capturePage(options, onNext);
-                    break;
+                    options.browserWindow.capturePage(options, function (data) {
+                        options.onNext(null, data);
+                    });
+                    return;
                 case 14:
-                    options.fs.writeFile(options.fileScreenshot, error.toPng(), onNext);
-                    break;
+                    options.fs.writeFile(options.fileScreenshot, data.toPNG(), options.onNext);
+                    return;
                 case 15:
                     console.error('\nbrowserTest - created screenshot file ' +
                         options.fileScreenshot + '\n');
                     console.error('browserTest - created screenshot file ' +
                         options.fileScreenshot.replace((/\.\w+$/), '.html'));
                     local.exit();
-                    break;
+                    return;
                 // node - after electron
                 case 2:
-                    // cleanup fileElectronHtml
-                    try {
-                        options.fs.unlinkSync(options.fileElectronHtml);
-                        options.fs.unlinkSync(options.fileElectronHtml + '.preload.js');
-                    } catch (ignore) {
-                    }
                     console.error('\nbrowserTest - exit-code ' + error + ' - ' + options.url +
                         '\n');
                     if (options.modeBrowserTest !== 'test') {
-                        modeNext = Infinity;
-                        onNext();
+                        options.modeNext += 1000;
+                        options.onNext();
                         return;
                     }
                     // merge browser coverage
-                    // try to JSON.parse the string
-                    data = null;
-                    try {
-                        data = options.modeCoverageMerge && JSON.parse(
-                            options.fs.readFileSync(options.fileCoverage, 'utf8')
-                        );
-                    } catch (ignore) {
-                    }
-                    local.istanbulCoverageMerge(local.global.__coverage__, data);
+                    data = options.modeCoverageMerge && JSON.parse(
+                        local.fsReadFileOrEmptyStringSync(options.fileCoverage, 'utf8') || 'null'
+                    );
+                    local.istanbulCoverageMerge(window.__coverage__, data);
                     console.error('\nbrowserTest - merged coverage from file ' +
                         options.fileCoverage + '\n');
-                    // try to merge browser test-report
-                    // try to JSON.parse the string
-                    data = null;
-                    try {
-                        data = !error &&
-                            JSON.parse(options.fs.readFileSync(options.fileTestReport, 'utf8'));
-                    } catch (ignore) {
-                    }
-                    if (data && !options.modeTestIgnore) {
-                        local.testReportMerge(local.testReport, data);
-                        console.error('\nbrowserTest - merged test-report from file ' +
-                            options.fileTestReport + '\n');
-                    }
-                    // create test-report.json
-                    options.fs.writeFileSync(
-                        options.npm_config_dir_build + '/test-report.json',
-                        JSON.stringify(local.testReport)
+                    // merge browser test-report
+                    data = JSON.parse(
+                        local.fsReadFileOrEmptyStringSync(options.fileTestReport, 'utf8') || 'null'
                     );
-                    onNext(data && data.testsFailed && new Error(data.testsFailed));
-                    break;
+                    local.testReportMerge(window.utility2_testReport, !options.modeSilent && data);
+                    console.error('\nbrowserTest - merged test-report from file ' +
+                        options.fileTestReport + '\n');
+                    // create test-report.json
+                    local.fsWriteFileWithMkdirpSync(
+                        options.npm_config_dir_build + '/test-report.json',
+                        JSON.stringify(window.utility2_testReport)
+                    );
+                    options.onNext(data && data.testsFailed && new Error(data.testsFailed));
+                    return;
                 default:
                     if (isDone) {
                         return;
@@ -18963,9 +18975,45 @@ local.assetsDict['/favicon.ico'] = '';
                     clearTimeout(timerTimeout);
                     onError(error);
                 }
-            };
-            modeNext = Number(options.modeNext) || 0;
-            onNext(null, options);
+            });
+            // init options
+            [
+                'CI_BRANCH',
+                'CI_HOST',
+                'DISPLAY',
+                'MODE_BUILD',
+                'PATH',
+                'fileCoverage',
+                'fileElectronHtml',
+                'fileScreenshot',
+                'fileTestReport',
+                'modeBrowserTest',
+                'modeCoverageMerge',
+                'modeDebug',
+                'modeNext',
+                'modeSilent',
+                'npm_config_dir_build',
+                'npm_config_dir_tmp',
+                'npm_config_time_exit',
+                'npm_config_timeout_default',
+                'timeExit',
+                'timeoutDefault',
+                'timeoutScreenshot',
+                'url'
+            ].forEach(function (key) {
+                if (local.env &&
+                        local.env[key] !== undefined &&
+                        typeof options[key] !== 'number') {
+                    options[key] = options[key] || local.env[key];
+                }
+            });
+            options.modeNext = Number(options.modeNext) || 0;
+            options.timeoutDefault = Number(options.timeoutDefault) || Number(local.timeoutDefault);
+            if (10 <= options.modeNext) {
+                options.electron = options.electron || require('electron');
+            }
+            options.fs = options.fs || require('fs');
+            options.onNext();
         };
 
         local.bufferConcat = function (bffList) {
@@ -19006,10 +19054,10 @@ local.assetsDict['/favicon.ico'] = '';
             if (typeof text !== 'string') {
                 return new Uint8Array(text);
             }
-            if (typeof window === 'object' && window && typeof window.TextEncoder === 'function') {
-                return new window.TextEncoder().encode(text);
+            if (typeof Buffer === 'function' && typeof Buffer.isBuffer === 'function') {
+                return Buffer.from(text);
             }
-            return Buffer.from(text);
+            return new window.TextEncoder().encode(text);
         };
 
         local.bufferIndexOfSubBuffer = function (bff, subBff, fromIndex) {
@@ -19035,8 +19083,10 @@ local.assetsDict['/favicon.ico'] = '';
          * this function will create create a Uint8Array with the given length,
          * filled with cryptographically-strong random bytes
          */
-            return typeof crypto === 'object' && crypto && crypto.getRandomValues
-                ? crypto.getRandomValues(new Uint8Array(length))
+            return typeof window === 'object' &&
+                window.crypto &&
+                typeof window.crypto.getRandomValues === 'function'
+                ? window.crypto.getRandomValues(new Uint8Array(length))
                 : require('crypto').randomBytes(length);
         };
 
@@ -19056,7 +19106,7 @@ local.assetsDict['/favicon.ico'] = '';
                     : Buffer.from(bff));
             }
             // use TextDecoder api
-            return new TextDecoder().decode(bff);
+            return new window.TextDecoder().decode(bff);
         };
 
         local.buildApidoc = function (options, onError) {
@@ -19140,6 +19190,9 @@ local.assetsDict['/favicon.ico'] = '';
                 file: '/index.html',
                 url: '/index.html'
             }, {
+                file: '/index.rollup.html',
+                url: '/index.rollup.html'
+            }, {
                 file: '/jsonp.utility2.stateInit',
                 url: '/jsonp.utility2.stateInit?callback=window.utility2.stateInit'
             }].concat(options.assetsList) }, function (options2, onParallel) {
@@ -19162,9 +19215,12 @@ local.assetsDict['/favicon.ico'] = '';
                 // validate no error occurred
                 local.assert(!error, error);
                 // test standalone assets.app.js
-                local.fs.writeFileSync('tmp/assets.app.js', local.assetsDict['/assets.app.js']);
+                local.fsWriteFileWithMkdirpSync(
+                    'tmp/buildApp/assets.app.js',
+                    local.assetsDict['/assets.app.js']
+                );
                 local.childProcessSpawnWithTimeout('node', ['assets.app.js'], {
-                    cwd: 'tmp',
+                    cwd: 'tmp/buildApp',
                     env: {
                         PATH: local.env.PATH,
                         PORT: (local.env.PORT ^ (Math.random() * 0x10000)) | 0x8000,
@@ -19259,13 +19315,14 @@ local.assetsDict['/favicon.ico'] = '';
         /*
          * this function will build the lib
          */
+            var dataLib, dictFnc, dictFncAll, dictFncBase, dictProp;
             local.objectSetDefault(options, {
                 customize: local.nop,
                 dataFrom: local.fsReadFileOrEmptyStringSync(
                     'lib.' + local.env.npm_package_nameLib + '.js',
                     'utf8'
                 ),
-                dataTo: local.templateRenderJslintLite(
+                dataTo: local.templateRenderMyApp(
                     local.assetsDict['/assets.lib.template.js'],
                     {}
                 )
@@ -19292,34 +19349,153 @@ local.assetsDict['/favicon.ico'] = '';
                 );
             }
             options.customize(options);
+            // init dictFncAll && dictFncBase
+            dictFncAll = [
+                ['utility2', 'swgg'],
+                ['utility2', 'apidoc', 'db', 'github_crud', 'swgg']
+            ].map(function (dictList) {
+                dictFncAll = {};
+                dictList.forEach(function (dict) {
+                    dict = local[dict];
+                    Object.keys(dict).forEach(function (key) {
+                        if (!(/^[A-Z_]|^replStart$|^testCase_/).test(key) &&
+                                typeof dict[key] === 'function') {
+                            dictFncAll[key] = dictFncAll[key] || String(dict[key]);
+                        }
+                    });
+                });
+                Object.keys(dictFncAll).forEach(function (key) {
+                    if (key !== 'assert' && process.binding('natives')[key]) {
+                        dictFncAll[key] = undefined;
+                    }
+                });
+                return dictFncAll;
+            });
+            dictFncBase = dictFncAll[0];
+            dictFncAll = dictFncAll[1];
             // save lib.xxx.js
             local.fs.writeFileSync(
                 'lib.' + local.env.npm_package_nameLib + '.js',
                 options.dataTo
             );
-            // normalize function-before
+            // normalize file
             [
+                'README.md',
                 'lib.' + local.env.npm_package_nameLib + '.js',
                 'lib.' + local.env.npm_package_nameLib + '.sh',
-                'npm_scripts.sh'
+                'lib.apidoc.js',
+                'lib.db.js',
+                'lib.github_crud.js',
+                'lib.istanbul.js',
+                'lib.jslint.js',
+                'lib.marked.js',
+                'lib.sjcl.js',
+                'lib.swgg.js',
+                'lib.uglifyjs.js',
+                'npm_scripts.sh',
+                'test.js'
             ].forEach(function (file) {
-                options.dataLib = local.fsReadFileOrEmptyStringSync(
+                dictFnc = {};
+                dictProp = {};
+                // init dataLib
+                dataLib = local.fsReadFileOrEmptyStringSync(file, 'utf8');
+                dataLib = local.stringCustomizeFromToRgx(
+                    options.dataTo,
+                    dataLib,
+                    new RegExp('\\n {12}\\/\\/ require builtins\\n' +
+                        '[\\S\\s]*?\\n {8}\/\/ init lib main\\n')
+                );
+                dataLib = dataLib.replace((
+                    /^ {8}local\.(\w+) = (function \([\S\s]*?\n {8}\});\n+/gm
+                ), function (match0, key, match2, match3) {
+                    // local-function - duplicate
+                    if (dictFnc[key]) {
+                        console.error('local-function - duplicate (' + file + ') local.' + key);
+                        return '';
+                    }
+                    // local-function - normalize
+                    dictFnc[key] = true;
+                    match3 = dictFncAll[key] || '';
+                    if (file.slice(-3) === '.sh') {
+                        match3 = local.stringShellSafe(match3);
+                    }
+                    if (match3 && match3 !== match2) {
+                        console.error('local-function - normalize (' + file + ') local.' + key);
+                        match0 = match0.replace(match2, match3);
+                    }
+                    return match0.trimRight() + '\n\n';
+                });
+                // normalize whitespace
+                [
+                    (/^$/),
+                    (/^[\S\s]*?\n *?\/\* jslint-ignore-begin \*\/\n/),
+                    new RegExp('\\n *?\\/\\* jslint-ignore-end \\*\\/\\n' +
+                        '[\\S\\s]*?\\n *?\\/\\* jslint-ignore-begin \\*\\/\\n', 'g'),
+                    (/\n *?\/\* jslint-ignore-end \*\/\n[\S\s]*?$/)
+                ].forEach(function (rgx) {
+                    if (rgx.source === '^$' &&
+                            !(/\n *?\/\* jslint-ignore-begin \*\/\n/).test(dataLib)) {
+                        rgx = (/^[\S\s]*?$/);
+                    }
+                    dataLib = dataLib.replace(rgx, function (match0) {
+                        return match0.replace((/\n\n+?( *?[\)\]\}])/g), '\n$1');
+                    });
+                });
+                // save dataLib
+                local.fsWriteFileWithMkdirpSync(
                     file,
-                    'utf8'
-                ).replace((
-                    /^ {8}local\.(\w+) = function \([\S\s]*?\n {8}\};$/gm
-                ), function (match0, match1) {
-                    [local, local.github_crud, local.swgg].some(function (dict) {
-                        if (match1[0] !== '_' && typeof dict[match1] === 'function') {
-                            match0 = '        local.' + match1 + ' = ' + String(dict[match1]) + ';';
-                            return true;
+                    dataLib,
+                    (!dataLib || local.env.npm_config_mode_coverage) && 'noWrite'
+                );
+                // comment dataLib
+                dataLib = dataLib
+                    .replace((/^ *?\/\*[\S\s]*?\*\//gm), '')
+                    .replace((/^ *?(?:\/\/.*?|.*?\\)$/gm), '');
+                // local-function - update dictFnc and dictProp
+                dataLib.replace((
+                    /\blocal\.(\w+?\b)( =(?: |$))?/gm
+                ), function (match0, match1, match2) {
+                    match0 = match1;
+                    if (match2) {
+                        dictFnc[match0] = true;
+                    } else {
+                        dictProp[match0] = true;
+                    }
+                });
+                [dictFnc, dictProp].forEach(function (dict) {
+                    Object.keys(dict).forEach(function (key) {
+                        dict[key] = dictFncBase[key];
+                    });
+                });
+                dictFnc = local.jsonCopy(dictFnc);
+                dictProp = local.jsonCopy(dictProp);
+                // local-function - missing
+                switch (local.fs.existsSync('assets.utility2.rollup.js') || file) {
+                case 'README.md':
+                case 'lib.swgg.js':
+                case 'lib.utility2.js':
+                case 'test.js':
+                case true:
+                    break;
+                default:
+                    Object.keys(dictProp).forEach(function (key) {
+                        if (!dictFnc[key]) {
+                            console.error('local-function - missing (' + file + ') local.' + key);
                         }
                     });
-                    return match0;
-                });
-                /* istanbul ignore next */
-                if (options.dataLib && !local.env.npm_config_mode_coverage) {
-                    local.fs.writeFileSync(file, options.dataLib);
+                }
+                // local-function - unused
+                switch (file) {
+                case 'lib.swgg.js':
+                case 'lib.utility2.js':
+                case 'lib.utility2.sh':
+                    break;
+                default:
+                    Object.keys(dictFnc).forEach(function (key) {
+                        if (!dictProp[key]) {
+                            console.error('local-function - unused (' + file + ') local.' + key);
+                        }
+                    });
                 }
             });
             onError();
@@ -19327,7 +19503,7 @@ local.assetsDict['/favicon.ico'] = '';
 
         local.buildReadme = function (options, onError) {
         /*
-         * this function will build the readme in jslint-lite style
+         * this function will build the readme in my-app-lite style
          */
             if (local.env.npm_package_buildCustomOrg && !options.modeForce) {
                 onError();
@@ -19343,7 +19519,7 @@ local.assetsDict['/favicon.ico'] = '';
                 packageJsonRgx: (/\n# package.json\n```json\n([\S\s]*?)\n```\n/)
             });
             // render dataTo
-            options.dataTo = local.templateRenderJslintLite(
+            options.dataTo = local.templateRenderMyApp(
                 local.assetsDict['/assets.readme.template.md'],
                 options
             );
@@ -19363,7 +19539,7 @@ local.assetsDict['/favicon.ico'] = '';
                 });
                 local.objectSetDefault(
                     options.packageJson,
-                    JSON.parse(local.templateRenderJslintLite(options.packageJsonRgx.exec(
+                    JSON.parse(local.templateRenderMyApp(options.packageJsonRgx.exec(
                         local.assetsDict['/assets.readme.template.md']
                     )[1], options)),
                     2
@@ -19387,7 +19563,7 @@ local.assetsDict['/favicon.ico'] = '';
                     local.jsonStringifyOrdered(options.packageJson, null, 4) + '\n'
                 );
                 // re-render dataTo
-                options.dataTo = local.templateRenderJslintLite(
+                options.dataTo = local.templateRenderMyApp(
                     local.assetsDict['/assets.readme.template.md'],
                     options
                 );
@@ -19538,9 +19714,7 @@ local.assetsDict['/favicon.ico'] = '';
                 // customize screenshot
                 options.dataTo = options.dataTo.replace(element[1], '');
             });
-            // render dataTo - customizeAfter
-            options.customizeAfter = true;
-            options.dataTo = local.templateRenderJslintLite(options.dataTo, options);
+            options.dataTo = local.templateRenderMyApp(options.dataTo, options);
             // customize toc
             options.toc = '\n# table of contents\n';
             options.dataTo.replace(/\n\n\n\n# (.*)/g, function (match0, match1) {
@@ -19592,7 +19766,7 @@ local.assetsDict['/favicon.ico'] = '';
             local.objectSetDefault(options, {
                 customize: local.nop,
                 dataFrom: local.fsReadFileOrEmptyStringSync('test.js', 'utf8'),
-                dataTo: local.templateRenderJslintLite(
+                dataTo: local.templateRenderMyApp(
                     local.assetsDict['/assets.test.template.js'],
                     {}
                 )
@@ -19689,7 +19863,7 @@ local.assetsDict['/favicon.ico'] = '';
             local.cliDict._eval = local.cliDict._eval || function () {
             /*
              * <code>
-             * # eval code
+             * will eval <code>
              */
                 local.global.local = local;
                 require('vm').runInThisContext(process.argv[3]);
@@ -19699,13 +19873,17 @@ local.assetsDict['/favicon.ico'] = '';
             local.cliDict._help = local.cliDict._help || function (options) {
             /*
              *
-             * # print help
+             * will print help
              */
                 var commandList, file, packageJson, text, textDict;
                 commandList = [{
-                    arg: '<arg2> ...',
+                    argList: '<arg2>  ...',
                     description: 'usage:',
                     command: ['<arg1>']
+                }, {
+                    argList: '\'console.log("hello world")\'',
+                    description: 'example:',
+                    command: ['--eval']
                 }];
                 file = __filename.replace((/.*\//), '');
                 packageJson = require('./package.json');
@@ -19716,9 +19894,9 @@ local.assetsDict['/favicon.ico'] = '';
                     }
                     text = String(local.cliDict[key]);
                     if (key === '_default') {
-                        key = '<>';
+                        key = '';
                     }
-                    ii = textDict[text] = textDict[text] || (ii + 1);
+                    ii = textDict[text] = textDict[text] || (ii + 2);
                     if (commandList[ii]) {
                         commandList[ii].command.push(key);
                     } else {
@@ -19728,7 +19906,7 @@ local.assetsDict['/favicon.ico'] = '';
                             commandList[ii] = commandList[ii] || ['', '', ''];
                         }()));
                         commandList[ii] = {
-                            arg: commandList[ii][1].trim(),
+                            argList: commandList[ii][1].trim(),
                             command: [key],
                             description: commandList[ii][2].trim()
                         };
@@ -19736,21 +19914,37 @@ local.assetsDict['/favicon.ico'] = '';
                 });
                 (options && options.modeError
                     ? console.error
-                    : console.log)((options && options.modeError
+                    : console.log)(
+                    (options && options.modeError
                     ? '\u001b[31merror: missing <arg1>\u001b[39m\n\n'
-                    : '') + packageJson.name + ' (' + packageJson.version + ')\n\n' + commandList
-                    .filter(function (element) {
-                        return element;
-                    }).map(function (element) {
-                        return (element.description + '\n' +
-                            file + '  ' +
-                            element.command.sort().join('|') + '  ' +
-                            element.arg.replace((/ +/g), '  '))
-                                .replace((/<>\||\|<>|<> {2}/), '')
-                                .trim();
-                    })
-                    .join('\n\n') + '\n\nexample:\n' + file +
-                    '  --eval  \'console.log("hello world")\'');
+                    : '') +
+                        packageJson.name + ' (' + packageJson.version + ')\n\n' +
+                        commandList
+                        .filter(function (element) {
+                            return element;
+                        })
+                        .map(function (element, ii) {
+                            element.command = element.command.filter(function (element) {
+                                return element;
+                            });
+                            switch (ii) {
+                            case 0:
+                            case 1:
+                                element.argList = [element.argList];
+                                break;
+                            default:
+                                element.argList = element.argList.split(' ');
+                                element.description = '# COMMAND ' +
+                                    (element.command[0] || '<none>') + '\n# ' +
+                                    element.description;
+                            }
+                            return element.description + '\n  ' + file +
+                                ('  ' + element.command.sort().join('|') + '  ')
+                                .replace((/^ {4}$/), '  ') +
+                                element.argList.join('  ');
+                        })
+                        .join('\n\n')
+                );
             };
             local.cliDict['--help'] = local.cliDict['--help'] || local.cliDict._help;
             local.cliDict['-h'] = local.cliDict['-h'] || local.cliDict._help;
@@ -19759,12 +19953,12 @@ local.assetsDict['/favicon.ico'] = '';
             local.cliDict._interactive = local.cliDict._interactive || function () {
             /*
              *
-             * # start interactive-mode
+             * will start interactive-mode
              */
                 local.global.local = local;
                 local.replStart();
             };
-            if (local.replStart) {
+            if (typeof local.replStart === 'function') {
                 local.cliDict['--interactive'] = local.cliDict['--interactive'] ||
                     local.cliDict._interactive;
                 local.cliDict['-i'] = local.cliDict['-i'] || local.cliDict._interactive;
@@ -19772,7 +19966,7 @@ local.assetsDict['/favicon.ico'] = '';
             local.cliDict._version = local.cliDict._version || function () {
             /*
              *
-             * # print version
+             * will print version
              */
                 console.log(require(__dirname + '/package.json').version);
             };
@@ -19793,48 +19987,6 @@ local.assetsDict['/favicon.ico'] = '';
                 local.cliDict._default();
             };
             fnc();
-        };
-
-        local.cookieDict = function () {
-        /*
-         * this function will return a dict of all cookies
-         */
-            var result;
-            result = {};
-            document.cookie.replace((/(\w+)=([^;]*)/g), function (match0, match1, match2) {
-                match0 = match1;
-                result[match0] = match2;
-            });
-            return result;
-        };
-
-        local.cookieRemove = function (name) {
-        /*
-         * this function will remove the cookie with the given name
-         */
-            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        };
-
-        local.cookieRemoveAll = function () {
-        /*
-         * this function will remove all cookies
-         */
-            document.cookie.replace((/(\w+)=/g), function (match0, match1) {
-                match0 = match1;
-                document.cookie = match0 + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-            });
-        };
-
-        local.cookieSet = function (name, value, expiresOffset) {
-        /*
-         * this function will set the cookie with the given name, value,
-         * and expiresOffset (in ms)
-         */
-            var tmp;
-            tmp = name + '=' + value + '; expires=' +
-                new Date(Date.now() + expiresOffset).toUTCString();
-            document.cookie = tmp;
-            return tmp;
         };
 
         local.corsBackendHostInject = function (url, backendHost, rgxInject, location) {
@@ -19991,167 +20143,6 @@ local.assetsDict['/favicon.ico'] = '';
             }).catch(onError);
         };
 
-        local.dbTableCustomOrgCreate = function (options, onError) {
-        /*
-         * this function will create a persistent dbTableCustomOrg
-         */
-            options = local.objectSetDefault(options, { customOrg: local.env.GITHUB_ORG });
-            options = local.objectSetDefault(options, {
-                name: 'CustomOrg.' + options.customOrg,
-                sizeLimit: 1000,
-                sortDefault: [{
-                    fieldName: '_id'
-                }, {
-                    fieldName: 'buildStartedAt'
-                }, {
-                    fieldName: 'buildState'
-                }, {
-                    fieldName: 'active'
-                }]
-            });
-            local.dbTableCustomOrg = local.db.dbTableCreateOne(options, onError);
-            return local.dbTableCustomOrg;
-        };
-
-        local.dbTableCustomOrgCrudGetManyByQuery = function (options) {
-        /*
-         * this function will query dbTableCustomOrg
-         */
-            options = local.objectSetDefault(options, {
-                customOrg: local.env.GITHUB_ORG,
-                query: { buildStartedAt: { $not: { $gt: new Date(
-                    Date.now() - (Number(options && options.olderThanLast) || 0)
-                ).toISOString() } } }
-            }, 2);
-            console.error('dbTableCustomOrgCrudGetManyByQuery - ' + JSON.stringify(options));
-            return local.dbTableCustomOrgCreate().crudGetManyByQuery(options);
-        };
-
-        local.dbTableCustomOrgUpdate = function (options, onError) {
-        /*
-         * this function will update dbTableCustomOrg with active, public repos
-         */
-            var count, dbRowList, self;
-            options = local.objectSetDefault(options, { customOrg: local.env.GITHUB_ORG });
-            local.onNext(options, function (error, data) {
-                switch (options.modeNext) {
-                case 1:
-                    self = local.dbTableCustomOrg = local.dbTableCustomOrgCreate(
-                        options,
-                        options.onNext
-                    );
-                    break;
-                case 2:
-                    self = local.dbTableCustomOrg = data;
-                    data = {
-                        headers: {
-                            'Travis-API-Version': '3',
-                            Authorization: 'token ' + local.env.TRAVIS_ACCESS_TOKEN
-                        },
-                        url: 'https://api.travis-ci.org/repos?limit=1'
-                    };
-                    console.error('fetching ' + data.url + ' ...');
-                    local.ajax(data, options.onNext);
-                    break;
-                case 3:
-                    count = JSON.parse(data.responseText)['@pagination'].count;
-                    console.error('... fetched ' + data.url + ' with ' + count + ' repos');
-                    dbRowList = [];
-                    local.onParallelList({
-                        list: [{
-                            offset: 0,
-                            sort_by: 'asc'
-                        }, {
-                            offset: 100,
-                            sort_by: 'asc'
-                        }, {
-                            offset: 200,
-                            sort_by: 'asc'
-                        }, {
-                            offset: 300,
-                            sort_by: 'asc'
-                        }, {
-                            offset: 400,
-                            sort_by: 'asc'
-                        }, {
-                            offset: Math.floor(Math.random() * count) - 100,
-                            sort_by: 'asc'
-                        }, {
-                            offset: Math.floor(Math.random() * count) - 100,
-                            sort_by: 'asc'
-                        }, {
-                            offset: 0,
-                            sort_by: 'desc'
-                        }, {
-                            offset: count - 500,
-                            sort_by: 'desc'
-                        }, {
-                            offset: count - 400,
-                            sort_by: 'desc'
-                        }, {
-                            offset: count - 300,
-                            sort_by: 'desc'
-                        }, {
-                            offset: count - 200,
-                            sort_by: 'desc'
-                        }, {
-                            offset: count - 100,
-                            sort_by: 'desc'
-                        }]
-                    }, function (options2, onParallel) {
-                        onParallel.counter += 1;
-                        options2 = {
-                            headers: {
-                                'Travis-API-Version': '3',
-                                Authorization: 'token ' + local.env.TRAVIS_ACCESS_TOKEN
-                            },
-                            url: 'https://api.travis-ci.org/repos?' +
-                                'include=repository.current_build&' +
-                                'limit=100&' +
-                                'offset=' + options2.element.offset + '&' +
-                                'sort_by=current_build%3A' + options2.element.sort_by
-                        };
-                        console.error('fetching ' + options2.url + ' ...');
-                        local.ajax(options2, function (error, data) {
-                            // validate no error occurred
-                            local.assert(!error, error);
-                            dbRowList = dbRowList
-                                .concat(JSON.parse(data.responseText).repositories);
-                            console.error('... fetched ' + options2.url);
-                            onParallel();
-                        });
-                    }, options.onNext);
-                    break;
-                case 4:
-                    self.crudRemoveManyByQuery({});
-                    self.crudSetManyById(dbRowList
-                        .filter(function (dbRow) {
-                            return dbRow.private === false && dbRow.slug.indexOf(
-                                options.customOrg + '/node-' + options.customOrg + '-'
-                            ) === 0;
-                        })
-                        .map(function (dbRow) {
-                            data = dbRow.current_build || {};
-                            return {
-                                _id: dbRow.name.replace('node-' + options.customOrg + '-', ''),
-                                active: dbRow.active,
-                                buildDuration: data.duration,
-                                buildFinishedAt: data.finished_at,
-                                buildStartedAt: data.started_at,
-                                buildState: data.state
-                            };
-                        }));
-                    self.save(options.onNext);
-                    break;
-                default:
-                    local.setTimeoutOnError(onError, 0, error, self);
-                }
-            });
-            options.modeNext = 0;
-            options.onNext();
-            return self;
-        };
-
         local.domElementRender = function (template, dict) {
         /*
          * this function will return a dom-fragment rendered from the givent template and dict
@@ -20226,7 +20217,7 @@ local.assetsDict['/favicon.ico'] = '';
             return error;
         };
 
-        local.exit = function (exitCode) {
+        local.exit = function (exitCode, testReport) {
         /*
          * this function will exit the current process with the given exitCode
          */
@@ -20234,14 +20225,18 @@ local.assetsDict['/favicon.ico'] = '';
             exitCode = !exitCode || Number(exitCode) === 0
                 ? 0
                 : Number(exitCode) || 1;
-            if (local.isBrowser) {
-                console.error(local.global.fileElectronHtml + ' global_test_results ' +
-                    JSON.stringify({ global_test_results: local.global.global_test_results }));
-            } else {
+            if (!local.isBrowser) {
                 process.exit(exitCode);
+                return;
             }
-            // reset modeTest
-            local.modeTest = null;
+            if (testReport !== local.global.utility2_testReport) {
+                return;
+            }
+            // update coverage
+            (document.querySelector('#coverageReportDiv1') || {}).innerHTML =
+                local.istanbulCoverageReportCreate();
+            // save testReport
+            local.global.utility2_testReportSave();
         };
 
         local.fsReadFileOrEmptyStringSync = function (file, options) {
@@ -20267,10 +20262,13 @@ local.assetsDict['/favicon.ico'] = '';
             );
         };
 
-        local.fsWriteFileWithMkdirpSync = function (file, data) {
+        local.fsWriteFileWithMkdirpSync = function (file, data, mode) {
         /*
          * this function will synchronously 'mkdir -p' and write the data to file
          */
+            if (mode === 'noWrite') {
+                return;
+            }
             // try to write to file
             try {
                 require('fs').writeFileSync(file, data);
@@ -20298,28 +20296,41 @@ local.assetsDict['/favicon.ico'] = '';
          * this function will jslint / csslint the script and print any errors to stderr
          * conditionally, depending on macros
          */
+            var scriptParsed;
+            scriptParsed = script;
             // optimization - ignore uglified/rollup files
-            if (!script || script.length >= 0x100000) {
+            if (!scriptParsed || scriptParsed.length >= 0x100000) {
                 return script;
             }
-            switch (file.replace((/^.*\./), '.')) {
+            switch ((/\.\w+?$|$/).exec(file)[0]) {
             case '.css':
-                if ((/^\/\*csslint\b/m).test(script)) {
-                    local.jslintAndPrint(script, file);
+                if ((/^\/\*csslint\b/m).test(scriptParsed)) {
+                    local.jslintAndPrint(scriptParsed, file);
                 }
                 break;
             case '.sh':
-                local.jslintAndPrint(script, file);
+                if ((/^# jslint-utility2$/m).test(scriptParsed)) {
+                    // local-function - ignore shell-escapes
+                    scriptParsed = scriptParsed.replace(
+                        (/^ {8}local\.(\w+) = function \([\S\s]*?\n {8}\};\n/gm),
+                        function (match0, match1) {
+                            return typeof local[match1] === 'function'
+                                ? match0.replace((/.*?\n/g), '//\n')
+                                : match0;
+                        }
+                    );
+                    local.jslintAndPrint(scriptParsed, file);
+                }
                 break;
             case '.js':
-                if (((/^\/\*jslint\b/m).test(script) && !local.global.__coverage__) ||
+                if (((/^\/\*jslint\b/m).test(scriptParsed) && !local.global.__coverage__) ||
                         mode === 'force') {
-                    local.jslintAndPrint(script, file);
+                    local.jslintAndPrint(scriptParsed, file);
                 }
                 break;
             }
             // recurse - csslint <style>...</style>
-            script.replace(
+            scriptParsed.replace(
                 (/^<style>(?:\\n\\)?\n([\S\s]*?)\n<\/style>(?:\\n\\)?$/gm),
                 function (match0, match1, ii, text) {
                     match0 = match1;
@@ -20335,7 +20346,7 @@ local.assetsDict['/favicon.ico'] = '';
                 }
             );
             // recurse - jslint <script>...</script>
-            script.replace((
+            scriptParsed.replace((
                 /^(?:\/\/ )?<script>(?:\\n\\)?\n([\S\s]*?)\n(?:\/\/ )?<\/script>(?:\\n\\)?$/gm
             ), function (match0, match1, ii, text) {
                 match0 = match1;
@@ -20539,7 +20550,7 @@ local.assetsDict['/favicon.ico'] = '';
 
         local.listShuffle = function (list) {
         /*
-         * this function will inplace shuffle the list, via fisher-yates algorithm
+         * this function will inplace shuffle the list using fisher-yates algorithm
          * https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
          */
             var ii, random, swap;
@@ -20658,6 +20669,30 @@ local.assetsDict['/favicon.ico'] = '';
                 local.serverResponseHeaderLastModified.toUTCString()
             );
             nextMiddleware();
+        };
+
+        local.middlewareError = function (error, request, response) {
+        /*
+         * this function will run the middleware that will handle errors
+         */
+            // default - 404 Not Found
+            if (!error) {
+                local.serverRespondDefault(request, response, 404);
+                return;
+            }
+            // http://jsonapi.org/format/#errors
+            if (local.swgg && typeof local.swgg.serverRespondJsonapi === 'function') {
+                local.swgg.serverRespondJsonapi(request, response, error);
+            }
+            // statusCode [400, 600)
+            local.serverRespondDefault(
+                request,
+                response,
+                error.statusCode >= 400 && error.statusCode < 600
+                    ? error.statusCode
+                    : 500,
+                error
+            );
         };
 
         local.middlewareFileServer = function (request, response, nextMiddleware) {
@@ -20804,16 +20839,16 @@ local.assetsDict['/favicon.ico'] = '';
             }
             // init response.end and response.write to accept Uint8Array instance
             ['end', 'write'].forEach(function (key) {
-                var fnc;
                 if (local.isBrowser) {
                     return;
                 }
-                fnc = response[key].bind(response);
+                response[key + '_original'] = response[key + '_original'] ||
+                    response[key].bind(response);
                 response[key] = function (bff, encoding, callback) {
                     if (bff instanceof Uint8Array && !Buffer.isBuffer(bff)) {
                         Object.setPrototypeOf(bff, Buffer.prototype);
                     }
-                    return fnc(bff, encoding, callback);
+                    return response[key + '_original'](bff, encoding, callback);
                 };
             });
             // default to nextMiddleware
@@ -20839,7 +20874,7 @@ local.assetsDict['/favicon.ico'] = '';
                     '/assets.test.js': local.assetsDict['/assets.test.js'],
                     '/assets.utility2.base.html':
                         local.assetsDict['/assets.utility2.base.rollup.html'],
-                    '/index.html': local.assetsDict['/index.rollup.html']
+                    '/index.rollup.html': local.assetsDict['/index.rollup.html']
                 },
                 env: {
                     NODE_ENV: local.env.NODE_ENV,
@@ -20888,6 +20923,13 @@ local.assetsDict['/favicon.ico'] = '';
                     return result;
                 });
             return result || '';
+        };
+
+        local.nop = function () {
+        /*
+         * this function will do nothing
+         */
+            return;
         };
 
         local.normalizeChunk = function (chunk) {
@@ -20943,32 +20985,21 @@ local.assetsDict['/favicon.ico'] = '';
             return new Array(+digits.join('') + 1).join('M') + roman;
         };
 
-        local.objectGetElementFirst = function (arg) {
+        local.objectKeysTypeof = function (dict) {
         /*
-         * this function will get the first element of the arg
+         * this function will return a list of the dict's keys, sorted by item-type
          */
-            var item;
-            item = {};
-            item.key = Object.keys(arg)[0];
-            item.value = arg[item.key];
-            return item;
-        };
-
-        local.objectKeysTypeof = function (arg) {
-        /*
-         * this function will return a list of the arg's keys, sorted by item-type
-         */
-            return Object.keys(arg).map(function (key) {
-                return typeof arg[key] + ' ' + key;
+            return Object.keys(dict).map(function (key) {
+                return typeof dict[key] + ' ' + key;
             }).sort().join('\n');
         };
 
-        local.objectLiteralize = function (arg) {
+        local.objectLiteralize = function (dict) {
         /*
-         * this function will traverse arg, and replace every encounter of the magical key '$[]'
+         * this function will traverse dict, and replace every encounter of the magical key '$[]'
          * with its object literal [key, value]
          */
-            local.objectTraverse(arg, function (element) {
+            local.objectTraverse(dict, function (element) {
                 if (typeof element === 'object' && element && !Array.isArray(element)) {
                     Object.keys(element).forEach(function (key) {
                         if (key.indexOf('$[]') === 0) {
@@ -20978,18 +21009,18 @@ local.assetsDict['/favicon.ico'] = '';
                     });
                 }
             });
-            return arg;
+            return dict;
         };
 
-        local.objectSetDefault = function (arg0, defaults, depth) {
+        local.objectSetDefault = function (dict, defaults, depth) {
         /*
-         * this function will recursively set defaults for undefined-items in arg0
+         * this function will recursively set defaults for undefined-items in dict
          */
-            arg0 = arg0 || {};
+            dict = dict || {};
             defaults = defaults || {};
             Object.keys(defaults).forEach(function (key) {
-                var arg2, defaults2;
-                arg2 = arg0[key];
+                var dict2, defaults2;
+                dict2 = dict[key];
                 // handle misbehaving getter
                 try {
                     defaults2 = defaults[key];
@@ -20998,81 +21029,81 @@ local.assetsDict['/favicon.ico'] = '';
                 if (defaults2 === undefined) {
                     return;
                 }
-                // init arg0[key] to default value defaults[key]
-                switch (arg2) {
+                // init dict[key] to default value defaults[key]
+                switch (dict2) {
                 case '':
                 case null:
                 case undefined:
-                    arg0[key] = defaults2;
+                    dict[key] = defaults2;
                     return;
                 }
-                // if arg2 and defaults2 are both non-null and non-array objects,
-                // then recurse with arg2 and defaults2
+                // if dict2 and defaults2 are both non-null and non-array objects,
+                // then recurse with dict2 and defaults2
                 if (depth > 1 &&
-                        // arg2 is a non-null and non-array object
-                        typeof arg2 === 'object' && arg2 && !Array.isArray(arg2) &&
+                        // dict2 is a non-null and non-array object
+                        typeof dict2 === 'object' && dict2 && !Array.isArray(dict2) &&
                         // defaults2 is a non-null and non-array object
                         typeof defaults2 === 'object' && defaults2 && !Array.isArray(defaults2)) {
                     // recurse
-                    local.objectSetDefault(arg2, defaults2, depth - 1);
+                    local.objectSetDefault(dict2, defaults2, depth - 1);
                 }
             });
-            return arg0;
+            return dict;
         };
 
-        local.objectSetOverride = function (arg0, overrides, depth, env) {
+        local.objectSetOverride = function (dict, overrides, depth, env) {
         /*
-         * this function will recursively set overrides for items in arg0
+         * this function will recursively set overrides for items in dict
          */
-            arg0 = arg0 || {};
+            dict = dict || {};
             env = env || (typeof process === 'object' && process.env) || {};
             overrides = overrides || {};
             Object.keys(overrides).forEach(function (key) {
-                var arg2, overrides2;
-                arg2 = arg0[key];
+                var dict2, overrides2;
+                dict2 = dict[key];
                 overrides2 = overrides[key];
                 if (overrides2 === undefined) {
                     return;
                 }
-                // if both arg2 and overrides2 are non-null and non-array objects,
-                // then recurse with arg2 and overrides2
+                // if both dict2 and overrides2 are non-null and non-array objects,
+                // then recurse with dict2 and overrides2
                 if (depth > 1 &&
-                        // arg2 is a non-null and non-array object
-                        typeof arg2 === 'object' && arg2 && !Array.isArray(arg2) &&
+                        // dict2 is a non-null and non-array object
+                        typeof dict2 === 'object' && dict2 && !Array.isArray(dict2) &&
                         // overrides2 is a non-null and non-array object
                         typeof overrides2 === 'object' && overrides2 &&
                         !Array.isArray(overrides2)) {
-                    local.objectSetOverride(arg2, overrides2, depth - 1, env);
+                    local.objectSetOverride(dict2, overrides2, depth - 1, env);
                     return;
                 }
-                // else set arg0[key] with overrides[key]
-                arg0[key] = arg0 === env
-                    // if arg0 is env, then overrides falsey value with empty string
+                // else set dict[key] with overrides[key]
+                dict[key] = dict === env
+                    // if dict is env, then overrides falsey value with empty string
                     ? overrides2 || ''
                     : overrides2;
             });
-            return arg0;
+            return dict;
         };
 
-        local.objectTraverse = function (arg0, onSelf, circularList) {
+        local.objectTraverse = function (dict, onSelf, circularList) {
         /*
-         * this function will recursively traverse arg0, and run onSelf with arg0's properties
+         * this function will recursively traverse dict, and run onSelf with dict's properties
          */
-            onSelf(arg0);
+            onSelf(dict);
             circularList = circularList || [];
-            if (arg0 && typeof arg0 === 'object' && circularList.indexOf(arg0) < 0) {
-                circularList.push(arg0);
-                Object.keys(arg0).forEach(function (key) {
-                    // recurse with arg0[key]
-                    local.objectTraverse(arg0[key], onSelf, circularList);
+            if (dict && typeof dict === 'object' && circularList.indexOf(dict) < 0) {
+                circularList.push(dict);
+                Object.keys(dict).forEach(function (key) {
+                    // recurse with dict[key]
+                    local.objectTraverse(dict[key], onSelf, circularList);
                 });
             }
-            return arg0;
+            return dict;
         };
 
         local.onErrorDefault = function (error) {
         /*
-         * this function will if error exists, then print error.stack to stderr
+         * this function will if error exists, then print it to stderr
          */
             if (error && !local.global.__coverage__) {
                 console.error(error);
@@ -21082,7 +21113,7 @@ local.assetsDict['/favicon.ico'] = '';
 
         local.onErrorThrow = function (error) {
         /*
-         * this function will assert no error occurred
+         * this function will if error exists, then throw it
          */
             if (error) {
                 throw error;
@@ -21139,10 +21170,18 @@ local.assetsDict['/favicon.ico'] = '';
          */
             options.onNext = local.onErrorWithStack(function (error, data, meta) {
                 try {
-                    options.modeNext0 = options.modeNext || 0;
-                    options.modeNext = error && !options.modeErrorIgnore
-                        ? Infinity
-                        : options.modeNext + 1;
+                    options.modeNext += error && !options.modeErrorIgnore
+                        ? 1000
+                        : 1;
+                    if (options.modeDebug) {
+                        console.error('onNext - ' + JSON.stringify({
+                            modeNext: options.modeNext,
+                            errorMessage: error && error.message
+                        }));
+                        if (error && error.stack) {
+                            console.error(error.stack);
+                        }
+                    }
                     onError(error, data, meta);
                 } catch (errorCaught) {
                     // throw errorCaught to break infinite recursion-loop
@@ -21173,12 +21212,10 @@ local.assetsDict['/favicon.ico'] = '';
                 // decrement counter
                 onParallel.counter -= 1;
                 // validate counter
-                local.assert(
-                    onParallel.counter >= 0 || error || onParallel.error,
-                    'invalid onParallel.counter = ' + onParallel.counter
-                );
+                if (!(onParallel.counter >= 0 || error || onParallel.error)) {
+                    error = new Error('invalid onParallel.counter = ' + onParallel.counter);
                 // ensure onError is run only once
-                if (onParallel.counter < 0) {
+                } else if (onParallel.counter < 0) {
                     return;
                 }
                 // handle error
@@ -21252,56 +21289,6 @@ local.assetsDict['/favicon.ico'] = '';
             onParallel();
         };
 
-        local.onReadyAfter = function (onError) {
-        /*
-         * this function will call onError when onReadyBefore.counter === 0
-         */
-            local.onReadyBefore.counter += 1;
-            local.taskCreate({ key: 'utility2.onReadyAfter' }, null, onError);
-            local.onResetAfter(local.onReadyBefore);
-            return onError;
-        };
-
-        local.onReadyBefore = local.onParallel(function (error) {
-        /*
-         * this function will keep track of onReadyBefore.counter
-         */
-            local.taskCreate({
-                key: 'utility2.onReadyAfter'
-            }, function (onError) {
-                onError(error);
-            }, function (error) {
-                // validate no error occurred
-                local.assert(!error, error);
-            });
-        });
-
-        local.onResetAfter = function (onError) {
-        /*
-         * this function will call onError when onResetBefore.counter === 0
-         */
-            local.onResetBefore.counter += 1;
-            // visual notification - onResetAfter
-            local.ajaxProgressUpdate();
-            local.taskCreate({ key: 'utility2.onResetAfter' }, null, onError);
-            setTimeout(local.onResetBefore);
-            return onError;
-        };
-
-        local.onResetBefore = local.onParallel(function (error) {
-        /*
-         * this function will keep track of onResetBefore.counter
-         */
-            local.taskCreate({
-                key: 'utility2.onResetAfter'
-            }, function (onError) {
-                onError(error);
-            }, function (error) {
-                // validate no error occurred
-                local.assert(!error, error);
-            });
-        });
-
         local.onTimeout = function (onError, timeout, message) {
         /*
          * this function will create a timeout-error-handler,
@@ -21316,31 +21303,6 @@ local.assetsDict['/favicon.ico'] = '';
                     : message)));
             // coerce to finite integer
             }, timeout);
-        };
-
-        local.profile = function (fnc, onError) {
-        /*
-         * this function will profile the async fnc in milliseconds with the callback onError
-         */
-            var timeStart;
-            timeStart = Date.now();
-            // run async fnc
-            fnc(function (error) {
-                // call onError with difference in milliseconds between Date.now() and timeStart
-                onError(error, Date.now() - timeStart);
-            });
-        };
-
-        local.profileSync = function (fnc) {
-        /*
-         * this function will profile the sync fnc in milliseconds
-         */
-            var timeStart;
-            timeStart = Date.now();
-            // run sync fnc
-            fnc();
-            // return difference in milliseconds between Date.now() and timeStart
-            return Date.now() - timeStart;
         };
 
         local.replStart = function () {
@@ -21576,7 +21538,7 @@ vendor)s{0,1}(\\b|_)\
                     });
                     break;
                 }
-                switch (local.path.extname(file)) {
+                switch ((/\.\w+?$|$/).exec(file)[0]) {
                 case '.css':
                 case '.html':
                 case '.js':
@@ -21596,7 +21558,7 @@ vendor)s{0,1}(\\b|_)\
                 // init assets
                 local.assetsDict['/'] = local.assetsDict['/index.html'] =
                     local.fsReadFileOrEmptyStringSync('index.html') ||
-                    local.assetsDict['/index.html'] || '';
+                    local.assetsDict['/index.rollup.html'] || '';
                 local.assetsDict['/assets.app.js'] = local.fs.readFileSync(__filename, 'utf8')
                     .replace((/^#!\//), '// ');
                 // init exports
@@ -21610,7 +21572,7 @@ vendor)s{0,1}(\\b|_)\
             );
             global.utility2_moduleExports.global = global;
             // read script from README.md
-            script = local.templateRenderJslintLite(
+            script = local.templateRenderMyApp(
                 local.assetsDict['/assets.example.template.js'],
                 {}
             );
@@ -21722,8 +21684,9 @@ instruction\n\
                         .split('/* utility2.rollup.js content */');
                     script.splice(1, 0, 'local.assetsDict["' + tmp + '"] = ' +
                         JSON.stringify(local.assetsDict[tmp])
+                        .replace((/\\\\/g), '\x00')
                         .replace((/\\n/g), '\\n\\\n')
-                        .replace((/^\\\\\\n\\\n/gm), ''));
+                        .replace((/\x00/g), '\\\\'));
                     script = script.join('');
                     script += '\n';
                     script += local.assetsDict[tmp];
@@ -21753,7 +21716,38 @@ instruction\n\
                     '\n/* script-end ' + key + ' */\n';
             }).join('\n\n\n');
             local.objectSetDefault(module.exports, local);
+            // init testCase_buildXxx
+            Object.keys(local).forEach(function (key) {
+                if (key.indexOf('_testCase_build') === 0 ||
+                        key === '_testCase_webpage_default') {
+                    module.exports[key.slice(1)] = module.exports[key.slice(1)] || local[key];
+                }
+            });
             return module.exports;
+        };
+
+        local.semverCompare = function (aa, bb) {
+        /*
+         * this function will compare semver versions aa ? bb and return
+         * -1 if aa < bb
+         *  0 if aa = bb
+         *  1 if aa > bb
+         * https://semver.org/#spec-item-11
+         */
+            return [aa, bb].map(function (aa) {
+                aa = aa.split('-');
+                return [aa[0], aa.slice(1).join('-') || '\xff'].map(function (aa) {
+                    return aa.split('.').map(function (aa) {
+                        return ('0000000000000000' + aa).slice(-16);
+                    }).join('.');
+                }).join('-');
+            }).reduce(function (aa, bb) {
+                return aa === bb
+                    ? 0
+                    : aa < bb
+                    ? -1
+                    : 1;
+            });
         };
 
         local.serverRespondCors = function (request, response) {
@@ -21889,7 +21883,7 @@ instruction\n\
 
         local.setTimeoutOnError = function (onError, timeout, error, data) {
         /*
-         * this function will async-call onError
+         * this function will after timeout has passed, then call onError(error, data)
          */
             if (typeof onError === 'function') {
                 setTimeout(function () {
@@ -22064,6 +22058,17 @@ instruction\n\
             return text.replace(/[\-\/\\\^$*+?.()|\[\]{}]/g, '\\$&');
         };
 
+        local.stringShellSafe = function (text) {
+        /*
+         * this function will make the text shell-safe
+         * https://unix.stackexchange.com/questions/57794/shell-escape-characters-for-sh-c
+         */
+            return text
+                .replace((/\\\\/g), '\x00')
+                .replace((/(["$\\`])/g), '\\$1')
+                .replace((/\x00/g), '\\\\');
+        };
+
         local.stringTruncate = function (text, maxLength) {
         /*
          * this function will truncate text to the given maxLength
@@ -22116,17 +22121,15 @@ instruction\n\
                 // cleanup task
                 delete local.taskOnTaskDict[options.key];
                 // preserve error.message and error.stack
-                task.result = JSON.stringify(Array.from(arguments)
-                    .map(function (arg) {
-                        if (arg && arg.stack) {
-                            arg = local.objectSetDefault(local.jsonCopy(arg), {
-                                message: arg.message,
-                                name: arg.name,
-                                stack: arg.stack
-                            });
-                        }
-                        return arg;
-                    }));
+                task.result = JSON.stringify(Array.from(arguments).map(function (arg) {
+                    return arg && arg.stack
+                        ? local.objectSetDefault(local.jsonCopy(arg), {
+                            message: arg.message,
+                            name: arg.name,
+                            stack: arg.stack
+                        })
+                        : arg;
+                }));
                 // pass result to callbacks in onErrorList
                 task.onErrorList.forEach(function (onError) {
                     onError.apply(null, JSON.parse(task.result));
@@ -22340,9 +22343,9 @@ instruction\n\
             });
         };
 
-        local.templateRenderJslintLite = function (template, options) {
+        local.templateRenderMyApp = function (template, options) {
         /*
-         * this function will render the jslint-lite template with the given options.packageJson
+         * this function will render the my-app-lite template with the given options.packageJson
          */
             options.packageJson = options.packageJson ||
                 JSON.parse(local.fs.readFileSync('package.json', 'utf8'));
@@ -22351,31 +22354,15 @@ instruction\n\
                 repository: { url: 'https://github.com/kaizhu256/node-' +
                     options.packageJson.name + '.git' }
             }, 2);
-            options.githubRepo = options.packageJson.repository.url.split('/').slice(-2);
-            options.githubRepo[1] = options.githubRepo[1].replace((/\.git$/), '');
+            options.githubRepo = options.packageJson.repository.url
+                .replace((/\.git$/), '').split('/').slice(-2);
             template = template.replace(
-                (/https:\/\/kaizhu256\.github\.io\/node-jslint-lite/g),
-                'https://' + options.githubRepo[0] + '.github.io/' + options.githubRepo[1]
+                (/kaizhu256(\.github\.io\/|%252F|\/)/g),
+                options.githubRepo[0] + ('$1')
             );
+            template = template.replace((/node-my-app-lite/g), options.githubRepo[1]);
             template = template.replace(
-                (/kaizhu256\/node-jslint-lite/g),
-                options.githubRepo.join('/')
-            );
-            template = template.replace(
-                (/kaizhu256%252Fnode-jslint-lite/g),
-                options.githubRepo.join('%252F')
-            );
-            template = template.replace(
-                (/node-jslint-lite/g),
-                options.githubRepo[1]
-            );
-            template = template.replace((/jslint-lite/g), options.packageJson.name);
-            template = template.replace(
-                '/* istanbul instrument in package jslint */',
-                '/* istanbul instrument in package ' + options.packageJson.nameLib + ' */'
-            );
-            template = template.replace(
-                (/\bh1-jslint\b/g),
+                (/\bh1-my-app\b/g),
                 options.packageJson.nameHeroku ||
                     ('h1-' + options.packageJson.nameLib.replace((/_/g), '-'))
             );
@@ -22383,15 +22370,8 @@ instruction\n\
                 'assets.{{env.npm_package_nameLib}}',
                 'assets.' + options.packageJson.nameLib
             );
-            template = template.replace('my-app', options.packageJson.name);
-            template = template.replace('my_app', options.packageJson.nameLib);
-            if (options.customizeAfter) {
-                return template;
-            }
-            template = template.replace(
-                (/\b(assets\.|lib\.|local\.|utility2_)jslint\b/g),
-                '$1' + options.packageJson.nameLib
-            );
+            template = template.replace((/my-app-lite/g), options.packageJson.name);
+            template = template.replace((/my_app/g), options.packageJson.nameLib);
             return template;
         };
 
@@ -22417,30 +22397,30 @@ instruction\n\
                 });
                 onError(error);
             };
+            // suppress console.error and console.log
+            if (!(mockList[0] && mockList[0][0] === console)) {
+                mockList.unshift([console, {}]);
+            }
+            local.objectSetDefault(mockList[0][1], { error: local.nop, log: local.nop });
+            // mock-objects
+            mockList.forEach(function (mock) {
+                mock[2] = {};
+                // backup mock[0] into mock[2]
+                Object.keys(mock[1]).forEach(function (key) {
+                    mock[2][key] = typeof process === 'object' &&
+                            process.env === mock[0] &&
+                            mock[0][key] === undefined
+                        // handle process.env
+                        ? ''
+                        : mock[0][key];
+                });
+                // override mock[0] with mock[1]
+                Object.keys(mock[1]).forEach(function (key) {
+                    mock[0][key] = mock[1][key];
+                });
+            });
             // try to call onError with mock-objects
             local.tryCatchOnError(function () {
-                // suppress console.error and console.log
-                if (!(mockList[0] && mockList[0][0] === console)) {
-                    mockList.unshift([console, {}]);
-                }
-                local.objectSetDefault(mockList[0][1], { error: local.nop, log: local.nop });
-                // mock-objects
-                mockList.forEach(function (mock) {
-                    mock[2] = {};
-                    // backup mock[0] into mock[2]
-                    Object.keys(mock[1]).forEach(function (key) {
-                        mock[2][key] = typeof process === 'object' &&
-                                process.env === mock[0] &&
-                                mock[0][key] === undefined
-                            // handle process.env
-                            ? ''
-                            : mock[0][key];
-                    });
-                    // override mock[0] with mock[1]
-                    Object.keys(mock[1]).forEach(function (key) {
-                        mock[0][key] = mock[1][key];
-                    });
-                });
                 // run onTestCase
                 onTestCase(onError2);
             }, onError2);
@@ -22518,6 +22498,7 @@ instruction\n\
          * 2. return testReport1 in html-format
          */
             var errorStackList, testCaseNumber, testReport;
+            testReport2 = testReport2 || {};
             // 1. merge testReport2 into testReport1
             [testReport1, testReport2].forEach(function (testReport, ii) {
                 ii += 1;
@@ -22711,32 +22692,52 @@ instruction\n\
             );
         };
 
-        local.testRunBefore = local.nop;
-
         local.testRunDefault = function (options) {
         /*
-         * this function will run all tests in testPlatform.testCaseList
+         * this function will run the tests in testPlatform.testCaseList
          */
-            var exit, testPlatform, testReport, testReportDiv1, timerInterval;
-            // init modeTest
-            local.modeTest = local.modeTest || local.env.npm_config_mode_test;
-            if (!(local.modeTest || options.modeTest)) {
-                return;
+            var processExit, testPlatform, testReport, testReportDiv1, timerInterval;
+            // run-server
+            if (!local.isBrowser) {
+                local.testRunServer(options);
             }
-            if (!local.global.utility2_modeTestRun) {
-                local.global.utility2_modeTestRun = 1;
-                setTimeout(function () {
-                    local.testRunBefore();
-                    local.onReadyAfter(function () {
-                        local.testRunDefault(options);
-                    });
+            local.global.utility2_modeTest = Number(local.global.utility2_modeTest ||
+                options.modeTest ||
+                local.modeTest ||
+                local.env.npm_config_mode_test);
+            switch (local.global.utility2_modeTest) {
+            // init-pre
+            case 1:
+                local.global.utility2_modeTest += 1;
+                // click #testRunButton1
+                if (local.isBrowser && document.querySelector('#testRunButton1')) {
+                    document.querySelector('#testRunButton1').click();
+                }
+                local.testRunDefault(options);
+                return;
+            // init-after
+            case 2:
+                local.global.utility2_modeTest += 1;
+                // reset db
+                if (local.db && typeof local.db.dbReset === 'function') {
+                    local.db.dbReset(local.global.utility2_dbSeedList, local.onErrorThrow);
+                }
+                local.global.utility2_onReadyAfter(function () {
+                    local.testRunDefault(options);
                 });
                 return;
+            // test-run
+            default:
+                // test-ignore
+                if (local.global.utility2_onReadyBefore.counter ||
+                        !local.global.utility2_modeTest ||
+                        local.global.utility2_modeTest > 3) {
+                    return;
+                }
+                local.global.utility2_modeTest += 1;
+                // test-run
+                break;
             }
-            if (local.global.utility2_modeTestRun !== 1) {
-                return;
-            }
-            local.global.utility2_modeTestRun = 2;
             // visual notification - testRun
             local.ajaxProgressUpdate();
             // mock serverLog
@@ -22751,17 +22752,17 @@ instruction\n\
             };
             if (!local.isBrowser) {
                 // mock proces.exit
-                exit = process.exit;
+                processExit = process.exit;
                 process.exit = local.nop;
             }
             // init modeTestCase
-            local.modeTestCase = local.modeTestCase || local.env.npm_config_mode_test_case;
+            local.modeTestCase = local.modeTestCase || local.env.npm_config_mode_test_case || '';
             // init testReport
-            testReport = local.testReport;
+            testReport = local.global.utility2_testReport;
             // init testReport timer
             local.timeElapsedStart(testReport);
             // init testPlatform
-            testPlatform = local.testReport.testPlatformList[0];
+            testPlatform = testReport.testPlatformList[0];
             // init testPlatform timer
             local.timeElapsedStart(testPlatform);
             // reset testPlatform.testCaseList
@@ -22770,7 +22771,7 @@ instruction\n\
             Object.keys(options).forEach(function (key) {
                 // add testCase options[key] to testPlatform.testCaseList
                 if (typeof options[key] === 'function' && (local.modeTestCase
-                        ? local.modeTestCase.split(',').indexOf(key) >= 0
+                        ? local.modeTestCase.split(/[,\s]/g).indexOf(key) >= 0
                         : key.indexOf('testCase_') === 0)) {
                     testPlatform.testCaseList.push({
                         isBrowser: local.isBrowser,
@@ -22860,78 +22861,38 @@ instruction\n\
             /*
              * this function will create the test-report after all tests isDone
              */
-                local.global.utility2_modeTestRun = 0;
+                local.global.utility2_modeTest = 1;
                 local.ajaxProgressUpdate();
+                // init domOnEventWindowOnloadTimeElapsed
+                if (local.global.domOnEventWindowOnloadTimeElapsed < 0x10000000000) {
+                    testPlatform.domOnEventWindowOnloadTimeElapsed =
+                        local.global.domOnEventWindowOnloadTimeElapsed;
+                }
                 // stop testPlatform timer
                 local.timeElapsedPoll(testPlatform);
                 // finalize testReport
                 local.testReportMerge(testReport, {});
-                if (local.isBrowser) {
-                    // notify saucelabs of test results
-                    // https://docs.saucelabs.com/reference/rest-api/#js-unit-testing
-                    local.global.global_test_results = {
-                        coverage: local.global.__coverage__,
-                        failed: testReport.testsFailed,
-                        testReport: testReport
-                    };
-                } else {
-                    // create test-report.json
+                // create test-report.json
+                if (!local.isBrowser) {
+                    testReport.coverage = null;
                     local.fs.writeFileSync(
                         local.env.npm_config_dir_build + '/test-report.json',
-                        JSON.stringify(testReport)
+                        JSON.stringify(testReport, null, 4)
                     );
-                    // cleanup $npm_config_dir_tmp
-                    local.child_process.spawnSync('rm -f ' + local.env.npm_config_dir_tmp +
-                        '/electron.*', { shell: true, stdio: ['ignore', 1, 2] });
                 }
                 setTimeout(function () {
                     // restore serverLog
                     console.error = local._testRunConsoleError;
-                    if (local.isBrowser) {
-                        // update coverageReport
-                        local.istanbulCoverageReportCreate({
-                            coverage: local.global.__coverage__
-                        });
-                        if (document.querySelector('#coverageReportDiv1')) {
-                            document.querySelector('#coverageReportDiv1').innerHTML =
-                                local.istanbul.coverageReportCreate({
-                                    coverage: window.__coverage__
-                                });
-                        }
-                    } else {
-                        // restore process.exit
-                        process.exit = exit;
+                    // restore process.exit
+                    if (processExit) {
+                        process.exit = processExit;
                     }
+                    // reset utility2_modeTest
+                    local.global.utility2_modeTest = 0;
                     // exit with number of tests failed
-                    local.exit(testReport.testsFailed);
+                    local.exit(testReport.testsFailed, testReport);
                 // coverage-hack - wait 1000 ms for timerInterval
                 }, 1000);
-            });
-        };
-
-        local.testRunInit = function (local) {
-        /*
-         * this function will init testRunXxx
-         */
-            // init testCase_buildXxx
-            Object.keys(local).forEach(function (key) {
-                if (key.indexOf('_testCase_build') === 0 || key === '_testCase_webpage_default') {
-                    local[key.slice(1)] = local[key.slice(1)] || local[key];
-                }
-            });
-            // run test
-            setTimeout(function () {
-                if (!local.isBrowser || local.global.utility2_serverHttp1) {
-                    local.testRunServer(local);
-                    return;
-                }
-                if (local.modeTest &&
-                        local.testRunBrowser &&
-                        document.querySelector('#testRunButton1')) {
-                    document.querySelector('#testRunButton1').click();
-                    return;
-                }
-                local.testRunDefault(local);
             });
         };
 
@@ -22945,7 +22906,7 @@ instruction\n\
             if (local.global.utility2_serverHttp1) {
                 return;
             }
-            local.onReadyBefore.counter += 1;
+            local.global.utility2_onReadyBefore.counter += 1;
             // 1. create server from local.middlewareList
             local.middlewareList = local.middlewareList || [
                 local.middlewareInit,
@@ -22959,7 +22920,7 @@ instruction\n\
                 self = {};
                 local.onNext(self, function (error) {
                     if (error || self.modeNext >= local.middlewareList.length) {
-                        local._middlewareError(error, request, response);
+                        local.middlewareError(error, request, response);
                         return;
                     }
                     // recurse with next middleware in middlewareList
@@ -22973,16 +22934,19 @@ instruction\n\
             );
             // 2. start server on local.env.PORT
             console.error('server listening on http-port ' + local.env.PORT);
-            local.onReadyBefore.counter += 1;
-            local.global.utility2_serverHttp1.listen(local.env.PORT, local.onReadyBefore);
+            local.global.utility2_onReadyBefore.counter += 1;
+            local.global.utility2_serverHttp1.listen(
+                local.env.PORT,
+                local.global.utility2_onReadyBefore
+            );
             // 3. run tests
             local.testRunDefault(options);
-            local.onReadyBefore();
+            local.global.utility2_onReadyBefore();
         };
 
         local.throwError = function () {
         /*
-         * this function will throw an error
+         * this function will throw a new error
          */
             throw new Error();
         };
@@ -23007,7 +22971,7 @@ instruction\n\
 
         local.tryCatchOnError = function (fnc, onError) {
         /*
-         * this function will try to run the fnc in a try-catch block,
+         * this function will run the fnc in a tryCatch block,
          * else call onError with the errorCaught
          */
             var result;
@@ -23251,11 +23215,30 @@ instruction\n\
 
 
 
+    // run shared js-env code - function-polyfill
+    /* istanbul ignore next */
+    (function () {
+        Array.from = Array.from || Array.prototype.slice.call;
+        if (typeof Buffer === 'function') {
+            Buffer.from = Buffer.from || function () {
+                return new Buffer(arguments);
+            };
+        }
+        Object.assign = Object.assign || function (aa, bb) {
+            Object.keys(bb || {}).forEach(function (key) {
+                aa[key] = bb[key];
+            });
+        };
+    }());
+
+
+
     // run shared js-env code - init-after
     (function () {
         local.ajaxProgressCounter = 0;
         local.ajaxProgressState = 0;
         local.apidocCreate = local.apidoc.apidocCreate;
+        local.browserTest({ modeTestReportCreate: true });
         local.cacheDict = {};
         local.contentTypeDict = {
             // application
@@ -23286,11 +23269,33 @@ instruction\n\
         });
         local.objectSetDefault(local.env, {
             npm_package_description: 'the greatest app in the world!',
-            npm_package_name: 'my-app',
+            npm_package_name: 'my-app-lite',
             npm_package_nameLib: 'my_app',
             npm_package_version: '0.0.1'
         });
         local.errorDefault = new Error('default error');
+        local.global.utility2_onReadyAfter = local.global.utility2_onReadyAfter || function (
+            onError
+        ) {
+        /*
+         * this function will call onError when utility2_onReadyBefore.counter === 0
+         */
+            local.global.utility2_onReadyBefore.counter += 1;
+            // visual notification - utility2_onReadyAfter
+            local.ajaxProgressUpdate();
+            local.taskCreate({ key: 'local.global.utility2_onReadyAfter' }, null, onError);
+            setTimeout(local.global.utility2_onReadyBefore);
+            return onError;
+        };
+        local.global.utility2_onReadyBefore = local.global.utility2_onReadyBefore ||
+            local.onParallel(function (error) {
+            /*
+             * this function will keep track of utility2_onReadyBefore.counter
+             */
+                local.taskCreate({ key: 'local.global.utility2_onReadyAfter' }, function (onError) {
+                    onError(error);
+                }, local.onErrorThrow);
+            });
         local.istanbulCoverageMerge = local.istanbul.coverageMerge || local.echo;
         // cbranch-no cstat-no fstat-no missing-if-branch
         local.istanbulCoverageReportCreate = local.istanbul.coverageReportCreate || local.echo;
@@ -23327,15 +23332,6 @@ instruction\n\
             swaggerValidate: local.nop
         };
         local.taskOnTaskDict = {};
-        local.testReport = { testPlatformList: [{
-            name: local.isBrowser
-                ? 'browser - ' + location.pathname + ' - ' + navigator.userAgent + ' - ' +
-                    new Date().toISOString()
-                : 'node - ' + process.platform + ' ' + process.version + ' - ' +
-                    new Date().toISOString(),
-            screenshot: local.env.MODE_BUILD_SCREENSHOT_IMG,
-            testCaseList: []
-        }] };
         // init serverLocalHost
         local.urlParse('');
         // init timeoutDefault
@@ -23363,9 +23359,14 @@ instruction\n\
         }
         // re-init timeoutDefault
         local.timeoutDefault = Number(local.timeoutDefault) || 30000;
-        local.onReadyAfter(local.nop);
+        local.global.utility2_onReadyAfter(local.nop);
         // init uglify
         local.uglify = local.uglifyjs.uglify || local.echo;
+        //!! deprecated
+        (function () {
+            local.testRunInit = local.testRunDefault;
+            local.onResetBefore = local.global.utility2_onReadyBefore;
+        }());
     }());
 
 
@@ -23397,7 +23398,7 @@ instruction\n\
         // merge previous test-report
         if (local.env.npm_config_file_test_report_merge) {
             local.testReportMerge(
-                local.testReport,
+                local.global.utility2_testReport,
                 JSON.parse(local.fsReadFileOrEmptyStringSync(
                     local.env.npm_config_file_test_report_merge,
                     'utf8'
@@ -23413,30 +23414,36 @@ instruction\n\
         local.cliDict['utility2.ajaxCrawl'] = function () {
         /*
          * <urlList>
-         * # web-crawl comma-separated <urlList> in parallel
+         * will web-crawl in parallel, comma-separated <urlList>
          */
-            local.ajaxCrawl({ urlList: process.argv[3].split(',') }, local.onErrorThrow);
+            local.ajaxCrawl({
+                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
+            }, local.onErrorThrow);
+        };
+        local.cliDict['utility2.ajaxFetch'] = function () {
+        /*
+         * <urlList>
+         * will fetch in parallel, comma-separated <urlList>
+         */
+            local.ajaxCrawl({
+                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
+            }, local.onErrorThrow);
         };
         local.cliDict['utility2.browserTest'] = function () {
         /*
-         * <url> <mode>
-         * # run browserTest on the url with the given mode
+         * <urlList> <mode>
+         * will browser-test in parallel, comma-separated <urlList> with the given <mode>
          */
-            local.onParallelList({
-                list: process.argv[3].split(',').filter(function (element) {
-                    return element;
-                })
-            }, function (options2, onParallel) {
-                onParallel.counter += 1;
-                local.browserTest({ url: options2.element }, function () {
-                    onParallel();
-                });
-            }, local.exit);
+            process.argv[3].split(process.argv[3].indexOf('?') >= 0
+                ? (/\s/g)
+                : (/[,\s]/g)).filter(local.echo).forEach(function (url) {
+                local.browserTest({ url: url }, local.onErrorDefault);
+            });
         };
         local.cliDict['utility2.customOrgRepoCreate'] = function () {
         /*
-         * <list>
-         * # create travis-ci-enabled customOrgRepo <list>[ii]
+         * <repoList>
+         * will create in parallel, comma-separated <repoList> of travis-ci-enabled github-repos
          */
             process.env.TRAVIS_DOMAIN = process.env.TRAVIS_DOMAIN || 'travis-ci.org';
             process.chdir('/tmp');
@@ -23453,7 +23460,7 @@ instruction\n\
                 ') fi'
             ].join('\n'), { shell: true, stdio: ['ignore', 1, 2] });
             local.onParallelList({
-                list: process.argv[3].split(/\s+/).filter(local.echo)
+                list: process.argv[3].split(/[,\s]/g).filter(local.echo)
             }, function (options2, onParallel) {
                 var options;
                 onParallel.counter += 1;
@@ -23597,36 +23604,19 @@ instruction\n\
                     default:
                         console.error(options2.shBuildPrintPrefix + new Date().toISOString() +
                             options2.element + (error
-                                ? ' - ... failed to create - modeNext0 = ' + options.modeNext0
+                                ? ' - ... failed to create - modeNext = ' + options.modeNext
                                 : ' - ... created'));
-                        onParallel(local.onErrorDefault(options.modeNext0 !== 2 && error));
+                        onParallel(local.onErrorDefault(options.modeNext !== 1002 && error));
                     }
                 });
                 options.modeNext = 0;
                 options.onNext();
             }, local.onErrorThrow);
         };
-        local.cliDict['utility2.dbTableCustomOrgCrudGetManyByQuery'] = function () {
-        /*
-         * <dbTableAndQuery>
-         * # query dbTableCustomOrg
-         */
-            local.dbTableCustomOrgCreate(JSON.parse(process.argv[3] || '{}'), function (error) {
-                // validate no error occurred
-                local.assert(!error, error);
-                console.log(local.dbTableCustomOrgCrudGetManyByQuery(
-                    JSON.parse(process.argv[3] || '{}')
-                )
-                    .map(function (element) {
-                        return element._id;
-                    })
-                    .join('\n'));
-            });
-        };
         local.cliDict['utility2.githubCrudContentDelete'] = function () {
         /*
          * <fileRemote|dirRemote> <commitMessage>
-         * # delete <fileRemote|dirRemote> from github
+         * will delete from github <fileRemote|dirRemote>
          */
             local.github_crud.githubCrudContentDelete({
                 message: process.argv[4],
@@ -23638,7 +23628,7 @@ instruction\n\
         local.cliDict['utility2.githubCrudContentGet'] = function () {
         /*
          * <fileRemote>
-         * # get <fileRemote> from github
+         * will get from github <fileRemote>
          */
             local.github_crud.githubCrudContentGet({
                 url: process.argv[3]
@@ -23653,7 +23643,7 @@ instruction\n\
         local.cliDict['utility2.githubCrudContentPut'] = function () {
         /*
          * <fileRemote> <fileLocal> <commitMessage>
-         * # put <fileLocal> to <fileRemote> on github
+         * will put on github <fileLocal> -> <fileRemote>
          */
             local.github_crud.githubCrudContentPutFile({
                 message: process.argv[5],
@@ -23666,39 +23656,33 @@ instruction\n\
         local.cliDict['utility2.githubCrudContentTouch'] = function () {
         /*
          * <fileRemoteList> <commitMessage>
-         * # touch comma-separated <fileRemoteList> on github in parallel
+         * will touch on github in parallel, comma-separated <fileRemoteList>
          */
             local.github_crud.githubCrudContentTouchList({
                 message: process.argv[4],
-                urlList: process.argv[3].split(',').filter(function (element) {
-                    return element;
-                })
+                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
             }, function (error) {
                 process.exit(!!error);
             });
         };
         local.cliDict['utility2.githubCrudRepoCreate'] = function () {
         /*
-         * <repoUrlList>
-         * # create comma-separated <repoUrlList> on github in parallel
+         * <repoList>
+         * will create on github in parallel, comma-separated <repoList>
          */
             local.github_crud.githubCrudRepoCreateList({
-                urlList: process.argv[3].split(',').filter(function (element) {
-                    return element;
-                })
+                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
             }, function (error) {
                 process.exit(!!error);
             });
         };
         local.cliDict['utility2.githubCrudRepoDelete'] = function () {
         /*
-         * <repoUrlList>
-         * # delete comma-separated <repoUrlList> from github in parallel
+         * <repoList>
+         * will delete from github in parallel, comma-separated <repoList>
          */
             local.github_crud.githubCrudRepoDeleteList({
-                urlList: process.argv[3].split(',').filter(function (element) {
-                    return element;
-                })
+                urlList: process.argv[3].split(/[,\s]/g).filter(local.echo)
             }, function (error) {
                 process.exit(!!error);
             });
@@ -23706,7 +23690,7 @@ instruction\n\
         local.cliDict['utility2.start'] = function () {
         /*
          * <port>
-         * # start utility2 server on the given port (default 8081)
+         * will start utility2 server on the given port (default 8081)
          */
             local.env.PORT = process.argv[3] || local.env.PORT;
             local.global.local = local;
@@ -23716,7 +23700,7 @@ instruction\n\
         local.cliDict['utility2.swaggerValidateFile'] = function () {
         /*
          * <file/url>
-         * # swagger-validate file/url
+         * will swagger-validate file/url
          */
             setTimeout(function () {
                 local.swgg.swaggerValidateFile({ file: process.argv[3] }, function (error, data) {
@@ -23728,7 +23712,7 @@ instruction\n\
         local.cliDict['utility2.testReportCreate'] = function () {
         /*
          *
-         * # create test-report
+         * will create test-report
          */
             local.exit(local.testReportCreate(local.tryCatchOnError(function () {
                 return require(local.env.npm_config_dir_build + '/test-report.json');
@@ -23893,8 +23877,9 @@ instruction\n\
                     .split('/* utility2.rollup.js content */');
                 script.splice(1, 0, 'local.assetsDict["' + key + '"] = ' +
                     JSON.stringify(local.assetsDict[key])
+                    .replace((/\\\\/g), '\x00')
                     .replace((/\\n/g), '\\n\\\n')
-                    .replace((/^\\\\\\n\\\n/gm), ''));
+                    .replace((/\x00/g), '\\\\'));
                 script = script.join('');
                 script += '\n';
                 break;
@@ -23947,21 +23932,18 @@ instruction\n\
         // init debug_inline
         (function () {
             var consoleError, context, key;
-            context = (typeof window === "object" && window) || global;
-            key = "debug_inline".replace("_i", "I");
-            if (context[key]) {
-                return;
-            }
             consoleError = console.error;
-            context[key] = function (arg0) {
+            context = (typeof window === 'object' && window) || global;
+            key = 'debug_inline'.replace('_i', 'I');
+            context[key] = context[key] || function (arg0) {
             /*
              * this function will both print arg0 to stderr and return it
              */
                 // debug arguments
-                context["_" + key + "Arguments"] = arguments;
-                consoleError("\n\n" + key);
+                context['_' + key + 'Arguments'] = arguments;
+                consoleError('\n\n' + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + '\n');
                 // return arg0 for inspection
                 return arg0;
             };
@@ -23969,10 +23951,10 @@ instruction\n\
         // init local
         local = {};
         // init isBrowser
-        local.isBrowser = typeof window === "object" &&
-            typeof window.XMLHttpRequest === "function" &&
+        local.isBrowser = typeof window === 'object' &&
+            typeof window.XMLHttpRequest === 'function' &&
             window.document &&
-            typeof window.document.querySelectorAll === "function";
+            typeof window.document.querySelectorAll === 'function';
         // init global
         local.global = local.isBrowser
             ? window
@@ -23981,13 +23963,6 @@ instruction\n\
         local = local.global.utility2_rollup ||
             // local.global.utility2_rollup_old || require('./assets.utility2.rollup.js') ||
             local;
-        // init nop
-        local.nop = function () {
-        /*
-         * this function will do nothing
-         */
-            return;
-        };
         // init exports
         if (local.isBrowser) {
             local.global.utility2_swgg = local;
@@ -24018,7 +23993,6 @@ instruction\n\
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -24846,7 +24820,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
 // https://github.com/swagger-api/swagger-ui/blob/v2.1.3/src/main/template/main.handlebars
 local.templateUiMain = '\
 <!-- <div class="swggUiContainer"> -->\n\
-<h2 class="eventDelegateKeyup eventDelegateSubmit hx onEventUiReload thead">\n\
+<h2 class="eventDelegateSubmit hx onEvent onEventUiReload thead">\n\
     <a class="td td1" href="https://github.com/kaizhu256/node-swgg" target="_blank">swgg</a>\n\
     <input\n\
         class="td td2"\n\
@@ -24861,9 +24835,9 @@ local.templateUiMain = '\
         type="text"\n\
         value="{{apiKeyValue}}"\n\
     >\n\
-    <button class="button eventDelegateClick onEventUiReload td td4">explore</button>\n\
+    <button class="button eventDelegateClick onEvent onEventUiReload td td4">explore</button>\n\
     <button\n\
-        class="button eventDelegateClick onEventUiReload td td5"\n\
+        class="button eventDelegateClick onEvent onEventUiReload td td5"\n\
         id="swggApiKeyClearButton1"\n\
     >\n\
         clear api-keys\n\
@@ -24874,7 +24848,7 @@ local.templateUiMain = '\
     id="swggUiReloadErrorDiv1"\n\
     style="background: none; border: 0;"\n\
 ></div>\n\
-<div class="eventDelegateChange eventDelegateClick info reset">\n\
+<div class="eventDelegateClick info reset">\n\
     {{#if info}}\n\
     {{#if info.x-swgg-homepage}}\n\
     <h2 class="hx">\n\
@@ -24894,17 +24868,17 @@ local.templateUiMain = '\
         download standalone app\n\
     </a><br>\n\
     {{/if x-swgg-downloadStandaloneApp}}\n\
-    {{#if x-swgg-domOnEventDb}}\n\
-    <button class="button domOnEventDb" data-dom-on-event-db="dbResetButton1">\n\
+    {{#if x-swgg-onEventDomDb}}\n\
+    <button class="button onEvent onEventDomDb" data-dom-on-event-db="dbResetButton1">\n\
         reset database\n\
     </button><br>\n\
-    <button class="button domOnEventDb" data-dom-on-event-db="dbExportButton1">\n\
+    <button class="button onEvent onEventDomDb" data-dom-on-event-db="dbExportButton1">\n\
         export database -&gt; file\n\
     </button><br>\n\
-    <button class="button domOnEventDb" data-dom-on-event-db="dbImportButton1">\n\
+    <button class="button onEvent onEventDomDb" data-dom-on-event-db="dbImportButton1">\n\
         import database &lt;- file\n\
     </button><br>\n\
-    {{/if x-swgg-domOnEventDb}}\n\
+    {{/if x-swgg-onEventDomDb}}\n\
     <ul>\n\
         {{#if externalDocs.url}}\n\
         <li>\n\
@@ -24983,7 +24957,7 @@ console.log("initialized nodejs swgg-client");\n\
 // https://github.com/swagger-api/swagger-ui/blob/v2.1.3/src/main/template/operation.handlebars
 local.templateUiOperation = '\
 <div class="operation" data-_method-path="{{_methodPath}}" id="{{id}}">\n\
-<div class="onEventInputValidateAndAjax onEventOperationDisplayShow thead" tabindex="0">\n\
+<div class="onEvent onEventOperationDisplayShow thead" tabindex="0">\n\
     <span class="td td1"></span>\n\
     <span class="method{{_method}} td td2">{{_method}}</span>\n\
     <span\n\
@@ -24995,7 +24969,7 @@ local.templateUiOperation = '\
     <span class="color777 td td4 textOverflowEllipsis">{{summary}}</span>\n\
 </div>\n\
 <form accept-charset="UTF-8"\n\
-    class="uiAnimateSlide"\n\
+    class="onEventInputValidateAndAjax uiAnimateSlide"\n\
     style="border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;"\n\
 >\n\
     {{#if deprecated}}\n\
@@ -25028,7 +25002,7 @@ local.templateUiOperation = '\
         <span class="markdown td td2">{{value.description markdownToHtml}}</span>\n\
     </div>\n\
     {{/each responseList}}\n\
-    <button class="button onEventOperationAjax">try it out!</button>\n\
+    <button class="button onEvent onEventOperationAjax">try it out!</button>\n\
     <h4 class="label">nodejs request</h4>\n\
     <pre class="requestJavascript" tabIndex="0"></pre>\n\
     <h4 class="label">curl request</h4>\n\
@@ -25058,12 +25032,12 @@ local.templateUiParameter = '\
     {{/if description}}\n\
 </span>\n\
 <span class="td td2">{{type2}}{{#if format2}}<br>({{format2}}){{/if format2}}</span>\n\
-<span class="td td3">\n\
+<span class="onEvent onEventInputValidateAndAjax td td3">\n\
     {{#if isTextarea}}\n\
     <div class="multilinePlaceholderContainer">\n\
         <pre class="multilinePlaceholderPre">{{placeholder}}</pre>\n\
         <textarea\n\
-            class="input multilinePlaceholderTextarea onEventInputTextareaChange"\n\
+            class="input multilinePlaceholderTextarea onEvent onEventInputTextareaChange"\n\
             data-value-text="{{valueText encodeURIComponent notHtmlSafe}}"\n\
         ></textarea>\n\
     </div>\n\
@@ -25126,10 +25100,10 @@ local.templateUiResource = '\
     id="{{id}}"\n\
 >\n\
 <h3 class="thead">\n\
-    <span class="onEventResourceDisplayAction td td1 textOverflowEllipsis" tabindex="0">\n\
+    <span class="onEvent onEventResourceDisplayAction td td1 textOverflowEllipsis" tabindex="0">\n\
         {{name}}:&nbsp;&nbsp;{{summary}}\n\
     </span>\n\
-    <span class="onEventResourceDisplayAction td td2" tabindex="0">\n\
+    <span class="onEvent onEventResourceDisplayAction td td2" tabindex="0">\n\
     expand / collapse operations\n\
     </span>\n\
 </h3>\n\
@@ -27795,6 +27769,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                         swaggerJson: local.swaggerJson
                     });
                 }, function (errorCaught) {
+                    console.error(errorCaught.message);
                     errorList.push(errorCaught);
                     errorCaught.errorList = errorList;
                 });
@@ -28455,7 +28430,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                     local.jslint.jslintAndPrint(data, options.file);
                     local.assert(
                         !local.jslint.errorText,
-                        local.jslint.errorText.replace((/\u001b\[\d+m/g), '')
+                        local.jslint.errorText.replace((/\u001b\[\d*m/g), '')
                     );
                     // validate
                     local.swgg.swaggerValidate(JSON.parse(data));
@@ -28463,7 +28438,8 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                     break;
                 default:
                     console.error(error
-                        ? 'swagger-validate - failed - ' + options.file + '\n\n' + error.message
+                        ? '\u001b[31mswagger-validate - failed - ' + options.file + '\n' +
+                            error.message + '\u001b[39m'
                         : 'swagger-validate - passed - ' + options.file);
                     onError(error);
                 }
@@ -28515,25 +28491,18 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
         };
 
         local.uiEventDelegate = function (event) {
-            event.target2 = event.target;
+            event.targetOnEvent = event.target.closest('.onEvent');
             // filter non-input keyup-event
-            if (event.type === 'keyup' &&
-                    !event.target2.closest('input, option, select, textarea')) {
+            if (!event.targetOnEvent ||
+                    (event.type === 'keyup' &&
+                    !event.target.closest('input, option, select, textarea'))) {
                 return;
             }
-            // delegate event in .operation
-            event.targetOperation = event.target2.closest('.operation');
             Object.keys(local.uiEventListenerDict).sort().some(function (key) {
-                switch (key) {
-                case '.domOnEventDb':
-                case '.onEventOperationDisplayShow':
-                    event.target2 = event.target2.closest(key) || event.target2;
-                    break;
-                }
-                if (!(event.currentTarget.matches(key) || event.target2.matches(key))) {
+                if (!event.targetOnEvent.matches(key)) {
                     return;
                 }
-                switch (event.target2.tagName) {
+                switch (event.targetOnEvent.tagName) {
                 case 'BUTTON':
                 case 'FORM':
                     event.preventDefault();
@@ -28543,33 +28512,28 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                 local.uiEventListenerDict[key](event);
                 return true;
             });
-            if (event.targetOperation && !local.timerTimeoutOnEventInputValidate) {
-                local.timerTimeoutOnEventInputValidate = setTimeout(function () {
-                    local.timerTimeoutOnEventInputValidate = null;
-                    // validate input
-                    event.modeAjax = 'validate';
-                    local.uiEventListenerDict['.onEventInputValidateAndAjax'](event);
-                }, 25);
-            }
         };
 
         local.uiEventListenerDict = {};
 
-        local.uiEventListenerDict['.domOnEventDb'] = local.db.domOnEventDb;
+        local.uiEventListenerDict['.onEventDomDb'] = local.db.onEventDomDb;
 
         local.uiEventListenerDict['.onEventInputTextareaChange'] = function (event) {
         /*
          * this function will show/hide the textarea's multiline placeholder
          */
             var isTransparent, value;
-            isTransparent = event.target2.style.background.indexOf('transparent') >= 0;
-            value = event.target2.value;
+            isTransparent = event.targetOnEvent.style.background.indexOf('transparent') >= 0;
+            value = event.targetOnEvent.value;
             if (value && isTransparent) {
-                event.target2.style.background = '';
+                event.targetOnEvent.style.background = '';
             }
             if (!value && !isTransparent) {
-                event.target2.style.background = 'transparent';
+                event.targetOnEvent.style.background = 'transparent';
             }
+            local.uiEventListenerDict['.onEventInputValidateAndAjax']({
+                targetOnEvent: event.targetOnEvent
+            });
         };
 
         local.uiEventListenerDict['.onEventInputValidateAndAjax'] = function (options, onError) {
@@ -28588,13 +28552,15 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                     return text;
                 });
             };
-            options.api = local.apiDict[options.targetOperation.dataset._methodPath];
+            options.targetOnEvent = options.targetOnEvent.closest('.operation');
+            options.api = local.apiDict[options.targetOnEvent.dataset._methodPath];
             options.headers = {};
+            options.modeAjax = options.modeAjax || 'validate';
             options.modeNoDefault = true;
             options.paramDict = {};
             options.url = '';
             options.api.parameters.forEach(function (schemaP) {
-                tmp = options.targetOperation.querySelector(
+                tmp = options.targetOnEvent.querySelector(
                     '.schemaP[data-name=' + JSON.stringify(schemaP.name) + '] .input'
                 );
                 switch (tmp.tagName) {
@@ -28666,7 +28632,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                 errorDict[error.options.prefix[2]] = error;
             });
             // shake input on error
-            Array.from(options.targetOperation.querySelectorAll(
+            Array.from(options.targetOnEvent.querySelectorAll(
                 '.schemaP[data-name]'
             )).forEach(function (element) {
                 tmp = errorDict[element.dataset.name];
@@ -28678,7 +28644,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
             // shake submit-button on error
             local.uiAnimateShakeIfError(
                 options.error,
-                options.targetOperation.querySelector('.onEventOperationAjax')
+                options.targetOnEvent.querySelector('.onEventOperationAjax')
             );
             // init requestCurl
             tmp = options.data;
@@ -28691,9 +28657,9 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                 }).join('') + '--data-binary ' + (typeof tmp === 'string'
                     ? "'" + tmp.replace(/'/g, "'\"'\"'") + "'"
                     : '<blob>') + ' \\\n"' + options.url.replace((/&/g), '&\\\n') + '"';
-            options.targetOperation.querySelector('.requestCurl').textContent = tmp;
+            options.targetOnEvent.querySelector('.requestCurl').textContent = tmp;
             // init requestJavascript
-            options.targetOperation.querySelector('.requestJavascript').textContent =
+            options.targetOnEvent.querySelector('.requestJavascript').textContent =
                 local.templateRender(local.templateUiRequestJavascript, {
                     options: options,
                     optionsJson: JSON.stringify({
@@ -28707,7 +28673,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
          * this function will submit the operation to the backend
          */
             // ensure options is stateless
-            options = { targetOperation: options.targetOperation };
+            options = { targetOnEvent: options.targetOnEvent.closest('.operation') };
             local.onNext(options, function (error, data) {
                 switch (options.modeNext) {
                 case 1:
@@ -28719,15 +28685,15 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                         options.onNext
                     );
                     // reset response output
-                    Array.from(options.targetOperation.querySelectorAll(
+                    Array.from(options.targetOnEvent.querySelectorAll(
                         '.responseBody, .responseHeaders, .responseStatusCode'
                     )).forEach(function (element) {
                         element.classList.remove('hasError');
                         element.textContent = 'loading ...';
                     });
-                    options.targetOperation.querySelector('.responseMedia').innerHTML = '';
+                    options.targetOnEvent.querySelector('.responseMedia').innerHTML = '';
                     // scrollTo response
-                    options.targetOperation.querySelector('.responseStatusCode').focus();
+                    options.targetOnEvent.querySelector('.responseStatusCode').focus();
                     break;
                 default:
                     local.onErrorDefault(error);
@@ -28736,15 +28702,15 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                         statusCode: 'undefined'
                     });
                     // init responseStatusCode
-                    options.targetOperation.querySelector('.responseStatusCode').textContent =
+                    options.targetOnEvent.querySelector('.responseStatusCode').textContent =
                         data.statusCode;
                     // init responseHeaders
-                    options.targetOperation.querySelector('.responseHeaders').textContent =
+                    options.targetOnEvent.querySelector('.responseHeaders').textContent =
                         Object.keys(data.responseHeaders).map(function (key) {
                             return key + ': ' + data.responseHeaders[key] + '\r\n';
                         }).join('');
                     // init responseBody
-                    options.targetOperation.querySelector('.responseHeaders').textContent.replace((
+                    options.targetOnEvent.querySelector('.responseHeaders').textContent.replace((
                         /^content-type:(.*?)$/im
                     ), function (match0, match1) {
                         match0 = match1;
@@ -28755,9 +28721,9 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                     case 'audio':
                     case 'img':
                     case 'video':
-                        options.targetOperation.querySelector('.responseBody').textContent =
+                        options.targetOnEvent.querySelector('.responseBody').textContent =
                             data.contentType;
-                        options.targetOperation.querySelector('.responseMedia').innerHTML =
+                        options.targetOnEvent.querySelector('.responseMedia').innerHTML =
                             '<' + data.mediaType +
                             ' class="domOnEventMediaHotkeysInit" controls src="data:' +
                             data.contentType +
@@ -28766,13 +28732,13 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                         local.global.domOnEventMediaHotkeys('init');
                         break;
                     default:
-                        options.targetOperation.querySelector('.responseBody').textContent =
+                        options.targetOnEvent.querySelector('.responseBody').textContent =
                             data.responseJson
                             ? JSON.stringify(data.responseJson, null, 4)
                             : data.response;
                     }
                     // shake response on error
-                    Array.from(options.targetOperation.querySelectorAll(
+                    Array.from(options.targetOnEvent.querySelectorAll(
                         '.responseBody, .responseHeaders, .responseStatusCode'
                     )).forEach(function (element) {
                         local.uiAnimateShakeIfError(data.statusCode >= 400, element);
@@ -28789,7 +28755,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
          * this function will toggle the display of the operation
          */
             var element;
-            element = event.target2;
+            element = event.targetOnEvent;
             element = element.querySelector('.operation') || element.closest('.operation');
             location.hash = '!' + element.id;
             element.closest('.resource').classList.remove('expanded');
@@ -28805,8 +28771,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                     element.querySelector('[tabIndex]').focus();
                     // validate input
                     local.uiEventListenerDict['.onEventInputValidateAndAjax']({
-                        modeAjax: 'validate',
-                        targetOperation: element
+                        targetOnEvent: element
                     });
                     local.setTimeoutOnError(onError, 0, null, element);
                 }
@@ -28818,8 +28783,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
          * this function will toggle the display of the resource
          */
             location.hash = '!' + event.currentTarget.id;
-            event.target2 = event.target2.closest('.onEventResourceDisplayAction.td');
-            event.target2.className.split(' ').some(function (className) {
+            event.targetOnEvent.className.split(' ').some(function (className) {
                 switch (className) {
                 case 'td1':
                     // show the resource, but hide all other resources
@@ -28829,7 +28793,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                     );
                     // show at least one operation in the resource
                     local.uiEventListenerDict['.onEventOperationDisplayShow']({
-                        target2: event.currentTarget.querySelector(
+                        targetOnEvent: event.currentTarget.querySelector(
                             '.operation .uiAnimateSlide[style*="max-height: 100%"]'
                         ) || event.currentTarget.querySelector('.operation')
                     });
@@ -28857,8 +28821,7 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                             local.uiAnimateSlideDown(element);
                             // validate input
                             local.uiEventListenerDict['.onEventInputValidateAndAjax']({
-                                modeAjax: 'validate',
-                                targetOperation: element.closest('.operation')
+                                targetOnEvent: element
                             });
                         });
                     }
@@ -28878,7 +28841,8 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                 case 1:
                     options.inputUrl = document.querySelector('.swggUiContainer > .thead > .td2');
                     // clear all apiKeyValue's from localStorage
-                    if (options.target2 && options.target2.id === 'swggApiKeyClearButton1') {
+                    if (options.targetOnEvent &&
+                            options.targetOnEvent.id === 'swggApiKeyClearButton1') {
                         local.apiKeyValue = '';
                         Object.keys(localStorage).forEach(function (key) {
                             if (key.indexOf('utility2_swgg_apiKeyKey_') === 0) {
@@ -28887,10 +28851,9 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                         });
                     // restore apiKeyValue
                     } else if (options.swggInit) {
-                        local.apiKeyKey = 'utility2_swgg_apiKeyKey_' +
-                            encodeURIComponent(local.urlParse(
-                                options.inputUrl.value.replace((/^\//), '')
-                            ).href);
+                        local.apiKeyKey = 'utility2_swgg_apiKeyKey_' + encodeURIComponent(
+                            local.urlParse(options.inputUrl.value.replace((/^\//), '')).href
+                        );
                         local.apiKeyValue = localStorage.getItem(local.apiKeyKey) || '';
                     // save apiKeyValue
                     } else {
@@ -28900,7 +28863,9 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                     // if keyup-event is not return-key, then return
                     if ((options.type === 'keyup' && options.code !== 'Enter') ||
                             // do not reload ui during test
-                            local.global.utility2_modeTestRun >= 2) {
+                            local.global.utility2_modeTest >= 4) {
+                        options.modeNext = Infinity;
+                        options.onNext();
                         return;
                     }
                     // reset ui
@@ -29065,7 +29030,9 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
                 delete element.dataset.valueText;
                 // init textarea's multiline placeholder
                 if (element.tagName === 'TEXTAREA') {
-                    local.uiEventListenerDict['.onEventInputTextareaChange']({ target2: element });
+                    local.uiEventListenerDict['.onEventInputTextareaChange']({
+                        targetOnEvent: element
+                    });
                 }
             });
             // init event-handling
@@ -29078,7 +29045,8 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
             });
             // scrollTo location.hash
             local.uiEventListenerDict['.onEventOperationDisplayShow']({
-                target2: document.querySelector('#' + (location.hash.slice(2) || 'undefined')) ||
+                targetOnEvent:
+                    document.querySelector('#' + (location.hash.slice(2) || 'undefined')) ||
                     document.querySelector('.swggUiContainer .operation')
             });
             local.setTimeoutOnError(onError);
@@ -29245,18 +29213,6 @@ window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });\n\
          */
             local.apiDict["GET /user/userLogout"].ajax(options, onError);
         };
-
-        local.utility2._middlewareError = function (error, request, response) {
-        /*
-         * this function will run the middleware that will
-         * handle errors according to http://jsonapi.org/format/#errors
-         */
-            if (!error) {
-                local.serverRespondDefault(request, response, 404);
-                return;
-            }
-            local.serverRespondJsonapi(request, response, error);
-        };
     }());
 
 
@@ -29352,8 +29308,8 @@ instruction\n\
         // run test-server\n\
         local.testRunServer(local);\n\
         // init assets\n\
-        local.assetsDict['/assets.hello'] = 'hello\\n\
-';\n\
+        /* jslint-ignore-next-line */\n\
+        local.assetsDict['/assets.hello'] = 'hello\\ud83d\\udc4b\\u0020\\n';\n\
         local.assetsDict['/assets.index.template.html'] = '';\n\
     }());\n\
 \n\
@@ -29377,12 +29333,13 @@ instruction\n\
                     local.assert(!error, error);\n\
                     // validate data\n\
                     options.data = xhr.responseText;\n\
-                    local.assert(options.data === 'hello\\n\
-', options.data);\n\
+                    /* jslint-ignore-next-line */\n\
+                    local.assert(options.data === 'hello\\ud83d\\udc4b\\u0020\\n', options.data);\n\
                     onError();\n\
                 }, onError);\n\
             });\n\
         };\n\
+\n\
         local.testCase_ajax_404 = function (options, onError) {\n\
         /*\n\
          * this function will test ajax's \"404 not found\" handling-behavior\n\
@@ -29452,7 +29409,7 @@ instruction\n\
                 if (document.querySelector('#testReportDiv1').style.maxHeight === '0px') {\n\
                     local.uiAnimateSlideDown(document.querySelector('#testReportDiv1'));\n\
                     document.querySelector('#testRunButton1').textContent = 'hide internal test';\n\
-                    local.modeTest = true;\n\
+                    local.modeTest = 1;\n\
                     local.testRunDefault(local);\n\
                 // hide tests\n\
                 } else {\n\
@@ -29463,7 +29420,7 @@ instruction\n\
             // custom-case\n\
             case 'testRunButton2':\n\
                 // run tests\n\
-                local.modeTest = true;\n\
+                local.modeTest = 1;\n\
                 local.testRunDefault(local);\n\
                 break;\n\
             default:\n\
@@ -29472,8 +29429,8 @@ instruction\n\
                 }\n\
                 // try to JSON.stringify #inputTextareaEval1\n\
                 try {\n\
-                    document.querySelector('#outputPreJsonStringify1').textContent = '';\n\
-                    document.querySelector('#outputPreJsonStringify1').textContent =\n\
+                    document.querySelector('#outputJsonStringifyPre1').textContent = '';\n\
+                    document.querySelector('#outputJsonStringifyPre1').textContent =\n\
                         local.jsonStringifyOrdered(\n\
                             JSON.parse(document.querySelector('#inputTextareaEval1').value),\n\
                             null,\n\
@@ -29490,9 +29447,9 @@ instruction\n\
                         'inputTextareaEval1.js'\n\
                     );\n\
                 }\n\
-                document.querySelector('#outputPreJslint1').textContent =\n\
+                document.querySelector('#outputJslintPre1').textContent =\n\
                     local.jslint.errorText\n\
-                    .replace((/\\u001b\\[\\d+m/g), '')\n\
+                    .replace((/\\u001b\\[\\d*m/g), '')\n\
                     .trim();\n\
                 // try to cleanup __coverage__\n\
                 try {\n\
@@ -29530,9 +29487,10 @@ instruction\n\
                 }\n\
             }\n\
         };\n\
+\n\
         // log stderr and stdout to #outputStdoutTextarea1\n\
         ['error', 'log'].forEach(function (key) {\n\
-            console[key + '_original'] = console[key];\n\
+            console[key + '_original'] = console[key + '_original'] || console[key];\n\
             console[key] = function () {\n\
                 var element;\n\
                 console[key + '_original'].apply(console, arguments);\n\
@@ -29545,8 +29503,7 @@ instruction\n\
                     return typeof arg === 'string'\n\
                         ? arg\n\
                         : JSON.stringify(arg, null, 4);\n\
-                }).join(' ') + '\\n\
-';\n\
+                }).join(' ').replace((/\\u001b\\[\\d*m/g), '') + '\\n';\n\
                 // scroll textarea to bottom\n\
                 element.scrollTop = element.scrollHeight;\n\
             };\n\
@@ -29597,7 +29554,6 @@ instruction\n\
         local.tty = require('tty');\n\
         local.url = require('url');\n\
         local.util = require('util');\n\
-        local.v8 = require('v8');\n\
         local.vm = require('vm');\n\
         local.zlib = require('zlib');\n\
         /* validateLineSortedReset */\n\
@@ -29619,344 +29575,345 @@ instruction\n\
         });\n\
         /* jslint-ignore-begin */\n\
         local.assetsDict['/assets.index.template.html'] = '\\\n\
-<!doctype html>\\n\
-<html lang=\"en\">\\n\
-<head>\\n\
-<meta charset=\"utf-8\">\\n\
-<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\\n\
-<!-- \"assets.utility2.template.html\" -->\\n\
-<title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\\n\
-<style>\\n\
-/* jslint-utility2 */\\n\
-/*csslint\\n\
-*/\\n\
-/* jslint-ignore-begin */\\n\
-*,\\n\
-*:after,\\n\
-*:before {\\n\
-    box-sizing: border-box;\\n\
-}\\n\
-/* jslint-ignore-end */\\n\
-@keyframes uiAnimateShake {\\n\
-    0%, 50% {\\n\
-        transform: translateX(10px);\\n\
-    }\\n\
-    25%, 75% {\\n\
-        transform: translateX(-10px);\\n\
-    }\\n\
-    100% {\\n\
-        transform: translateX(0);\\n\
-    }\\n\
-}\\n\
-@keyframes uiAnimateSpin {\\n\
-    0% {\\n\
-        transform: rotate(0deg);\\n\
-    }\\n\
-    100% {\\n\
-        transform: rotate(360deg);\\n\
-    }\\n\
-}\\n\
-a {\\n\
-    overflow-wrap: break-word;\\n\
-}\\n\
-body {\\n\
-    background: #eef;\\n\
-    font-family: Arial, Helvetica, sans-serif;\\n\
-    margin: 0 40px;\\n\
-}\\n\
-body > div,\\n\
-body > form > div,\\n\
-body > form > input,\\n\
-body > form > pre,\\n\
-body > form > textarea,\\n\
-body > form > .button,\\n\
-body > input,\\n\
-body > pre,\\n\
-body > textarea,\\n\
-body > .button {\\n\
-    margin-bottom: 20px;\\n\
-}\\n\
-body > form > input,\\n\
-body > form > .button,\\n\
-body > input,\\n\
-body > .button {\\n\
-    width: 20rem;\\n\
-}\\n\
-body > form > textarea,\\n\
-body > textarea {\\n\
-    height: 10rem;\\n\
-    width: 100%;\\n\
-}\\n\
-body > textarea[readonly] {\\n\
-    background: #ddd;\\n\
-}\\n\
-code,\\n\
-pre,\\n\
-textarea {\\n\
-    font-family: Consolas, Menlo, monospace;\\n\
-    font-size: small;\\n\
-}\\n\
-pre {\\n\
-    overflow-wrap: break-word;\\n\
-    white-space: pre-wrap;\\n\
-}\\n\
-textarea {\\n\
-    overflow: auto;\\n\
-    white-space: pre;\\n\
-}\\n\
-.button {\\n\
-    background-color: #fff;\\n\
-    border: 1px solid;\\n\
-    border-bottom-color: rgb(186, 186, 186);\\n\
-    border-left-color: rgb(209, 209, 209);\\n\
-    border-radius: 4px;\\n\
-    border-right-color: rgb(209, 209, 209);\\n\
-    border-top-color: rgb(216, 216, 216);\\n\
-    color: #00d;\\n\
-    cursor: pointer;\\n\
-    display: inline-block;\\n\
-    font-family: Arial, Helvetica, sans-serif;\\n\
-    font-size: 12px;\\n\
-    font-style: normal;\\n\
-    font-weight: normal;\\n\
-    margin: 0;\\n\
-    padding: 2px 7px 3px 7px;\\n\
-    text-align: center;\\n\
-    text-decoration: underline;\\n\
-}\\n\
-.colorError {\\n\
-    color: #d00;\\n\
-}\\n\
-.uiAnimateShake {\\n\
-    animation-duration: 500ms;\\n\
-    animation-name: uiAnimateShake;\\n\
-}\\n\
-.uiAnimateSlide {\\n\
-    overflow-y: hidden;\\n\
-    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\\n\
-}\\n\
-.utility2FooterDiv {\\n\
-    text-align: center;\\n\
-}\\n\
-.zeroPixel {\\n\
-    border: 0;\\n\
-    height: 0;\\n\
-    margin: 0;\\n\
-    padding: 0;\\n\
-    width: 0;\\n\
-}\\n\
-</style>\\n\
-</head>\\n\
-<body>\\n\
-<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\\n\
-<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\\n\
-<a class=\"zeroPixel\" download=\"db.persistence.json\" href=\"\" id=\"dbExportA1\"></a>\\n\
-<input class=\"zeroPixel\" id=\"dbImportInput1\" type=\"file\">\\n\
-<script>\\n\
-/* jslint-utility2 */\\n\
-/*jslint\\n\
-    bitwise: true,\\n\
-    browser: true,\\n\
-    maxerr: 4,\\n\
-    maxlen: 100,\\n\
-    node: true,\\n\
-    nomen: true,\\n\
-    regexp: true,\\n\
-    stupid: true\\n\
-*/\\n\
-// init domOnEventWindowOnloadTimeElapsed\\n\
-(function () {\\n\
-/*\\n\
- * this function will measure and print the time-elapsed for window.onload\\n\
- */\\n\
-    \"use strict\";\\n\
-    if (window.domOnEventWindowOnloadTimeElapsed) {\\n\
-        return;\\n\
-    }\\n\
-    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\\n\
-    window.addEventListener(\"load\", function () {\\n\
-        setTimeout(function () {\\n\
-            window.domOnEventWindowOnloadTimeElapsed = Date.now() -\\n\
-                window.domOnEventWindowOnloadTimeElapsed;\\n\
-            console.error(\"domOnEventWindowOnloadTimeElapsed = \" +\\n\
-                window.domOnEventWindowOnloadTimeElapsed);\\n\
-        }, 100);\\n\
-    });\\n\
-}());\\n\
-// init timerIntervalAjaxProgressUpdate\\n\
-(function () {\\n\
-/*\\n\
- * this function will increment the ajax-progress-bar until the webpage has loaded\\n\
- */\\n\
-    \"use strict\";\\n\
-    var ajaxProgressDiv1,\\n\
-        ajaxProgressState,\\n\
-        ajaxProgressUpdate;\\n\
-    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector(\"#ajaxProgressDiv1\")) {\\n\
-        return;\\n\
-    }\\n\
-    ajaxProgressDiv1 = document.querySelector(\"#ajaxProgressDiv1\");\\n\
-    setTimeout(function () {\\n\
-        ajaxProgressDiv1.style.width = \"25%\";\\n\
-    });\\n\
-    ajaxProgressState = 0;\\n\
-    ajaxProgressUpdate = (window.local &&\\n\
-        window.local.ajaxProgressUpdate) || function () {\\n\
-        ajaxProgressDiv1.style.width = \"100%\";\\n\
-        setTimeout(function () {\\n\
-            ajaxProgressDiv1.style.background = \"transparent\";\\n\
-            setTimeout(function () {\\n\
-                ajaxProgressDiv1.style.width = \"0%\";\\n\
-            }, 500);\\n\
-        }, 1500);\\n\
-    };\\n\
-    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\\n\
-        ajaxProgressState += 1;\\n\
-        ajaxProgressDiv1.style.width = Math.max(\\n\
-            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\\n\
-            ajaxProgressDiv1.style.width.slice(0, -1) | 0\\n\
-        ) + \"%\";\\n\
-    }, 1000);\\n\
-    window.addEventListener(\"load\", function () {\\n\
-        clearInterval(window.timerIntervalAjaxProgressUpdate);\\n\
-        ajaxProgressUpdate();\\n\
-    });\\n\
-}());\\n\
-// init domOnEventSelectAllWithinPre\\n\
-(function () {\\n\
-/*\\n\
- * this function will limit select-all within <pre tabIndex=\"0\"> elements\\n\
- * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\\n\
- */\\n\
-    \"use strict\";\\n\
-    if (window.domOnEventSelectAllWithinPre) {\\n\
-        return;\\n\
-    }\\n\
-    window.domOnEventSelectAllWithinPre = function (event) {\\n\
-        var range, selection;\\n\
-        if (event &&\\n\
-                event.key === \"a\" &&\\n\
-                (event.ctrlKey || event.metaKey) &&\\n\
-                event.target.closest(\"pre\")) {\\n\
-            range = document.createRange();\\n\
-            range.selectNodeContents(event.target.closest(\"pre\"));\\n\
-            selection = window.getSelection();\\n\
-            selection.removeAllRanges();\\n\
-            selection.addRange(range);\\n\
-            event.preventDefault();\\n\
-        }\\n\
-    };\\n\
-    document.addEventListener(\"keydown\", window.domOnEventSelectAllWithinPre);\\n\
-}());\\n\
-</script>\\n\
-<h1>\\n\
-<!-- utility2-comment\\n\
-    <a\\n\
-        {{#if env.npm_package_homepage}}\\n\
-        href=\"{{env.npm_package_homepage}}\"\\n\
-        {{/if env.npm_package_homepage}}\\n\
-        target=\"_blank\"\\n\
-    >\\n\
-utility2-comment -->\\n\
-        {{env.npm_package_name}} ({{env.npm_package_version}})\\n\
-<!-- utility2-comment\\n\
-    </a>\\n\
-utility2-comment -->\\n\
-</h1>\\n\
-<h3>{{env.npm_package_description}}</h3>\\n\
-<!-- utility2-comment\\n\
-<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\\n\
-<button class=\"button onclick onreset\" id=\"testRunButton2\">run internal test</button><br>\\n\
-utility2-comment -->\\n\
-\\n\
-\\n\
-\\n\
-<label>edit or paste script below to cover and test</label>\\n\
-<textarea class=\"oneval onkeyup onreset\" id=\"inputTextareaEval1\">\\n\
-// remove comment below to disable jslint\\n\
-/*jslint\\n\
-    browser: true,\\n\
-    es6: true\\n\
-*/\\n\
-/*global window*/\\n\
-(function () {\\n\
-    \"use strict\";\\n\
-    var testCaseDict;\\n\
-    testCaseDict = {};\\n\
-    testCaseDict.modeTest = true;\\n\
-\\n\
-    // comment this testCase to disable the failed assertion demo\\n\
-    testCaseDict.testCase_failed_assertion_demo = function (options, onError) {\\n\
-    /*\\n\
-     * this function will demo a failed assertion test\\n\
-     */\\n\
-        // jslint-hack\\n\
-        window.utility2.nop(options);\\n\
-        window.utility2.assert(false, \"this is a failed assertion demo\");\\n\
-        onError();\\n\
-    };\\n\
-\\n\
-    testCaseDict.testCase_passed_ajax_demo = function (options, onError) {\\n\
-    /*\\n\
-     * this function will demo a passed ajax test\\n\
-     */\\n\
-        var data;\\n\
-        options = {url: \"/\"};\\n\
-        // test ajax request for main-page \"/\"\\n\
-        window.utility2.ajax(options, function (error, xhr) {\\n\
-            try {\\n\
-                // validate no error occurred\\n\
-                window.utility2.assert(!error, error);\\n\
-                // validate \"200 ok\" status\\n\
-                window.utility2.assert(xhr.statusCode === 200, xhr.statusCode);\\n\
-                // validate non-empty data\\n\
-                data = xhr.responseText;\\n\
-                window.utility2.assert(data && data.length > 0, data);\\n\
-                onError();\\n\
-            } catch (errorCaught) {\\n\
-                onError(errorCaught);\\n\
-            }\\n\
-        });\\n\
-    };\\n\
-\\n\
-    window.utility2.testRunDefault(testCaseDict);\\n\
-}());\\n\
-</textarea>\\n\
-<pre id=\"outputPreJsonStringify1\" tabindex=\"0\"></pre>\\n\
-<pre class= \"colorError\" id=\"outputPreJslint1\" tabindex=\"0\"></pre>\\n\
-<label>instrumented-code</label>\\n\
-<textarea class=\"resettable\" id=\"outputTextarea1\" readonly></textarea>\\n\
-<label>stderr and stdout</label>\\n\
-<textarea class=\"resettable\" id=\"outputStdoutTextarea1\" readonly></textarea>\\n\
-<div class=\"resettable\" id=\"testReportDiv1\"></div>\\n\
-<div class=\"resettable\" id=\"coverageReportDiv1\"></div>\\n\
-<!-- utility2-comment\\n\
-{{#if isRollup}}\\n\
-<script src=\"assets.app.js\"></script>\\n\
-{{#unless isRollup}}\\n\
-utility2-comment -->\\n\
-<script src=\"assets.utility2.lib.istanbul.js\"></script>\\n\
-<script src=\"assets.utility2.lib.jslint.js\"></script>\\n\
-<script src=\"assets.utility2.lib.db.js\"></script>\\n\
-<script src=\"assets.utility2.lib.marked.js\"></script>\\n\
-<script src=\"assets.utility2.lib.sjcl.js\"></script>\\n\
-<script src=\"assets.utility2.lib.uglifyjs.js\"></script>\\n\
-<script src=\"assets.utility2.js\"></script>\\n\
-<script>window.utility2.onResetBefore.counter += 1;</script>\\n\
-<script src=\"jsonp.utility2.stateInit?callback=window.utility2.stateInit\"></script>\\n\
-<script src=\"assets.example.js\"></script>\\n\
-<script src=\"assets.test.js\"></script>\\n\
-<script>window.utility2.onResetBefore();</script>\\n\
-<!-- utility2-comment\\n\
-{{/if isRollup}}\\n\
-utility2-comment -->\\n\
-<div class=\"utility2FooterDiv\">\\n\
-    [ this app was created with\\n\
-    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\\n\
-    ]\\n\
-</div>\\n\
-</body>\\n\
-</html>\\n\
+<!doctype html>\\n\\\n\
+<html lang=\"en\">\\n\\\n\
+<head>\\n\\\n\
+<meta charset=\"utf-8\">\\n\\\n\
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\\n\\\n\
+<!-- \"assets.utility2.template.html\" -->\\n\\\n\
+<title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\\n\\\n\
+<style>\\n\\\n\
+/* jslint-utility2 */\\n\\\n\
+/*csslint\\n\\\n\
+*/\\n\\\n\
+/* jslint-ignore-begin */\\n\\\n\
+*,\\n\\\n\
+*:after,\\n\\\n\
+*:before {\\n\\\n\
+    box-sizing: border-box;\\n\\\n\
+}\\n\\\n\
+/* jslint-ignore-end */\\n\\\n\
+@keyframes uiAnimateShake {\\n\\\n\
+    0%, 50% {\\n\\\n\
+        transform: translateX(10px);\\n\\\n\
+    }\\n\\\n\
+    25%, 75% {\\n\\\n\
+        transform: translateX(-10px);\\n\\\n\
+    }\\n\\\n\
+    100% {\\n\\\n\
+        transform: translateX(0);\\n\\\n\
+    }\\n\\\n\
+}\\n\\\n\
+@keyframes uiAnimateSpin {\\n\\\n\
+    0% {\\n\\\n\
+        transform: rotate(0deg);\\n\\\n\
+    }\\n\\\n\
+    100% {\\n\\\n\
+        transform: rotate(360deg);\\n\\\n\
+    }\\n\\\n\
+}\\n\\\n\
+a {\\n\\\n\
+    overflow-wrap: break-word;\\n\\\n\
+}\\n\\\n\
+body {\\n\\\n\
+    background: #eef;\\n\\\n\
+    font-family: Arial, Helvetica, sans-serif;\\n\\\n\
+    margin: 0 40px;\\n\\\n\
+}\\n\\\n\
+body > div,\\n\\\n\
+body > form > div,\\n\\\n\
+body > form > input,\\n\\\n\
+body > form > pre,\\n\\\n\
+body > form > textarea,\\n\\\n\
+body > form > .button,\\n\\\n\
+body > input,\\n\\\n\
+body > pre,\\n\\\n\
+body > textarea,\\n\\\n\
+body > .button {\\n\\\n\
+    margin-bottom: 20px;\\n\\\n\
+}\\n\\\n\
+body > form > input,\\n\\\n\
+body > form > .button,\\n\\\n\
+body > input,\\n\\\n\
+body > .button {\\n\\\n\
+    width: 20rem;\\n\\\n\
+}\\n\\\n\
+body > form > textarea,\\n\\\n\
+body > textarea {\\n\\\n\
+    height: 10rem;\\n\\\n\
+    width: 100%;\\n\\\n\
+}\\n\\\n\
+body > textarea[readonly] {\\n\\\n\
+    background: #ddd;\\n\\\n\
+}\\n\\\n\
+code,\\n\\\n\
+pre,\\n\\\n\
+textarea {\\n\\\n\
+    font-family: Consolas, Menlo, monospace;\\n\\\n\
+    font-size: small;\\n\\\n\
+}\\n\\\n\
+pre {\\n\\\n\
+    overflow-wrap: break-word;\\n\\\n\
+    white-space: pre-wrap;\\n\\\n\
+}\\n\\\n\
+textarea {\\n\\\n\
+    overflow: auto;\\n\\\n\
+    white-space: pre;\\n\\\n\
+}\\n\\\n\
+.button {\\n\\\n\
+    background-color: #fff;\\n\\\n\
+    border: 1px solid;\\n\\\n\
+    border-bottom-color: rgb(186, 186, 186);\\n\\\n\
+    border-left-color: rgb(209, 209, 209);\\n\\\n\
+    border-radius: 4px;\\n\\\n\
+    border-right-color: rgb(209, 209, 209);\\n\\\n\
+    border-top-color: rgb(216, 216, 216);\\n\\\n\
+    color: #00d;\\n\\\n\
+    cursor: pointer;\\n\\\n\
+    display: inline-block;\\n\\\n\
+    font-family: Arial, Helvetica, sans-serif;\\n\\\n\
+    font-size: 12px;\\n\\\n\
+    font-style: normal;\\n\\\n\
+    font-weight: normal;\\n\\\n\
+    margin: 0;\\n\\\n\
+    padding: 2px 7px 3px 7px;\\n\\\n\
+    text-align: center;\\n\\\n\
+    text-decoration: underline;\\n\\\n\
+}\\n\\\n\
+.colorError {\\n\\\n\
+    color: #d00;\\n\\\n\
+}\\n\\\n\
+.uiAnimateShake {\\n\\\n\
+    animation-duration: 500ms;\\n\\\n\
+    animation-name: uiAnimateShake;\\n\\\n\
+}\\n\\\n\
+.uiAnimateSlide {\\n\\\n\
+    overflow-y: hidden;\\n\\\n\
+    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\\n\\\n\
+}\\n\\\n\
+.utility2FooterDiv {\\n\\\n\
+    text-align: center;\\n\\\n\
+}\\n\\\n\
+.zeroPixel {\\n\\\n\
+    border: 0;\\n\\\n\
+    height: 0;\\n\\\n\
+    margin: 0;\\n\\\n\
+    padding: 0;\\n\\\n\
+    width: 0;\\n\\\n\
+}\\n\\\n\
+</style>\\n\\\n\
+</head>\\n\\\n\
+<body>\\n\\\n\
+<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\\n\\\n\
+<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\\n\\\n\
+<a class=\"zeroPixel\" download=\"db.persistence.json\" href=\"\" id=\"dbExportA1\"></a>\\n\\\n\
+<input class=\"zeroPixel\" id=\"dbImportInput1\" type=\"file\">\\n\\\n\
+<script>\\n\\\n\
+/* jslint-utility2 */\\n\\\n\
+/*jslint\\n\\\n\
+    bitwise: true,\\n\\\n\
+    browser: true,\\n\\\n\
+    maxerr: 4,\\n\\\n\
+    maxlen: 100,\\n\\\n\
+    node: true,\\n\\\n\
+    nomen: true,\\n\\\n\
+    regexp: true,\\n\\\n\
+    stupid: true\\n\\\n\
+*/\\n\\\n\
+// init domOnEventWindowOnloadTimeElapsed\\n\\\n\
+(function () {\\n\\\n\
+/*\\n\\\n\
+ * this function will measure and print the time-elapsed for window.onload\\n\\\n\
+ */\\n\\\n\
+    \"use strict\";\\n\\\n\
+    if (window.domOnEventWindowOnloadTimeElapsed) {\\n\\\n\
+        return;\\n\\\n\
+    }\\n\\\n\
+    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\\n\\\n\
+    window.addEventListener(\"load\", function () {\\n\\\n\
+        setTimeout(function () {\\n\\\n\
+            window.domOnEventWindowOnloadTimeElapsed = Date.now() -\\n\\\n\
+                window.domOnEventWindowOnloadTimeElapsed;\\n\\\n\
+            console.error(\"domOnEventWindowOnloadTimeElapsed = \" +\\n\\\n\
+                window.domOnEventWindowOnloadTimeElapsed);\\n\\\n\
+        }, 100);\\n\\\n\
+    });\\n\\\n\
+}());\\n\\\n\
+// init timerIntervalAjaxProgressUpdate\\n\\\n\
+(function () {\\n\\\n\
+/*\\n\\\n\
+ * this function will increment the ajax-progress-bar until the webpage has loaded\\n\\\n\
+ */\\n\\\n\
+    \"use strict\";\\n\\\n\
+    var ajaxProgressDiv1,\\n\\\n\
+        ajaxProgressState,\\n\\\n\
+        ajaxProgressUpdate;\\n\\\n\
+    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector(\"#ajaxProgressDiv1\")) {\\n\\\n\
+        return;\\n\\\n\
+    }\\n\\\n\
+    ajaxProgressDiv1 = document.querySelector(\"#ajaxProgressDiv1\");\\n\\\n\
+    setTimeout(function () {\\n\\\n\
+        ajaxProgressDiv1.style.width = \"25%\";\\n\\\n\
+    });\\n\\\n\
+    ajaxProgressState = 0;\\n\\\n\
+    ajaxProgressUpdate = (window.local &&\\n\\\n\
+        window.local.ajaxProgressUpdate) || function () {\\n\\\n\
+        ajaxProgressDiv1.style.width = \"100%\";\\n\\\n\
+        setTimeout(function () {\\n\\\n\
+            ajaxProgressDiv1.style.background = \"transparent\";\\n\\\n\
+            setTimeout(function () {\\n\\\n\
+                ajaxProgressDiv1.style.width = \"0%\";\\n\\\n\
+            }, 500);\\n\\\n\
+        }, 1500);\\n\\\n\
+    };\\n\\\n\
+    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\\n\\\n\
+        ajaxProgressState += 1;\\n\\\n\
+        ajaxProgressDiv1.style.width = Math.max(\\n\\\n\
+            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\\n\\\n\
+            ajaxProgressDiv1.style.width.slice(0, -1) | 0\\n\\\n\
+        ) + \"%\";\\n\\\n\
+    }, 1000);\\n\\\n\
+    window.addEventListener(\"load\", function () {\\n\\\n\
+        clearInterval(window.timerIntervalAjaxProgressUpdate);\\n\\\n\
+        ajaxProgressUpdate();\\n\\\n\
+    });\\n\\\n\
+}());\\n\\\n\
+// init domOnEventSelectAllWithinPre\\n\\\n\
+(function () {\\n\\\n\
+/*\\n\\\n\
+ * this function will limit select-all within <pre tabIndex=\"0\"> elements\\n\\\n\
+ * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\\n\\\n\
+ */\\n\\\n\
+    \"use strict\";\\n\\\n\
+    if (window.domOnEventSelectAllWithinPre) {\\n\\\n\
+        return;\\n\\\n\
+    }\\n\\\n\
+    window.domOnEventSelectAllWithinPre = function (event) {\\n\\\n\
+        var range, selection;\\n\\\n\
+        if (event &&\\n\\\n\
+                event.key === \"a\" &&\\n\\\n\
+                (event.ctrlKey || event.metaKey) &&\\n\\\n\
+                event.target.closest(\"pre\")) {\\n\\\n\
+            range = document.createRange();\\n\\\n\
+            range.selectNodeContents(event.target.closest(\"pre\"));\\n\\\n\
+            selection = window.getSelection();\\n\\\n\
+            selection.removeAllRanges();\\n\\\n\
+            selection.addRange(range);\\n\\\n\
+            event.preventDefault();\\n\\\n\
+        }\\n\\\n\
+    };\\n\\\n\
+    document.addEventListener(\"keydown\", window.domOnEventSelectAllWithinPre);\\n\\\n\
+}());\\n\\\n\
+</script>\\n\\\n\
+<h1>\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+    <a\\n\\\n\
+        {{#if env.npm_package_homepage}}\\n\\\n\
+        href=\"{{env.npm_package_homepage}}\"\\n\\\n\
+        {{/if env.npm_package_homepage}}\\n\\\n\
+        target=\"_blank\"\\n\\\n\
+    >\\n\\\n\
+utility2-comment -->\\n\\\n\
+        {{env.npm_package_name}} ({{env.npm_package_version}})\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+    </a>\\n\\\n\
+utility2-comment -->\\n\\\n\
+</h1>\\n\\\n\
+<h3>{{env.npm_package_description}}</h3>\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\\n\\\n\
+<button class=\"zeroPixel\" id=\"testRunButton1\"></button>\\n\\\n\
+<button class=\"button onclick onreset\" id=\"testRunButton2\">run internal test</button><br>\\n\\\n\
+utility2-comment -->\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+<label>edit or paste script below to cover and test</label>\\n\\\n\
+<textarea class=\"oneval onkeyup onreset\" id=\"inputTextareaEval1\">\\n\\\n\
+// remove comment below to disable jslint\\n\\\n\
+/*jslint\\n\\\n\
+    browser: true,\\n\\\n\
+    es6: true\\n\\\n\
+*/\\n\\\n\
+/*global window*/\\n\\\n\
+(function () {\\n\\\n\
+    \"use strict\";\\n\\\n\
+    var testCaseDict;\\n\\\n\
+    testCaseDict = {};\\n\\\n\
+    testCaseDict.modeTest = 1;\\n\\\n\
+\\n\\\n\
+    // comment this testCase to disable the failed assertion demo\\n\\\n\
+    testCaseDict.testCase_failed_assertion_demo = function (options, onError) {\\n\\\n\
+    /*\\n\\\n\
+     * this function will demo a failed assertion test\\n\\\n\
+     */\\n\\\n\
+        // jslint-hack\\n\\\n\
+        window.utility2.nop(options);\\n\\\n\
+        window.utility2.assert(false, \"this is a failed assertion demo\");\\n\\\n\
+        onError();\\n\\\n\
+    };\\n\\\n\
+\\n\\\n\
+    testCaseDict.testCase_passed_ajax_demo = function (options, onError) {\\n\\\n\
+    /*\\n\\\n\
+     * this function will demo a passed ajax test\\n\\\n\
+     */\\n\\\n\
+        var data;\\n\\\n\
+        options = {url: \"/\"};\\n\\\n\
+        // test ajax request for main-page \"/\"\\n\\\n\
+        window.utility2.ajax(options, function (error, xhr) {\\n\\\n\
+            try {\\n\\\n\
+                // validate no error occurred\\n\\\n\
+                window.utility2.assert(!error, error);\\n\\\n\
+                // validate \"200 ok\" status\\n\\\n\
+                window.utility2.assert(xhr.statusCode === 200, xhr.statusCode);\\n\\\n\
+                // validate non-empty data\\n\\\n\
+                data = xhr.responseText;\\n\\\n\
+                window.utility2.assert(data && data.length > 0, data);\\n\\\n\
+                onError();\\n\\\n\
+            } catch (errorCaught) {\\n\\\n\
+                onError(errorCaught);\\n\\\n\
+            }\\n\\\n\
+        });\\n\\\n\
+    };\\n\\\n\
+\\n\\\n\
+    window.utility2.testRunDefault(testCaseDict);\\n\\\n\
+}());\\n\\\n\
+</textarea>\\n\\\n\
+<pre id=\"outputJsonStringifyPre1\" tabindex=\"0\"></pre>\\n\\\n\
+<pre class= \"colorError\" id=\"outputJslintPre1\" tabindex=\"0\"></pre>\\n\\\n\
+<label>instrumented-code</label>\\n\\\n\
+<textarea class=\"resettable\" id=\"outputTextarea1\" readonly></textarea>\\n\\\n\
+<label>stderr and stdout</label>\\n\\\n\
+<textarea class=\"resettable\" id=\"outputStdoutTextarea1\" readonly></textarea>\\n\\\n\
+<div class=\"resettable\" id=\"testReportDiv1\"></div>\\n\\\n\
+<div class=\"resettable\" id=\"coverageReportDiv1\"></div>\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+{{#if isRollup}}\\n\\\n\
+<script src=\"assets.app.js\"></script>\\n\\\n\
+{{#unless isRollup}}\\n\\\n\
+utility2-comment -->\\n\\\n\
+<script src=\"assets.utility2.lib.istanbul.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.jslint.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.db.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.marked.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.sjcl.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.uglifyjs.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.js\"></script>\\n\\\n\
+<script>window.utility2_onReadyBefore.counter += 1;</script>\\n\\\n\
+<script src=\"jsonp.utility2.stateInit?callback=window.utility2.stateInit\"></script>\\n\\\n\
+<script src=\"assets.example.js\"></script>\\n\\\n\
+<script src=\"assets.test.js\"></script>\\n\\\n\
+<script>window.utility2_onReadyBefore();</script>\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+{{/if isRollup}}\\n\\\n\
+utility2-comment -->\\n\\\n\
+<div class=\"utility2FooterDiv\">\\n\\\n\
+    [ this app was created with\\n\\\n\
+    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\\n\\\n\
+    ]\\n\\\n\
+</div>\\n\\\n\
+</body>\\n\\\n\
+</html>\\n\\\n\
 ';\n\
         /* jslint-ignore-end */\n\
         /* validateLineSortedReset */\n\
@@ -30278,6 +30235,7 @@ textarea {\n\
 <h3>the zero-dependency, swiss-army-knife utility for building, testing, and deploying webapps</h3>\n\
 \n\
 <a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\n\
+<button class=\"zeroPixel\" id=\"testRunButton1\"></button>\n\
 <button class=\"button onclick onreset\" id=\"testRunButton2\">run internal test</button><br>\n\
 \n\
 \n\
@@ -30295,7 +30253,7 @@ textarea {\n\
     \"use strict\";\n\
     var testCaseDict;\n\
     testCaseDict = {};\n\
-    testCaseDict.modeTest = true;\n\
+    testCaseDict.modeTest = 1;\n\
 \n\
     // comment this testCase to disable the failed assertion demo\n\
     testCaseDict.testCase_failed_assertion_demo = function (options, onError) {\n\
@@ -30334,8 +30292,8 @@ textarea {\n\
     window.utility2.testRunDefault(testCaseDict);\n\
 }());\n\
 </textarea>\n\
-<pre id=\"outputPreJsonStringify1\" tabindex=\"0\"></pre>\n\
-<pre class= \"colorError\" id=\"outputPreJslint1\" tabindex=\"0\"></pre>\n\
+<pre id=\"outputJsonStringifyPre1\" tabindex=\"0\"></pre>\n\
+<pre class= \"colorError\" id=\"outputJslintPre1\" tabindex=\"0\"></pre>\n\
 <label>instrumented-code</label>\n\
 <textarea class=\"resettable\" id=\"outputTextarea1\" readonly></textarea>\n\
 <label>stderr and stdout</label>\n\
@@ -30406,7 +30364,7 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
         local = local.global.local = (local.global.utility2 ||\n\
             require('./lib.utility2.js')).requireReadme();\n\
         // init test\n\
-        local.testRunInit(local);\n\
+        local.testRunDefault(local);\n\
     }());\n\
 \n\
 \n\
@@ -30423,6 +30381,8 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
             onError(null, options);\n\
             // test failure from ajax handling-behavior\n\
             local.ajax({ url: '/undefined' }, onError);\n\
+            // test failure from uncaught-uncaughtexception handling-behavior\n\
+            setTimeout(local.throwError);\n\
             // test failure from thrown error handling-behavior\n\
             throw local.errorDefault;\n\
         };\n\
@@ -30449,30 +30409,17 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
                 local.assert(!error, error);\n\
                 // validate responseText\n\
                 local.assert(xhr.responseText.indexOf(\n\
-                    '\\r\\n\
-Content-Disposition: form-data; ' +\n\
-                        'name=\"text1\"\\r\\n\
-\\r\\n\
-aabb\\u1234 0\\r\\n\
-'\n\
+                    '\\r\\nContent-Disposition: form-data; ' +\n\
+                        'name=\"text1\"\\r\\n\\r\\naabb\\u1234 0\\r\\n'\n\
                 ) >= 0, xhr.responseText);\n\
                 local.assert(xhr.responseText.indexOf(\n\
-                    '\\r\\n\
-Content-Disposition: form-data; ' +\n\
-                        'name=\"file1\"\\r\\n\
-\\r\\n\
-aabb\\u1234 0\\r\\n\
-'\n\
+                    '\\r\\nContent-Disposition: form-data; ' +\n\
+                        'name=\"file1\"\\r\\n\\r\\naabb\\u1234 0\\r\\n'\n\
                 ) >= 0, xhr.responseText);\n\
                 local.assert(xhr.responseText.indexOf(\n\
-                    '\\r\\n\
-Content-Disposition: form-data; name=\"file2\"; ' +\n\
-                        'filename=\"filename2.txt\"\\r\\n\
-Content-Type: text/plain; ' +\n\
-                        'charset=utf-8\\r\\n\
-\\r\\n\
-aabb\\u1234 0\\r\\n\
-'\n\
+                    '\\r\\nContent-Disposition: form-data; name=\"file2\"; ' +\n\
+                        'filename=\"filename2.txt\"\\r\\nContent-Type: text/plain; ' +\n\
+                        'charset=utf-8\\r\\n\\r\\naabb\\u1234 0\\r\\n'\n\
                 ) >= 0, xhr.responseText);\n\
                 onError(null, options);\n\
             });\n\
@@ -30511,9 +30458,7 @@ aabb\\u1234 0\\r\\n\
                 // validate no error occurred\n\
                 local.assert(!error, error);\n\
                 // validate responseText\n\
-                local.assert((/\\r\\n\
-\\r\\n\
-$/).test(xhr.responseText), xhr.responseText);\n\
+                local.assert((/\\r\\n\\r\\n$/).test(xhr.responseText), xhr.responseText);\n\
                 onError(null, options);\n\
             });\n\
         };\n\
@@ -30581,8 +30526,8 @@ $/).test(xhr.responseText), xhr.responseText);\n\
                     break;\n\
                 case 2:\n\
                     // validate responseText\n\
-                    local.assertJsonEqual(data.responseText, 'hello\\n\
-');\n\
+                    /* jslint-ignore-next-line */\n\
+                    local.assertJsonEqual(data.responseText, 'hello\\ud83d\\udc4b\\u0020\\n');\n\
                     // test http GET 304 cache handling-behavior\n\
                     local.ajax({\n\
                         headers: {\n\
@@ -30620,12 +30565,9 @@ $/).test(xhr.responseText), xhr.responseText);\n\
                 // validate statusCode\n\
                 local.assertJsonEqual(xhr.statusCode, 200);\n\
                 // validate response\n\
-                local.assert((/\\r\\n\
-aa$/).test(xhr.responseText), xhr.responseText);\n\
+                local.assert((/\\r\\naa$/).test(xhr.responseText), xhr.responseText);\n\
                 local.assert(\n\
-                    (/\\r\\n\
-x-request-header-test: aa\\r\\n\
-/).test(xhr.responseText),\n\
+                    (/\\r\\nx-request-header-test: aa\\r\\n/).test(xhr.responseText),\n\
                     xhr.responseText\n\
                 );\n\
                 // validate responseHeaders\n\
@@ -30723,7 +30665,6 @@ x-request-header-test: aa\\r\\n\
         /*\n\
          * this function will test ajax's responseType handling-behavior\n\
          */\n\
-            options = {};\n\
             // test /test.body handling-behavior\n\
             local.onParallelList({ list: [\n\
                 '',\n\
@@ -30735,7 +30676,7 @@ x-request-header-test: aa\\r\\n\
                 local.ajax({\n\
                     // test nodejs response handling-behavior\n\
                     responseType: responseType,\n\
-                    url: '/assets.hello'\n\
+                    url: 'assets.hello'\n\
                 }, function (error, xhr) {\n\
                     // validate no error occurred\n\
                     local.assert(!error, error);\n\
@@ -30744,17 +30685,23 @@ x-request-header-test: aa\\r\\n\
                     // validate responseText\n\
                     switch (responseType) {\n\
                     case 'arraybuffer':\n\
-                        local.assertJsonEqual(xhr.responseBuffer.byteLength, 6);\n\
-                        local.assertJsonEqual(xhr.responseBuffer[0], 104);\n\
-                        local.assertJsonEqual(xhr.responseBuffer[1], 101);\n\
-                        local.assertJsonEqual(xhr.responseBuffer[2], 108);\n\
-                        local.assertJsonEqual(xhr.responseBuffer[3], 108);\n\
-                        local.assertJsonEqual(xhr.responseBuffer[4], 111);\n\
-                        local.assertJsonEqual(xhr.responseBuffer[5], 10);\n\
+                        local.assertJsonEqual(xhr.responseBuffer.byteLength, 11);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[0], 0x68);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[1], 0x65);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[2], 0x6c);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[3], 0x6c);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[4], 0x6f);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[5], 0xf0);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[6], 0x9f);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[7], 0x91);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[8], 0x8b);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[9], 0x20);\n\
+                        local.assertJsonEqual(xhr.responseBuffer[10], 0x0a);\n\
                         break;\n\
                     default:\n\
-                        local.assertJsonEqual(xhr.responseText, 'hello\\n\
-');\n\
+                        /* jslint-ignore-next-line */\n\
+                        local.assertJsonEqual(xhr.responseText, 'hello\\ud83d\\udc4b\\u0020\\n');\n\
+                        break;\n\
                     }\n\
                     onParallel(null, options);\n\
                 });\n\
@@ -30768,15 +30715,7 @@ x-request-header-test: aa\\r\\n\
             var onParallel;\n\
             onParallel = local.onParallel(onError);\n\
             local.testMock([\n\
-                [local, {\n\
-                    _http: null,\n\
-                    ajaxProgressCounter: null,\n\
-                    ajaxProgressUpdate: null,\n\
-                    bufferToString: null,\n\
-                    onErrorWithStack: null,\n\
-                    serverLocalUrlTest: null,\n\
-                    timeoutDefault: null\n\
-                }]\n\
+                [local, { utility2: null }]\n\
             ], function (onError) {\n\
                 // test default handling-behavior\n\
                 onParallel.counter += 1;\n\
@@ -30968,82 +30907,88 @@ x-request-header-test: aa\\r\\n\
         /*\n\
          * this function will test browserTest's electron handling-behavior\n\
          */\n\
-            if (local.isBrowser) {\n\
-                onError(null, options);\n\
-                return;\n\
-            }\n\
-            options = function (arg0, arg1, arg2) {\n\
-                // test onParallel handling-behavior\n\
-                if (typeof arg0 === 'function') {\n\
-                    arg0();\n\
-                }\n\
-                // test on handling-behavior\n\
-                if (typeof arg1 === 'function') {\n\
-                    arg1(options, '');\n\
-                    arg1(options, 'undefined');\n\
-                    arg1(options, 'undefined opened');\n\
-                }\n\
-                // test fs.writeFile handling-behavior\n\
-                if (typeof arg2 === 'function') {\n\
-                    arg2();\n\
-                }\n\
+            options = function (arg0, arg1, arg3) {\n\
+                [arg0, arg1, arg3].forEach(function (fnc, ii) {\n\
+                    if (typeof fnc === 'function') {\n\
+                        fnc(ii && options);\n\
+                        options.onNext(null, options);\n\
+                        options.utility2_testReportSave();\n\
+                    }\n\
+                });\n\
                 return options;\n\
             };\n\
-            options.BrowserWindow = options;\n\
-            options.addEventListener = options;\n\
-            options.app = options;\n\
-            options.capturePage = options;\n\
-            options.documentElement = options;\n\
-            options.fileScreenshot = '';\n\
-            options.loadURL = options;\n\
-            options.modeCoverageMerge = '1';\n\
-            options.on = options;\n\
-            options.once = options;\n\
-            options.outerHTML = '';\n\
-            options.prototype = options;\n\
-            options.querySelector = options;\n\
-            options.toPng = options;\n\
-            options.unref = options;\n\
-            options.utility2_document = options;\n\
-            options.utility2_require = options;\n\
-            options.utility2_window = options;\n\
-            options.writeFile = options;\n\
-            options.writeFileSync = options;\n\
+            [\n\
+                'BrowserWindow',\n\
+                'addEventListener',\n\
+                'app',\n\
+                'browserWindow',\n\
+                'capturePage',\n\
+                'document',\n\
+                'documentElement',\n\
+                'electron',\n\
+                'fileCoverage',\n\
+                'fileElectronHtml',\n\
+                'fileScreenshot',\n\
+                'fileTestReport',\n\
+                'fs',\n\
+                'ipcRenderer',\n\
+                'loadURL',\n\
+                'modeCoverageMerge',\n\
+                'on',\n\
+                'once',\n\
+                'process',\n\
+                'prototype',\n\
+                'send',\n\
+                'toPNG',\n\
+                'unlink',\n\
+                'unref',\n\
+                'window',\n\
+                'writeFile'\n\
+            ].forEach(function (key) {\n\
+                options[key] = key.indexOf('file') === 0\n\
+                    ? 'undefined'\n\
+                    : options;\n\
+            });\n\
+            options.ipcMain = { on: function (_, fnc) {\n\
+                ['html', 'testReport', 'undefined'].forEach(function (type) {\n\
+                    [\n\
+                        '<div></div>',\n\
+                        null,\n\
+                        {},\n\
+                        { testPlatformList: [{}] },\n\
+                        { coverage: {}, testPlatformList: [{}] }\n\
+                    ].forEach(function (data) {\n\
+                        fnc(_, type, data);\n\
+                    });\n\
+                });\n\
+            } };\n\
+            options.utility2_testReportSave = local.nop;\n\
             local.testMock([\n\
-                [local.global, { clearTimeout: options, setTimeout: options, window: {\n\
-                    addEventListener: function (_, fnc) {\n\
-                        fnc(_);\n\
-                    }\n\
-                } }],\n\
-                [process.versions, { electron: true }],\n\
-                [local, { fs: options, onParallel: options }]\n\
+                [local.global, {\n\
+                    setTimeout: options,\n\
+                    utility2_testReport: null\n\
+                }],\n\
+                [local, {\n\
+                    fs: options,\n\
+                    fsReadFileOrEmptyStringSync: function () {\n\
+                        return '';\n\
+                    },\n\
+                    fsWriteFileWithMkdirpSync: options,\n\
+                    onParallel: options\n\
+                }]\n\
             ], function (onError) {\n\
                 ['test', 'undefined'].forEach(function (modeBrowserTest) {\n\
-                    [1, 10, 20, 21, 30].forEach(function (modeNext) {\n\
+                    [1, 10, 11, 20, 100].forEach(function (modeNext) {\n\
+                        options.modeBrowserTest = modeBrowserTest;\n\
+                        options.modeNext = modeNext;\n\
                         switch (modeNext) {\n\
-                        case 21:\n\
-                            [\n\
-                                '',\n\
-                                'undefined global_test_results {\"global_test_results\":{}}',\n\
-                                'undefined global_test_results {\"global_test_results\":{' +\n\
-                                    '\"testReport\":{\"testPlatformList\":[{}]}' +\n\
-                                    '}}',\n\
-                                'undefined global_test_results {\"global_test_results\":{' +\n\
-                                    '\"coverage\":{},' +\n\
-                                    '\"testReport\":{\"testPlatformList\":[{}]}' +\n\
-                                    '}}',\n\
-                                'undefined html '\n\
-                            ].forEach(function (message) {\n\
-                                options.message = message;\n\
-                                options.modeBrowserTest = modeBrowserTest;\n\
-                                options.modeNext = modeNext;\n\
-                                local.browserTest(options, local.nop);\n\
-                            });\n\
+                        case 100:\n\
+                            local.tryCatchOnError(function () {\n\
+                                local.browserTest({ modeNext: modeNext }, options);\n\
+                            }, local.nop);\n\
                             break;\n\
                         default:\n\
-                            options.modeBrowserTest = modeBrowserTest;\n\
-                            options.modeNext = modeNext;\n\
-                            local.browserTest(options, local.nop);\n\
+                            local.browserTest(options, options);\n\
                         }\n\
                     });\n\
                 });\n\
@@ -31129,7 +31074,6 @@ x-request-header-test: aa\\r\\n\
                 onError(null, options);\n\
                 return;\n\
             }\n\
-            options = {};\n\
             // test $npm_config_mode_coverage=all handling-behavior\n\
             local.testMock([\n\
                 [local.env, { npm_config_mode_coverage: 'all' }]\n\
@@ -31140,9 +31084,9 @@ x-request-header-test: aa\\r\\n\
             local.testMock([\n\
                 [local.env, { npm_package_buildCustomOrg: 'electron-lite' }]\n\
             ], function (onError) {\n\
-                local.buildApidoc(options, onError);\n\
+                local.buildApidoc({}, onError);\n\
             }, local.onErrorThrow);\n\
-            local.buildApidoc({ blacklistDict: options }, onError);\n\
+            local.buildApidoc({ blacklistDict: {} }, onError);\n\
         };\n\
 \n\
         local.testCase_buildApp_default = function (options, onError) {\n\
@@ -31227,8 +31171,24 @@ x-request-header-test: aa\\r\\n\
                 onError(null, options);\n\
                 return;\n\
             }\n\
-            options = {};\n\
             local.testMock([\n\
+                [local, {\n\
+                    // test duplicate local function handling-behavior\n\
+                    fsReadFileOrEmptyStringSync: function () {\n\
+                        return '        local.nop = function () {\\n' +\n\
+                            '        /*\\n' +\n\
+                            '         * this function will do nothing\\n' +\n\
+                            '         */\\n' +\n\
+                            '            return;\\n' +\n\
+                            '        };\\n' +\n\
+                            '        local.nop = function () {\\n' +\n\
+                            '        /*\\n' +\n\
+                            '         * this function will do nothing\\n' +\n\
+                            '         */\\n' +\n\
+                            '            return;\\n' +\n\
+                            '        };\\n';\n\
+                    }\n\
+                }],\n\
                 [local.fs, {\n\
                     // test customize-local handling-behavior\n\
                     existsSync: function () {\n\
@@ -31237,10 +31197,9 @@ x-request-header-test: aa\\r\\n\
                     writeFileSync: local.nop\n\
                 }]\n\
             ], function (onError) {\n\
-                local.buildLib(options, onError);\n\
+                local.buildLib({}, onError);\n\
             }, local.onErrorThrow);\n\
-            options = {};\n\
-            local.buildLib(options, onError);\n\
+            local.buildLib({}, onError);\n\
         };\n\
 \n\
         local.testCase_buildReadme_default = function (options, onError) {\n\
@@ -31256,12 +31215,12 @@ x-request-header-test: aa\\r\\n\
                 options.dataFrom = options.dataFrom\n\
                     // test shDeployCustom handling-behavior\n\
                     .replace('# shDeployCustom', '  shDeployCustom')\n\
-                    // test shNpmTestPublished handling-behavior\n\
-                    .replace('  shNpmTestPublished', '# shNpmTestPublished')\n\
                     // test no-assets.index.template.html handling-behavior\n\
                     .replace('assets.utility2.template.html', '');\n\
                 local.env.npm_package_isPrivate = '';\n\
             };\n\
+            options.dataFrom = local.fs.readFileSync('README.md', 'utf8')\n\
+                .replace('#\\!\\! shNpmTestPublished', 'shNpmTestPublished');\n\
             options.fsReadFileSync = local.fs.readFileSync;\n\
             local.testMock([\n\
                 [local.env, {\n\
@@ -31292,6 +31251,9 @@ x-request-header-test: aa\\r\\n\
                 local.buildReadme(options, onError);\n\
                 // test $npm_package_buildCustomOrg handling-behavior\n\
                 local.env.npm_package_buildCustomOrg = 'aa';\n\
+                options.dataFrom = options.dataFrom\n\
+                    // test shNpmTestPublished handling-behavior\n\
+                    .replace('  shNpmTestPublished', '# shNpmTestPublished');\n\
                 local.buildReadme(options, onError);\n\
                 onError(null, options);\n\
             }, local.onErrorThrow);\n\
@@ -31303,8 +31265,7 @@ x-request-header-test: aa\\r\\n\
                     (/# quickstart example.js[\\S\\s]*?istanbul instrument in package/),\n\
                     // customize quickstart-footer\n\
                     (/>download standalone app<[^`]*?\"utility2FooterDiv\"/),\n\
-                    (/```[^`]*?\\n\
-# extra screenshots/),\n\
+                    (/```[^`]*?\\n# extra screenshots/),\n\
                     // customize build-script\n\
                     (/# run shBuildCi[^`]*?```/)\n\
                 ].forEach(function (rgx) {\n\
@@ -31438,35 +31399,6 @@ x-request-header-test: aa\\r\\n\
             }, onError);\n\
         };\n\
 \n\
-        local.testCase_cookieXxx_default = function (options, onError) {\n\
-        /*\n\
-         * this function will test cookieXxx's default handling-behavior\n\
-         */\n\
-            if (!local.isBrowser) {\n\
-                onError(null, options);\n\
-                return;\n\
-            }\n\
-            // test cookieRemoveAll handling-behavior\n\
-            local.cookieRemoveAll();\n\
-            // validate data\n\
-            local.assertJsonEqual(local.cookieDict().aa, undefined);\n\
-            // test cookieSet handling-behavior\n\
-            local.cookieSet('aa', 'bb', 1000);\n\
-            // validate data\n\
-            local.assertJsonEqual(local.cookieDict().aa, 'bb');\n\
-            // test cookieRemove handling-behavior\n\
-            local.cookieRemove('aa');\n\
-            // validate data\n\
-            local.assertJsonEqual(local.cookieDict().aa, undefined);\n\
-            // test cookieSet handling-behavior\n\
-            local.cookieSet('aa', 'bb', 1000);\n\
-            // test cookieRemoveAll handling-behavior\n\
-            local.cookieRemoveAll();\n\
-            // validate data\n\
-            local.assertJsonEqual(local.cookieDict().aa, undefined);\n\
-            onError(null, options);\n\
-        };\n\
-\n\
         local.testCase_corsBackendHostInject_default = function (options, onError) {\n\
         /*\n\
          * this function will corsBackendHostInject's default handling-behavior\n\
@@ -31510,7 +31442,7 @@ x-request-header-test: aa\\r\\n\
          * this function will cryptoAesXxxCbcRawXxx's default handling-behavior\n\
          */\n\
             options = {};\n\
-            // bug-workaround - unavailable crypto.subtle\n\
+            // bug-workaround - electron's (< v2.0) cross-origin webview does not have crypto.subtle\n\
             setTimeout(function () {\n\
                 onError(null, options);\n\
                 onError = local.nop;\n\
@@ -31561,49 +31493,6 @@ x-request-header-test: aa\\r\\n\
             options.onNext();\n\
         };\n\
 \n\
-        local.testCase_dbTableCustomOrgXxx_default = function (options, onError) {\n\
-        /*\n\
-         * this function will test dbTableCustomOrgXxx's default handling-behavior\n\
-         */\n\
-            local.testMock([\n\
-                [local, {\n\
-                    ajax: function (options, onError) {\n\
-                        onError(null, {\n\
-                            responseText: JSON.stringify({\n\
-                                '@pagination': { count: 0 },\n\
-                                repositories: [{\n\
-                                    _id: '',\n\
-                                    name: 'node-aa-bb-cc',\n\
-                                    private: false,\n\
-                                    slug: 'aa/node-aa-bb-cc'\n\
-                                }]\n\
-                            })\n\
-                        }, options);\n\
-                    },\n\
-                    db: {\n\
-                        crudGetManyByQuery: local.nop,\n\
-                        crudRemoveManyByQuery: local.nop,\n\
-                        crudSetManyById: local.nop,\n\
-                        dbTableCreateOne: function (options, onError) {\n\
-                            (onError || local.nop)(null, local.db, options);\n\
-                            return local.db;\n\
-                        },\n\
-                        save: function (onError) {\n\
-                            onError(null, options);\n\
-                        }\n\
-                    },\n\
-                    setTimeoutOnError: function (onError, timeout, error) {\n\
-                        onError(error, timeout);\n\
-                    }\n\
-                }]\n\
-            ], function (onError) {\n\
-                local.dbTableCustomOrgUpdate({ customOrg: 'aa' }, local.onErrorThrow);\n\
-                local.dbTableCustomOrgCrudGetManyByQuery({});\n\
-                onError(null, options);\n\
-            }, local.onErrorThrow);\n\
-            onError(null, options);\n\
-        };\n\
-\n\
         local.testCase_domElementRender_default = function (options, onError) {\n\
         /*\n\
          * this function will test domElementRender's default handling-behavior\n\
@@ -31642,7 +31531,6 @@ x-request-header-test: aa\\r\\n\
         /*\n\
          * this function will exit's error handling-behavior\n\
          */\n\
-            // test invalid-exitCode handling-behavior\n\
             local.exit('invalid-exitCode');\n\
             onError(null, options);\n\
         };\n\
@@ -31699,8 +31587,7 @@ x-request-header-test: aa\\r\\n\
                 local.assert(!local.jslint.errorText, local.jslint.errorText);\n\
                 // test csslint passed handling-behavior\n\
                 local.jslintAndPrintConditional(\n\
-                    '/*csslint*/\\n\
-body { display: block; }',\n\
+                    '/*csslint*/\\nbody { display: block; }',\n\
                     'passed.css',\n\
                     'force'\n\
                 );\n\
@@ -31712,14 +31599,31 @@ body { display: block; }',\n\
                 local.assert(!local.jslint.errorText, local.jslint.errorText);\n\
                 // test jslint passed handling-behavior\n\
                 local.jslintAndPrintConditional(\n\
-                    '/*jslint node: true*/\\n\
-console.log(\"aa\");',\n\
+                    '/*jslint node: true*/\\nconsole.log(\"aa\");',\n\
                     'passed.js',\n\
                     'force'\n\
                 );\n\
                 // validate no error occurred\n\
                 local.assert(!local.jslint.errorText, local.jslint.errorText);\n\
                 onError(null, options);\n\
+                // test no shlint handling-behavior\n\
+                local.jslintAndPrintConditional('no shlint', 'empty.sh');\n\
+                // validate no error occurred\n\
+                local.assert(!local.jslint.errorText, local.jslint.errorText);\n\
+                // test shlint passed handling-behavior\n\
+                local.jslintAndPrintConditional('# jslint-utility2\\n' +\n\
+                    'shAa () {\\n' +\n\
+                    '    node -e \"\\n' +\n\
+                    '        local = {};\\n' +\n\
+                    '        local.aa = function () {\\n' +\n\
+                    '            return;\\n' +\n\
+                    '        };\\n' +\n\
+                    '    \"\\n' +\n\
+                    '}\\n',\n\
+                    'passed.sh',\n\
+                    'force');\n\
+                // validate no error occurred\n\
+                local.assert(!local.jslint.errorText, local.jslint.errorText);\n\
             }, onError);\n\
         };\n\
 \n\
@@ -31738,12 +31642,9 @@ console.log(\"aa\");',\n\
         /*\n\
          * this function will test jsonStringifyOrdered's default handling-behavior\n\
          */\n\
-            options = {};\n\
             // test data-type handling-behavior\n\
             [undefined, null, false, true, 0, 1, 1.5, 'a', {}, []].forEach(function (data) {\n\
-                options.aa = local.jsonStringifyOrdered(data);\n\
-                options.bb = JSON.stringify(data);\n\
-                local.assertJsonEqual(options.aa, options.bb);\n\
+                local.assertJsonEqual(local.jsonStringifyOrdered(data), JSON.stringify(data));\n\
             });\n\
             // test data-ordering handling-behavior\n\
             options = {\n\
@@ -31926,9 +31827,9 @@ console.log(\"aa\");',\n\
                 // validate no error occurred\n\
                 local.assert(!error, error);\n\
                 // validate responseText\n\
-                local.assertJsonEqual(xhr.responseText, 'hello\\n\
-');\n\
-                onParallel(null, options);\n\
+                /* jslint-ignore-next-line */\n\
+                local.assertJsonEqual(xhr.responseText, 'hello\\ud83d\\udc4b\\u0020\\n');\n\
+                onParallel(null, options, xhr);\n\
             });\n\
             // test error handling-behavior\n\
             onParallel.counter += 1;\n\
@@ -31996,17 +31897,6 @@ console.log(\"aa\");',\n\
             onError(null, options);\n\
         };\n\
 \n\
-        local.testCase_objectGetElementFirst_default = function (options, onError) {\n\
-        /*\n\
-         * this function will test objectGetElementFirst's default handling-behavior\n\
-         */\n\
-            local.assertJsonEqual(\n\
-                local.objectGetElementFirst({ aa: 1, bb: 2 }),\n\
-                { key: 'aa', value: 1 }\n\
-            );\n\
-            onError(null, options);\n\
-        };\n\
-\n\
         local.testCase_objectKeysTypeOf_default = function (options, onError) {\n\
         /*\n\
          * this function will test objectKeysTypeOf's default handling-behavior\n\
@@ -32018,12 +31908,7 @@ console.log(\"aa\");',\n\
                 dd: null,\n\
                 ee: '',\n\
                 ff: undefined\n\
-            }), 'boolean aa\\n\
-function bb\\n\
-number cc\\n\
-object dd\\n\
-string ee\\n\
-undefined ff');\n\
+            }), 'boolean aa\\nfunction bb\\nnumber cc\\nobject dd\\nstring ee\\nundefined ff');\n\
             onError(null, options);\n\
         };\n\
 \n\
@@ -32210,6 +32095,7 @@ undefined ff');\n\
          */\n\
 \n\
             options = {};\n\
+            options.modeDebug = true;\n\
             local.onNext(options, function () {\n\
                 throw local.errorDefault;\n\
             });\n\
@@ -32242,7 +32128,7 @@ undefined ff');\n\
                         onParallel.counter += 1;\n\
                         // test error handling-behavior\n\
                         onParallel(local.errorDefault, options2);\n\
-                        // test multiple callback handling-behavior\n\
+                        // test multiple-callback handling-behavior\n\
                         setTimeout(onParallel, 5000);\n\
                     }, function (error) {\n\
                         // validate error occurred\n\
@@ -32322,15 +32208,17 @@ undefined ff');\n\
             // test multiple-task handling-behavior\n\
             onParallel.counter += 1;\n\
             setTimeout(function () {\n\
-                onParallelError = local.onParallel(function (error) {\n\
-                    // validate error occurred\n\
-                    local.assert(error, error);\n\
-                    onParallel(null, options);\n\
-                });\n\
+                onParallelError = local.onParallel(onParallel);\n\
                 onParallelError.counter += 1;\n\
+                onParallelError();\n\
+                // test multiple-callback-error handling-behavior\n\
+                onParallelError();\n\
+                // validate error occurred\n\
+                local.assert(onParallelError.error, onParallelError.error);\n\
                 // test error handling-behavior\n\
-                onParallelError.counter += 1;\n\
                 onParallelError(local.errorDefault);\n\
+                // validate error occurred\n\
+                local.assert(onParallelError.error, onParallelError.error);\n\
                 // test ignore-after-error handling-behavior\n\
                 onParallelError();\n\
             });\n\
@@ -32362,34 +32250,6 @@ undefined ff');\n\
             });\n\
         };\n\
 \n\
-        local.testCase_profileXxx_default = function (options, onError) {\n\
-        /*\n\
-         * this function will test profileXxx's default handling-behavior\n\
-         */\n\
-            options = {};\n\
-            // test profileSync's handling-behavior\n\
-            options.timeElapsed = local.profileSync(function () {\n\
-                return;\n\
-            });\n\
-            // validate timeElapsed\n\
-            local.assert(\n\
-                0 <= options.timeElapsed && options.timeElapsed < 1000,\n\
-                options.timeElapsed\n\
-            );\n\
-            // test profile's async handling-behavior\n\
-            local.profile(function (onError) {\n\
-                setTimeout(onError);\n\
-            }, function (error, timeElapsed) {\n\
-                // validate no error occurred\n\
-                local.assert(!error, error);\n\
-                options.timeElapsed = timeElapsed;\n\
-                // validate timeElapsed\n\
-                local.assert(0 <= options.timeElapsed &&\n\
-                    options.timeElapsed < local.timeoutDefault, options.timeElapsed);\n\
-                onError(null, options);\n\
-            });\n\
-        };\n\
-\n\
         local.testCase_replStart_default = function (options, onError) {\n\
         /*\n\
          * this function will test replStart's default handling-behavior\n\
@@ -32415,26 +32275,19 @@ undefined ff');\n\
                     // test null-case handling-behavior\n\
                     '',\n\
                     // test shell handling-behavior\n\
-                    '$ :\\n\
-',\n\
+                    '$ :\\n',\n\
                     // test git diff handling-behavior\n\
-                    '$ git diff\\n\
-',\n\
+                    '$ git diff\\n',\n\
                     // test git log handling-behavior\n\
-                    '$ git log\\n\
-',\n\
+                    '$ git log\\n',\n\
                     // test grep handling-behavior\n\
-                    'grep \\\\baa\\\\b\\n\
-',\n\
+                    'grep \\\\baa\\\\b\\n',\n\
                     // test keys handling-behavior\n\
-                    'keys {}\\n\
-',\n\
+                    'keys {}\\n',\n\
                     // test print handling-behavior\n\
-                    'print\\n\
-',\n\
+                    'print\\n',\n\
                     // test error handling-behavior\n\
-                    'undefined()\\n\
-'\n\
+                    'undefined()\\n'\n\
                 ].forEach(function (script) {\n\
                     local.global.utility2_serverRepl1.eval(script, null, 'repl', local.nop);\n\
                 });\n\
@@ -32473,11 +32326,9 @@ undefined ff');\n\
                 );\n\
                 onError(null, options);\n\
             });\n\
-            options.socket.write(options.input + '\\n\
-');\n\
+            options.socket.write(options.input + '\\n');\n\
             // test error handling-behavior\n\
-            options.socket.end('undefined()\\n\
-');\n\
+            options.socket.end('undefined()\\n');\n\
         };\n\
 \n\
         local.testCase_requireReadme_start = function (options, onError) {\n\
@@ -32521,6 +32372,54 @@ undefined ff');\n\
             }, onError);\n\
         };\n\
 \n\
+        local.testCase_semverCompare_default = function (options, onError) {\n\
+        /*\n\
+         * this function will test semverCompare's default handling-behavior\n\
+         */\n\
+            var aa;\n\
+            // test aa = bb\n\
+            options = [\n\
+                '1.2.3',\n\
+                '1.2.3-',\n\
+                '1.2.3-alpha.beta',\n\
+                '1.2.3-alpha.beta'\n\
+            ];\n\
+            options.forEach(function (bb, ii) {\n\
+                if (ii & 1) {\n\
+                    local.assert(\n\
+                        local.semverCompare(aa, bb) === 0,\n\
+                        [local.semverCompare(aa, bb), aa, bb]\n\
+                    );\n\
+                }\n\
+                aa = bb;\n\
+            });\n\
+            options = [\n\
+                '1.2.3-a',\n\
+                '1.2.3-a.2',\n\
+                '1.2.3-a.10',\n\
+                '1.2.3-b',\n\
+                '1.2.3',\n\
+                '1.2.10'\n\
+            ];\n\
+            // test aa < bb\n\
+            options.reduce(function (aa, bb) {\n\
+                local.assert(\n\
+                    local.semverCompare(aa, bb) === -1,\n\
+                    [local.semverCompare(aa, bb), aa, bb]\n\
+                );\n\
+                return bb;\n\
+            });\n\
+            // test aa > bb\n\
+            options.reverse().reduce(function (aa, bb) {\n\
+                local.assert(\n\
+                    local.semverCompare(aa, bb) === 1,\n\
+                    [local.semverCompare(aa, bb), aa, bb]\n\
+                );\n\
+                return bb;\n\
+            });\n\
+            onError(null, options);\n\
+        };\n\
+\n\
         local.testCase_serverRespondTimeoutDefault_default = function (options, onError) {\n\
         /*\n\
          * this function will test serverRespondTimeoutDefault's default handling-behavior\n\
@@ -32551,11 +32450,10 @@ undefined ff');\n\
         /*\n\
          * this function will test setTimeoutOnError's default handling-behavior\n\
          */\n\
-            options = {};\n\
             // test null-case handling-behavior\n\
             local.assertJsonEqual(local.setTimeoutOnError(), undefined);\n\
             // test onError handling-behavior\n\
-            local.assertJsonEqual(local.setTimeoutOnError(onError, 0, null, options), {});\n\
+            local.assertJsonEqual(local.setTimeoutOnError(onError, 0, null, {}, options), {});\n\
         };\n\
 \n\
         local.testCase_sjclHashScryptXxx_default = function (options, onError) {\n\
@@ -32629,8 +32527,7 @@ undefined ff');\n\
          */\n\
             local.assertJsonEqual(local.stringRegexpEscape(local.stringCharsetAscii), String() +\n\
                 '\\u0000\\u0001\\u0002\\u0003\\u0004\\u0005\\u0006\\u0007' +\n\
-                '\\b\\t\\n\
-\\u000b\\f\\r\\u000e\\u000f' +\n\
+                '\\b\\t\\n\\u000b\\f\\r\\u000e\\u000f' +\n\
                 '\\u0010\\u0011\\u0012\\u0013\\u0014\\u0015\\u0016\\u0017' +\n\
                 '\\u0018\\u0019\\u001a\\u001b\\u001c\\u001d\\u001e\\u001f' +\n\
                 ' !\"#\\\\$%&\\'\\\\(\\\\)\\\\*\\\\+,\\\\-\\\\.\\\\/0123456789:;<=>\\\\?@' +\n\
@@ -32777,16 +32674,13 @@ undefined ff');\n\
             local.assertJsonEqual(local.templateRender('{{aa}}', {}), '{{aa}}');\n\
             // test basic handling-behavior\n\
             local.assertJsonEqual(local.templateRender('{{aa}}', {\n\
-                aa: '```<aa\\n\
-bb>```'\n\
-            }), '```&lt;aa\\n\
-bb&gt;```');\n\
+                aa: '```<aa\\nbb>```'\n\
+            }), '```&lt;aa\\nbb&gt;```');\n\
             // test markdownToHtml handling-behavior\n\
             local.assertJsonEqual(local.templateRender('{{aa markdownToHtml}}', {\n\
                 aa: local.stringCharsetAscii.slice(32, -1)\n\
             }), '<p> !&quot;#$%&amp;&apos;()*+,-./0123456789:;&lt;=&gt;?@' +\n\
-                'ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~</p>\\n\
-');\n\
+                'ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~</p>\\n');\n\
             // test markdownSafe handling-behavior\n\
             local.assertJsonEqual(local.templateRender('{{aa markdownSafe notHtmlSafe}}', {\n\
                 aa: local.stringCharsetAscii.slice(32, -1)\n\
@@ -32794,10 +32688,8 @@ bb&gt;```');\n\
                 'ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_\\'abcdefghijklmnopqrstuvwxyz{|}~');\n\
             // test notHtmlSafe handling-behavior\n\
             local.assertJsonEqual(local.templateRender('{{aa notHtmlSafe}}', {\n\
-                aa: '```<aa\\n\
-bb>```'\n\
-            }), '```<aa\\n\
-bb>```');\n\
+                aa: '```<aa\\nbb>```'\n\
+            }), '```<aa\\nbb>```');\n\
             // test default handling-behavior\n\
             local.assertJsonEqual(local.templateRender('{{aa alphanumeric}} ' +\n\
                 '{{aa truncate 4 truncate 4}} ' +\n\
@@ -32815,42 +32707,24 @@ bb>```');\n\
                     ee: { ff: 'gg' }\n\
                 }), '__aa__ `... %22%5C%22%60%3Caa%3E%60%5C%22%22 1 null {{dd}} gg');\n\
             // test partial handling-behavior\n\
-            local.assertJsonEqual(local.templateRender('{{#undefined aa}}\\n\
-' +\n\
-                'list1{{#each list1}}\\n\
-' +\n\
-                '    aa - {{aa}}\\n\
-' +\n\
-                '    list2{{#eachTrimRightComma list2}}\\n\
-' +\n\
-                '        {{#this/ notHtmlSafe jsonStringify}}\\n\
-' +\n\
-                '        bb - {{bb}}\\n\
-' +\n\
-                '        {{#if bb}}\\n\
-' +\n\
-                '        if\\n\
-' +\n\
-                '        {{#unless bb}}\\n\
-' +\n\
-                '        else\\n\
-' +\n\
-                '        {{/if bb}}\\n\
-' +\n\
-                '        {{#unless bb}}\\n\
-' +\n\
-                '        unless\\n\
-' +\n\
-                '        {{/unless bb}}\\n\
-' +\n\
-                '        ,\\n\
-' +\n\
-                '    {{/eachTrimRightComma list2}}\\n\
-' +\n\
-                '{{/each list1}}\\n\
-' +\n\
-                '{{/undefined aa}}\\n\
-', { list1: [\n\
+            local.assertJsonEqual(local.templateRender('{{#undefined aa}}\\n' +\n\
+                'list1{{#each list1}}\\n' +\n\
+                '    aa - {{aa}}\\n' +\n\
+                '    list2{{#eachTrimRightComma list2}}\\n' +\n\
+                '        {{#this/ notHtmlSafe jsonStringify}}\\n' +\n\
+                '        bb - {{bb}}\\n' +\n\
+                '        {{#if bb}}\\n' +\n\
+                '        if\\n' +\n\
+                '        {{#unless bb}}\\n' +\n\
+                '        else\\n' +\n\
+                '        {{/if bb}}\\n' +\n\
+                '        {{#unless bb}}\\n' +\n\
+                '        unless\\n' +\n\
+                '        {{/unless bb}}\\n' +\n\
+                '        ,\\n' +\n\
+                '    {{/eachTrimRightComma list2}}\\n' +\n\
+                '{{/each list1}}\\n' +\n\
+                '{{/undefined aa}}\\n', { list1: [\n\
                     // test null-value handling-behavior\n\
                     null,\n\
                     {\n\
@@ -32859,58 +32733,32 @@ bb>```');\n\
                         list2: [{ bb: 'bb' }, { bb: null }]\n\
                     }\n\
                 ]\n\
-                    }), '{{#undefined aa}}\\n\
-' +\n\
-                'list1\\n\
-' +\n\
-                '    aa - {{aa}}\\n\
-' +\n\
-                '    list2\\n\
-' +\n\
-                '\\n\
-' +\n\
-                '    aa - aa\\n\
-' +\n\
-                '    list2\\n\
-' +\n\
-                '        {\"bb\":\"bb\"}\\n\
-' +\n\
-                '        bb - bb\\n\
-' +\n\
-                '        \\n\
-' +\n\
-                '        if\\n\
-' +\n\
-                '        \\n\
-' +\n\
-                '        \\n\
-' +\n\
-                '        ,\\n\
-' +\n\
-                '    \\n\
-' +\n\
-                '        {\"bb\":null}\\n\
-' +\n\
-                '        bb - null\\n\
-' +\n\
-                '        \\n\
-' +\n\
-                '        else\\n\
-' +\n\
-                '        \\n\
-' +\n\
-                '        \\n\
-' +\n\
-                '        unless\\n\
-' +\n\
-                '        \\n\
-' +\n\
-                '        \\n\
-' +\n\
-                '\\n\
-' +\n\
-                '{{/undefined aa}}\\n\
-');\n\
+                    }), '{{#undefined aa}}\\n' +\n\
+                'list1\\n' +\n\
+                '    aa - {{aa}}\\n' +\n\
+                '    list2\\n' +\n\
+                '\\n' +\n\
+                '    aa - aa\\n' +\n\
+                '    list2\\n' +\n\
+                '        {\"bb\":\"bb\"}\\n' +\n\
+                '        bb - bb\\n' +\n\
+                '        \\n' +\n\
+                '        if\\n' +\n\
+                '        \\n' +\n\
+                '        \\n' +\n\
+                '        ,\\n' +\n\
+                '    \\n' +\n\
+                '        {\"bb\":null}\\n' +\n\
+                '        bb - null\\n' +\n\
+                '        \\n' +\n\
+                '        else\\n' +\n\
+                '        \\n' +\n\
+                '        \\n' +\n\
+                '        unless\\n' +\n\
+                '        \\n' +\n\
+                '        \\n' +\n\
+                '\\n' +\n\
+                '{{/undefined aa}}\\n');\n\
             // test error handling-behavior\n\
             local.tryCatchOnError(function () {\n\
                 local.templateRender('{{aa bb}}', { aa: 1 });\n\
@@ -32935,55 +32783,6 @@ bb>```');\n\
                 local.testReportCreate({ testPlatformList: [{\n\
                     testCaseList: [{ status: 'failed' }, { status: 'passed' }]\n\
                 }] });\n\
-                onError(null, options);\n\
-            }, onError);\n\
-        };\n\
-\n\
-        local.testCase_testRunDefault_nop = function (options, onError) {\n\
-        /*\n\
-         * this function will test testRunDefault's nop handling-behavior\n\
-         */\n\
-            options = {};\n\
-            local.testRunDefault(options);\n\
-            local.testMock([\n\
-                [local, { env: {}, modeTest: null }]\n\
-            ], function (onError) {\n\
-                local.testRunDefault(options);\n\
-                // validate no options.onReadyAfter\n\
-                local.assert(!options.onReadyAfter, options);\n\
-                onError(null, options);\n\
-            }, onError);\n\
-        };\n\
-\n\
-        local.testCase_testRunInit_testRunButton1 = function (options, onError) {\n\
-        /*\n\
-         * this function will test testRunInit's testRunButton1 handling-behavior\n\
-         */\n\
-            if (!local.isBrowser) {\n\
-                onError(null, options);\n\
-                return;\n\
-            }\n\
-            local.testMock([\n\
-                [document, {\n\
-                    querySelector: function () {\n\
-                        return { click: local.nop };\n\
-                    }\n\
-                }],\n\
-                [local, {\n\
-                    modeTest: true,\n\
-                    testRunBrowser: local.nop,\n\
-                    testRunDefault: local.nop\n\
-                }],\n\
-                [local.global, {\n\
-                    setTimeout: function (fnc) {\n\
-                        fnc();\n\
-                    },\n\
-                    utility2_serverHttp1: null\n\
-                }]\n\
-            ], function (onError) {\n\
-                local.testRunInit(local);\n\
-                local.testRunBrowser = null;\n\
-                local.testRunInit(local);\n\
                 onError(null, options);\n\
             }, onError);\n\
         };\n\
@@ -33123,10 +32922,8 @@ bb>```');\n\
             }\n\
             local.browserTest({\n\
                 modeCoverageMerge: true,\n\
-                // test browserTest's modeSilent handling-behavior\n\
                 modeSilent: true,\n\
-                modeTestIgnore: true,\n\
-                timeoutDefault: local.timeoutDefault - 1000,\n\
+                timeoutDefault: local.timeoutDefault - 5000,\n\
                 url: local.serverLocalHost +\n\
                     // test script_only handling-behavior\n\
                     '/assets.script_only.html' +\n\
@@ -33196,15 +32993,16 @@ bb>```');\n\
                 // test multiple-callback serverRespondHeadSet handling-behavior\n\
                 local.serverRespondHeadSet(request, response, null, {});\n\
                 nextMiddleware(local.errorDefault);\n\
-                // test multiple-callback error handling-behavior\n\
+                // test multiple-callback-error handling-behavior\n\
                 nextMiddleware(local.errorDefault);\n\
                 // test onErrorDefault handling-behavior\n\
                 local.testMock([\n\
+                    [local, { swgg: null }]\n\
                 ], function (onError) {\n\
                     var error;\n\
                     error = new Error('error');\n\
                     error.statusCode = 500;\n\
-                    local._middlewareError(error, request, response);\n\
+                    local.middlewareError(error, request, response);\n\
                     onError();\n\
                 }, local.onErrorThrow);\n\
                 break;\n\
@@ -33283,18 +33081,12 @@ bb>```');\n\
         if (module !== require.main || local.global.utility2_rollup) {\n\
             return;\n\
         }\n\
-        local.assetsDict['/assets.script_only.html'] = '<h1>script_only_test</h1>\\n\
-' +\n\
-            '<script src=\"assets.utility2.js\"></script>\\n\
-' +\n\
-            '<script>window.utility2.onReadyBefore.counter += 1;</script>\\n\
-' +\n\
-            '<script src=\"assets.example.js\"></script>\\n\
-' +\n\
-            '<script src=\"assets.test.js\"></script>\\n\
-' +\n\
-            '<script>window.utility2.onReadyBefore();</script>\\n\
-';\n\
+        local.assetsDict['/assets.script_only.html'] = '<h1>script_only_test</h1>\\n' +\n\
+            '<script src=\"assets.utility2.js\"></script>\\n' +\n\
+            '<script>window.utility2_onReadyBefore.counter += 1;</script>\\n' +\n\
+            '<script src=\"assets.example.js\"></script>\\n' +\n\
+            '<script src=\"assets.test.js\"></script>\\n' +\n\
+            '<script>window.utility2_onReadyBefore();</script>\\n';\n\
         if (process.argv[2]) {\n\
             // start with coverage\n\
             if (local.env.npm_config_mode_coverage) {\n\
@@ -33385,11 +33177,11 @@ local.stateInit({
     "utility2": {
         "assetsDict": {
             "/assets.example.html": "<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Swagger UI</title>\n  <link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,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\" sizes=\"32x32\" />\n  <link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACTElEQVQ4jY2TT0iTYRzHP8/zvppm1pplsst0SCjm1sVuCY0OUsnGOu1UEFKHohIRFDpEVB48FB5CJNCLFzFyRn8u78EOecwNSWVoOyg03BjGpOn7vk+HzTmdQb/Lw/Pw/X6fH9/v7yc4VLZteRSqB4QfVHP+VcRBGQIxJqW2WooX+0RbV9hPUao/lojoC2vTbP7OY+tqPVxsCtHuDpgIOSwQT6SUZlGgQJ5KZlaCE0aY9fTC4cYAcDl93PZPUu9oiQjETSmlKQAs23qezCwPvp69TDaXOpK8V8ePOXnU/ZV6R8uQJrUBaduWB2X3TxhhsrkUNzpe0BuYLyP2Br7R3fGS7VyacSMMyu6zbcsjFepOLBHR99r2uoOMfr5eJvDm0zW8jUEANtJRoon3uoIeCeLq97XpIrBCq2LH3C4T2DGz6FpV8b6w9g7Ar4NqThXc7my7T3JrhfpT5zlRfZad3SwIQYVWTTaX4lfmB51tD5hbHGFzaxVQzfLgPwKUKmQjQORTFoVTKYXYTx4AHUS8rtZz6WdynrnFEa5ceEwys8y6dTBKTVbScLqV0S95f86c9AAiLgHD1xQqAnetP1TqNWUeVOo1mFauePc1hgAMKWDM6w6YLqcXgFhihrtdH8oE7nV9JJaYAcDlbKe9MWgKGCsZpKXBV7OdbP/HID3snuOco3VIk9pAySirqWRmKThuhNlIR48ku5xebvknaXC0Rigd5RKRZyi7L5qYyS/T1mrRMF9TCK87aCLEsEAeXKbS+vc6Ywh4K6UWL8X/BRbH8zwWREZpAAAAAElFTkSuQmCC\" sizes=\"16x16\" />\n  <!-- <link href='css/typography.css' media='screen' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/reset.css' media='screen' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/screen.css' media='screen' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/reset.css' media='print' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/print.css' media='print' rel='stylesheet' type='text/css'/> -->\n<style>\n/* init style reset */\n/* http://meyerweb.com/eric/tools/css/reset/ v2.0 | 20110126 */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font-size: 100%;\n  font: inherit;\n  vertical-align: baseline;\n}\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block;\n}\nbody {\n  line-height: 1;\n}\nol,\nul {\n  list-style: none;\n}\nblockquote,\nq {\n  quotes: none;\n}\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: '';\n  content: none;\n}\ntable {\n  border-collapse: collapse;\n  border-spacing: 0;\n}\n\n\n\n/* init style screen */\n/* Original style from softwaremaniacs.org (c) Ivan Sagalaev <Maniac@SoftwareManiacs.Org> */\n.swagger-section pre code {\n  display: block;\n  padding: 0.5em;\n  background: #F0F0F0;\n}\n.swagger-section pre code,\n.swagger-section pre .subst,\n.swagger-section pre .tag .title,\n.swagger-section pre .lisp .title,\n.swagger-section pre .clojure .built_in,\n.swagger-section pre .nginx .title {\n  color: black;\n}\n.swagger-section pre .string,\n.swagger-section pre .title,\n.swagger-section pre .constant,\n.swagger-section pre .parent,\n.swagger-section pre .tag .value,\n.swagger-section pre .rules .value,\n.swagger-section pre .rules .value .number,\n.swagger-section pre .preprocessor,\n.swagger-section pre .ruby .symbol,\n.swagger-section pre .ruby .symbol .string,\n.swagger-section pre .aggregate,\n.swagger-section pre .template_tag,\n.swagger-section pre .django .variable,\n.swagger-section pre .smalltalk .class,\n.swagger-section pre .addition,\n.swagger-section pre .flow,\n.swagger-section pre .stream,\n.swagger-section pre .bash .variable,\n.swagger-section pre .apache .tag,\n.swagger-section pre .apache .cbracket,\n.swagger-section pre .tex .command,\n.swagger-section pre .tex .special,\n.swagger-section pre .erlang_repl .function_or_atom,\n.swagger-section pre .markdown .header {\n  color: #800;\n}\n.swagger-section pre .comment,\n.swagger-section pre .annotation,\n.swagger-section pre .template_comment,\n.swagger-section pre .diff .header,\n.swagger-section pre .chunk,\n.swagger-section pre .markdown .blockquote {\n  color: #888;\n}\n.swagger-section pre .number,\n.swagger-section pre .date,\n.swagger-section pre .regexp,\n.swagger-section pre .literal,\n.swagger-section pre .smalltalk .symbol,\n.swagger-section pre .smalltalk .char,\n.swagger-section pre .go .constant,\n.swagger-section pre .change,\n.swagger-section pre .markdown .bullet,\n.swagger-section pre .markdown .link_url {\n  color: #080;\n}\n.swagger-section pre .label,\n.swagger-section pre .javadoc,\n.swagger-section pre .ruby .string,\n.swagger-section pre .decorator,\n.swagger-section pre .filter .argument,\n.swagger-section pre .localvars,\n.swagger-section pre .array,\n.swagger-section pre .attr_selector,\n.swagger-section pre .important,\n.swagger-section pre .pseudo,\n.swagger-section pre .pi,\n.swagger-section pre .doctype,\n.swagger-section pre .deletion,\n.swagger-section pre .envvar,\n.swagger-section pre .shebang,\n.swagger-section pre .apache .sqbracket,\n.swagger-section pre .nginx .built_in,\n.swagger-section pre .tex .formula,\n.swagger-section pre .erlang_repl .reserved,\n.swagger-section pre .prompt,\n.swagger-section pre .markdown .link_label,\n.swagger-section pre .vhdl .attribute,\n.swagger-section pre .clojure .attribute,\n.swagger-section pre .coffeescript .property {\n  color: #88F;\n}\n.swagger-section pre .keyword,\n.swagger-section pre .id,\n.swagger-section pre .phpdoc,\n.swagger-section pre .title,\n.swagger-section pre .built_in,\n.swagger-section pre .aggregate,\n.swagger-section pre .css .tag,\n.swagger-section pre .javadoctag,\n.swagger-section pre .phpdoc,\n.swagger-section pre .yardoctag,\n.swagger-section pre .smalltalk .class,\n.swagger-section pre .winutils,\n.swagger-section pre .bash .variable,\n.swagger-section pre .apache .tag,\n.swagger-section pre .go .typename,\n.swagger-section pre .tex .command,\n.swagger-section pre .markdown .strong,\n.swagger-section pre .request,\n.swagger-section pre .status {\n  font-weight: bold;\n}\n.swagger-section pre .markdown .emphasis {\n  font-style: italic;\n}\n.swagger-section pre .nginx .built_in {\n  font-weight: normal;\n}\n.swagger-section pre .coffeescript .javascript,\n.swagger-section pre .javascript .xml,\n.swagger-section pre .tex .formula,\n.swagger-section pre .xml .javascript,\n.swagger-section pre .xml .vbscript,\n.swagger-section pre .xml .css,\n.swagger-section pre .xml .cdata {\n  opacity: 0.5;\n}\n.swagger-section .hljs {\n  display: block;\n  overflow-x: auto;\n  padding: 0.5em;\n  background: #F0F0F0;\n}\n.swagger-section .hljs,\n.swagger-section .hljs-subst {\n  color: #444;\n}\n.swagger-section .hljs-keyword,\n.swagger-section .hljs-attribute,\n.swagger-section .hljs-selector-tag,\n.swagger-section .hljs-meta-keyword,\n.swagger-section .hljs-doctag,\n.swagger-section .hljs-name {\n  font-weight: bold;\n}\n.swagger-section .hljs-built_in,\n.swagger-section .hljs-literal,\n.swagger-section .hljs-bullet,\n.swagger-section .hljs-code,\n.swagger-section .hljs-addition {\n  color: #1F811F;\n}\n.swagger-section .hljs-regexp,\n.swagger-section .hljs-symbol,\n.swagger-section .hljs-variable,\n.swagger-section .hljs-template-variable,\n.swagger-section .hljs-link,\n.swagger-section .hljs-selector-attr,\n.swagger-section .hljs-selector-pseudo {\n  color: #BC6060;\n}\n.swagger-section .hljs-type,\n.swagger-section .hljs-string,\n.swagger-section .hljs-number,\n.swagger-section .hljs-selector-id,\n.swagger-section .hljs-selector-class,\n.swagger-section .hljs-quote,\n.swagger-section .hljs-template-tag,\n.swagger-section .hljs-deletion {\n  color: #880000;\n}\n.swagger-section .hljs-title,\n.swagger-section .hljs-section {\n  color: #880000;\n  font-weight: bold;\n}\n.swagger-section .hljs-comment {\n  color: #888888;\n}\n.swagger-section .hljs-meta {\n  color: #2B6EA1;\n}\n.swagger-section .hljs-emphasis {\n  font-style: italic;\n}\n.swagger-section .hljs-strong {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap {\n  line-height: 1;\n  font-family: \"Droid Sans\", sans-serif;\n  min-width: 760px;\n  max-width: 960px;\n  margin-left: auto;\n  margin-right: auto;\n  /* JSONEditor specific styling */\n}\n.swagger-section .swagger-ui-wrap b,\n.swagger-section .swagger-ui-wrap strong {\n  font-family: \"Droid Sans\", sans-serif;\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap q,\n.swagger-section .swagger-ui-wrap blockquote {\n  quotes: none;\n}\n.swagger-section .swagger-ui-wrap p {\n  line-height: 1.4em;\n  padding: 0 0 10px;\n  color: #333333;\n}\n.swagger-section .swagger-ui-wrap q:before,\n.swagger-section .swagger-ui-wrap q:after,\n.swagger-section .swagger-ui-wrap blockquote:before,\n.swagger-section .swagger-ui-wrap blockquote:after {\n  content: none;\n}\n.swagger-section .swagger-ui-wrap .heading_with_menu h1,\n.swagger-section .swagger-ui-wrap .heading_with_menu h2,\n.swagger-section .swagger-ui-wrap .heading_with_menu h3,\n.swagger-section .swagger-ui-wrap .heading_with_menu h4,\n.swagger-section .swagger-ui-wrap .heading_with_menu h5,\n.swagger-section .swagger-ui-wrap .heading_with_menu h6 {\n  display: block;\n  clear: none;\n  float: left;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  width: 60%;\n}\n.swagger-section .swagger-ui-wrap table {\n  border-collapse: collapse;\n  border-spacing: 0;\n}\n.swagger-section .swagger-ui-wrap table thead tr th {\n  padding: 5px;\n  font-size: 0.9em;\n  color: #666666;\n  border-bottom: 1px solid #999999;\n}\n.swagger-section .swagger-ui-wrap table tbody tr:last-child td {\n  border-bottom: none;\n}\n.swagger-section .swagger-ui-wrap table tbody tr.offset {\n  background-color: #f0f0f0;\n}\n.swagger-section .swagger-ui-wrap table tbody tr td {\n  padding: 6px;\n  font-size: 0.9em;\n  border-bottom: 1px solid #cccccc;\n  vertical-align: top;\n  line-height: 1.3em;\n}\n.swagger-section .swagger-ui-wrap ol {\n  margin: 0px 0 10px;\n  padding: 0 0 0 18px;\n  list-style-type: decimal;\n}\n.swagger-section .swagger-ui-wrap ol li {\n  padding: 5px 0px;\n  font-size: 0.9em;\n  color: #333333;\n}\n.swagger-section .swagger-ui-wrap ol,\n.swagger-section .swagger-ui-wrap ul {\n  list-style: none;\n}\n.swagger-section .swagger-ui-wrap h1 a,\n.swagger-section .swagger-ui-wrap h2 a,\n.swagger-section .swagger-ui-wrap h3 a,\n.swagger-section .swagger-ui-wrap h4 a,\n.swagger-section .swagger-ui-wrap h5 a,\n.swagger-section .swagger-ui-wrap h6 a {\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap h1 a:hover,\n.swagger-section .swagger-ui-wrap h2 a:hover,\n.swagger-section .swagger-ui-wrap h3 a:hover,\n.swagger-section .swagger-ui-wrap h4 a:hover,\n.swagger-section .swagger-ui-wrap h5 a:hover,\n.swagger-section .swagger-ui-wrap h6 a:hover {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap h1 span.divider,\n.swagger-section .swagger-ui-wrap h2 span.divider,\n.swagger-section .swagger-ui-wrap h3 span.divider,\n.swagger-section .swagger-ui-wrap h4 span.divider,\n.swagger-section .swagger-ui-wrap h5 span.divider,\n.swagger-section .swagger-ui-wrap h6 span.divider {\n  color: #aaaaaa;\n}\n.swagger-section .swagger-ui-wrap a {\n  color: #547f00;\n}\n.swagger-section .swagger-ui-wrap a img {\n  border: none;\n}\n.swagger-section .swagger-ui-wrap article,\n.swagger-section .swagger-ui-wrap aside,\n.swagger-section .swagger-ui-wrap details,\n.swagger-section .swagger-ui-wrap figcaption,\n.swagger-section .swagger-ui-wrap figure,\n.swagger-section .swagger-ui-wrap footer,\n.swagger-section .swagger-ui-wrap header,\n.swagger-section .swagger-ui-wrap hgroup,\n.swagger-section .swagger-ui-wrap menu,\n.swagger-section .swagger-ui-wrap nav,\n.swagger-section .swagger-ui-wrap section,\n.swagger-section .swagger-ui-wrap summary {\n  display: block;\n}\n.swagger-section .swagger-ui-wrap pre {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  background-color: #fcf6db;\n  border: 1px solid #e5e0c6;\n  padding: 10px;\n}\n.swagger-section .swagger-ui-wrap pre code {\n  line-height: 1.6em;\n  background: none;\n}\n.swagger-section .swagger-ui-wrap .content > .content-type > div > label {\n  clear: both;\n  display: block;\n  color: #0F6AB4;\n  font-size: 1.1em;\n  margin: 0;\n  padding: 15px 0 5px;\n}\n.swagger-section .swagger-ui-wrap .content pre {\n  font-size: 12px;\n  margin-top: 5px;\n  padding: 5px;\n}\n.swagger-section .swagger-ui-wrap .icon-btn {\n  cursor: pointer;\n}\n.swagger-section .swagger-ui-wrap .info_title {\n  padding-bottom: 10px;\n  font-weight: bold;\n  font-size: 25px;\n}\n.swagger-section .swagger-ui-wrap .footer {\n  margin-top: 20px;\n}\n.swagger-section .swagger-ui-wrap p.big,\n.swagger-section .swagger-ui-wrap div.big p {\n  font-size: 1em;\n  margin-bottom: 10px;\n}\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.string input,\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.url input,\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.text textarea,\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.numeric input {\n  width: 500px !important;\n}\n.swagger-section .swagger-ui-wrap .info_license {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_tos {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .message-fail {\n  color: #cc0000;\n}\n.swagger-section .swagger-ui-wrap .info_url {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_email {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_name {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_description {\n  padding-bottom: 10px;\n  font-size: 15px;\n}\n.swagger-section .swagger-ui-wrap .markdown ol li,\n.swagger-section .swagger-ui-wrap .markdown ul li {\n  padding: 3px 0px;\n  line-height: 1.4em;\n  color: #333333;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.string input,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.url input,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.numeric input {\n  display: block;\n  padding: 4px;\n  width: auto;\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.string input.title,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.url input.title,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.numeric input.title {\n  font-size: 1.3em;\n}\n.swagger-section .swagger-ui-wrap table.fullwidth {\n  width: 100%;\n}\n.swagger-section .swagger-ui-wrap .model-signature {\n  font-family: \"Droid Sans\", sans-serif;\n  font-size: 1em;\n  line-height: 1.5em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-nav a {\n  text-decoration: none;\n  color: #AAA;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-nav a:hover {\n  text-decoration: underline;\n  color: black;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-nav .selected {\n  color: black;\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propType {\n  color: #5555aa;\n}\n.swagger-section .swagger-ui-wrap .model-signature pre:hover {\n  background-color: #ffffdd;\n}\n.swagger-section .swagger-ui-wrap .model-signature pre {\n  font-size: .85em;\n  line-height: 1.2em;\n  overflow: auto;\n  max-height: 200px;\n  cursor: pointer;\n}\n.swagger-section .swagger-ui-wrap .model-signature ul.signature-nav {\n  display: block;\n  min-width: 230px;\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap .model-signature ul.signature-nav li:last-child {\n  padding-right: 0;\n  border-right: none;\n}\n.swagger-section .swagger-ui-wrap .model-signature ul.signature-nav li {\n  float: left;\n  margin: 0 5px 5px 0;\n  padding: 2px 5px 2px 0;\n  border-right: 1px solid #ddd;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propOpt {\n  color: #555;\n}\n.swagger-section .swagger-ui-wrap .model-signature .snippet small {\n  font-size: 0.75em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propOptKey {\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .strong {\n  font-weight: bold;\n  color: #000;\n  font-size: .9em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description div {\n  font-size: 0.9em;\n  line-height: 1.5em;\n  margin-left: 1em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .stronger {\n  font-weight: bold;\n  color: #000;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper {\n  border-spacing: 0;\n  position: absolute;\n  background-color: #ffffff;\n  border: 1px solid #bbbbbb;\n  display: none;\n  font-size: 11px;\n  max-width: 400px;\n  line-height: 30px;\n  color: black;\n  padding: 5px;\n  margin-left: 10px;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper th {\n  text-align: center;\n  background-color: #eeeeee;\n  border: 1px solid #bbbbbb;\n  font-size: 11px;\n  color: #666666;\n  font-weight: bold;\n  padding: 5px;\n  line-height: 15px;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper .optionName {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propDesc.markdown > p:first-child,\n.swagger-section .swagger-ui-wrap .model-signature .description .propDesc.markdown > p:last-child {\n  display: inline;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propDesc.markdown > p:not(:first-child):before {\n  display: block;\n  content: '';\n}\n.swagger-section .swagger-ui-wrap .model-signature .description span:last-of-type.propDesc.markdown > p:only-child {\n  margin-right: -3px;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propName {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-container {\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap .body-textarea {\n  width: 300px;\n  height: 100px;\n  border: 1px solid #aaa;\n}\n.swagger-section .swagger-ui-wrap .markdown p code,\n.swagger-section .swagger-ui-wrap .markdown li code {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  background-color: #f0f0f0;\n  color: black;\n  padding: 1px 3px;\n}\n.swagger-section .swagger-ui-wrap .required {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .editor_holder {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap .editor_holder label {\n  font-weight: normal!important;\n  /* JSONEditor uses bold by default for all labels, we revert that back to normal to not give the impression that by default fields are required */\n}\n.swagger-section .swagger-ui-wrap .editor_holder label.required {\n  font-weight: bold!important;\n}\n.swagger-section .swagger-ui-wrap input.parameter {\n  width: 300px;\n  border: 1px solid #aaa;\n}\n.swagger-section .swagger-ui-wrap h1 {\n  color: black;\n  font-size: 1.5em;\n  line-height: 1.3em;\n  padding: 10px 0 10px 0;\n  font-family: \"Droid Sans\", sans-serif;\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .heading_with_menu {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap .heading_with_menu ul {\n  display: block;\n  clear: none;\n  float: right;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  margin-top: 10px;\n}\n.swagger-section .swagger-ui-wrap h2 {\n  color: black;\n  font-size: 1.3em;\n  padding: 10px 0 10px 0;\n}\n.swagger-section .swagger-ui-wrap h2 a {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap h2 span.sub {\n  font-size: 0.7em;\n  color: #999999;\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap h2 span.sub a {\n  color: #777777;\n}\n.swagger-section .swagger-ui-wrap span.weak {\n  color: #666666;\n}\n.swagger-section .swagger-ui-wrap .message-success {\n  color: #89BF04;\n}\n.swagger-section .swagger-ui-wrap caption,\n.swagger-section .swagger-ui-wrap th,\n.swagger-section .swagger-ui-wrap td {\n  text-align: left;\n  font-weight: normal;\n  vertical-align: middle;\n}\n.swagger-section .swagger-ui-wrap .code {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.text textarea {\n  font-family: \"Droid Sans\", sans-serif;\n  height: 250px;\n  padding: 4px;\n  display: block;\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.select select {\n  display: block;\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.boolean {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.boolean label {\n  display: block;\n  float: left;\n  clear: none;\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.boolean input {\n  display: block;\n  float: left;\n  clear: none;\n  margin: 0 5px 0 0;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.required label {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li label {\n  display: block;\n  clear: both;\n  width: auto;\n  padding: 0 0 3px;\n  color: #666666;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li label abbr {\n  padding-left: 3px;\n  color: #888888;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li p.inline-hints {\n  margin-left: 0;\n  font-style: italic;\n  font-size: 0.9em;\n  margin: 0;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.buttons {\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap span.blank,\n.swagger-section .swagger-ui-wrap span.empty {\n  color: #888888;\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap .markdown h3 {\n  color: #547f00;\n}\n.swagger-section .swagger-ui-wrap .markdown h4 {\n  color: #666666;\n}\n.swagger-section .swagger-ui-wrap .markdown pre {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  background-color: #fcf6db;\n  border: 1px solid #e5e0c6;\n  padding: 10px;\n  margin: 0 0 10px 0;\n}\n.swagger-section .swagger-ui-wrap .markdown pre code {\n  line-height: 1.6em;\n  overflow: auto;\n}\n.swagger-section .swagger-ui-wrap div.gist {\n  margin: 20px 0 25px 0 !important;\n}\n.swagger-section .swagger-ui-wrap ul#resources {\n  font-family: \"Droid Sans\", sans-serif;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource {\n  border-bottom: 1px solid #dddddd;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource:hover div.heading h2 a,\n.swagger-section .swagger-ui-wrap ul#resources li.resource.active div.heading h2 a {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource:hover div.heading ul.options li a,\n.swagger-section .swagger-ui-wrap ul#resources li.resource.active div.heading ul.options li a {\n  color: #555555;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource:last-child {\n  border-bottom: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading {\n  border: 1px solid transparent;\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options {\n  overflow: hidden;\n  padding: 0;\n  display: block;\n  clear: none;\n  float: right;\n  margin: 14px 10px 0 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li {\n  float: left;\n  clear: none;\n  margin: 0;\n  padding: 2px 10px;\n  border-right: 1px solid #dddddd;\n  color: #666666;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a {\n  color: #aaaaaa;\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a:hover {\n  text-decoration: underline;\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a:hover,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a:active,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a.active {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li.last {\n  padding-right: 0;\n  border-right: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading h2 {\n  color: #999999;\n  padding-left: 0;\n  display: block;\n  clear: none;\n  float: left;\n  font-family: \"Droid Sans\", sans-serif;\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading h2 a {\n  color: #999999;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading h2 a:hover {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n  margin: 0 0 10px;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 {\n  display: block;\n  clear: none;\n  float: left;\n  width: auto;\n  margin: 0;\n  padding: 0;\n  line-height: 1.1em;\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path {\n  padding-left: 10px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path a {\n  color: black;\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path a.toggleOperation.deprecated {\n  text-decoration: line-through;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path a:hover {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.http_method a {\n  text-transform: uppercase;\n  text-decoration: none;\n  color: white;\n  display: inline-block;\n  width: 50px;\n  font-size: 0.7em;\n  text-align: center;\n  padding: 7px 0 4px;\n  -moz-border-radius: 2px;\n  -webkit-border-radius: 2px;\n  -o-border-radius: 2px;\n  -ms-border-radius: 2px;\n  -khtml-border-radius: 2px;\n  border-radius: 2px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span {\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options {\n  overflow: hidden;\n  padding: 0;\n  display: block;\n  clear: none;\n  float: right;\n  margin: 6px 10px 0 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options li {\n  float: left;\n  clear: none;\n  margin: 0;\n  padding: 2px 10px;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options li a {\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options li.access {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content {\n  border-top: none;\n  padding: 10px;\n  -moz-border-radius-bottomleft: 6px;\n  -webkit-border-bottom-left-radius: 6px;\n  -o-border-bottom-left-radius: 6px;\n  -ms-border-bottom-left-radius: 6px;\n  -khtml-border-bottom-left-radius: 6px;\n  border-bottom-left-radius: 6px;\n  -moz-border-radius-bottomright: 6px;\n  -webkit-border-bottom-right-radius: 6px;\n  -o-border-bottom-right-radius: 6px;\n  -ms-border-bottom-right-radius: 6px;\n  -khtml-border-bottom-right-radius: 6px;\n  border-bottom-right-radius: 6px;\n  margin: 0 0 20px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content h4 {\n  font-size: 1.1em;\n  margin: 0;\n  padding: 15px 0 5px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header a {\n  padding: 4px 0 0 10px;\n  display: inline-block;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header input.submit {\n  display: block;\n  clear: none;\n  float: left;\n  padding: 6px 8px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header span.response_throbber {\n  background-image: url('data:image/gif;base64,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');\n  width: 128px;\n  height: 16px;\n  display: block;\n  clear: none;\n  float: right;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content form input[type='text'].error {\n  outline: 2px solid black;\n  outline-color: #cc0000;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content form select[name='parameterContentType'] {\n  max-width: 300px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.response div.block pre {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  padding: 10px;\n  font-size: 0.9em;\n  max-height: 400px;\n  overflow-y: auto;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading {\n  background-color: #f9f2e9;\n  border: 1px solid #f0e0ca;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading h3 span.http_method a {\n  background-color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #f0e0ca;\n  color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li a {\n  color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content {\n  background-color: #faf5ee;\n  border: 1px solid #f0e0ca;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content h4 {\n  color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content div.sandbox_header a {\n  color: #dcb67f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading {\n  background-color: #fcffcd;\n  border: 1px solid black;\n  border-color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading h3 span.http_method a {\n  text-transform: uppercase;\n  background-color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #ffd20f;\n  color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li a {\n  color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content {\n  background-color: #fcffcd;\n  border: 1px solid black;\n  border-color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content h4 {\n  color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content div.sandbox_header a {\n  color: #6fc992;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading {\n  background-color: #f5e8e8;\n  border: 1px solid #e8c6c7;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading h3 span.http_method a {\n  text-transform: uppercase;\n  background-color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #e8c6c7;\n  color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li a {\n  color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content {\n  background-color: #f7eded;\n  border: 1px solid #e8c6c7;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content h4 {\n  color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content div.sandbox_header a {\n  color: #c8787a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading {\n  background-color: #e7f6ec;\n  border: 1px solid #c3e8d1;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading h3 span.http_method a {\n  background-color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #c3e8d1;\n  color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li a {\n  color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content {\n  background-color: #ebf7f0;\n  border: 1px solid #c3e8d1;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content h4 {\n  color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content div.sandbox_header a {\n  color: #6fc992;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading {\n  background-color: #FCE9E3;\n  border: 1px solid #F5D5C3;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading h3 span.http_method a {\n  background-color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #f0cecb;\n  color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li a {\n  color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content {\n  background-color: #faf0ef;\n  border: 1px solid #f0cecb;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content h4 {\n  color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content div.sandbox_header a {\n  color: #dcb67f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading {\n  background-color: #e7f0f7;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading h3 span.http_method a {\n  background-color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #c3d9ec;\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li a {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content {\n  background-color: #ebf3f9;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content h4 {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content div.sandbox_header a {\n  color: #6fa5d2;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading {\n  background-color: #e7f0f7;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading h3 span.http_method a {\n  background-color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #c3d9ec;\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading ul.options li a {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content {\n  background-color: #ebf3f9;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content h4 {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content div.sandbox_header a {\n  color: #6fa5d2;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content {\n  border-top: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li.last {\n  padding-right: 0;\n  border-right: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li a:hover,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li a:active,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li a.active {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap p#colophon {\n  margin: 0 15px 40px 15px;\n  padding: 10px 0;\n  font-size: 0.8em;\n  border-top: 1px solid #dddddd;\n  font-family: \"Droid Sans\", sans-serif;\n  color: #999999;\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap p#colophon a {\n  text-decoration: none;\n  color: #547f00;\n}\n.swagger-section .swagger-ui-wrap h3 {\n  color: black;\n  font-size: 1.1em;\n  padding: 10px 0 10px 0;\n}\n.swagger-section .swagger-ui-wrap .markdown ol,\n.swagger-section .swagger-ui-wrap .markdown ul {\n  font-family: \"Droid Sans\", sans-serif;\n  margin: 5px 0 10px;\n  padding: 0 0 0 18px;\n  list-style-type: disc;\n}\n.swagger-section .swagger-ui-wrap form.form_box {\n  background-color: #ebf3f9;\n  border: 1px solid #c3d9ec;\n  padding: 10px;\n}\n.swagger-section .swagger-ui-wrap form.form_box label {\n  color: #0f6ab4 !important;\n}\n.swagger-section .swagger-ui-wrap form.form_box input[type=submit] {\n  display: block;\n  padding: 10px;\n}\n.swagger-section .swagger-ui-wrap form.form_box p.weak {\n  font-size: 0.8em;\n}\n.swagger-section .swagger-ui-wrap form.form_box p {\n  font-size: 0.9em;\n  padding: 0 0 15px;\n  color: #7e7b6d;\n}\n.swagger-section .swagger-ui-wrap form.form_box p a {\n  color: #646257;\n}\n.swagger-section .swagger-ui-wrap form.form_box p strong {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap .operation-status td.markdown > p:last-child {\n  padding-bottom: 0;\n}\n.swagger-section .title {\n  font-style: bold;\n}\n.swagger-section .secondary_form {\n  display: none;\n}\n.swagger-section .main_image {\n  display: block;\n  margin-left: auto;\n  margin-right: auto;\n}\n.swagger-section .oauth_body {\n  margin-left: 100px;\n  margin-right: 100px;\n}\n.swagger-section .oauth_submit {\n  text-align: center;\n  display: inline-block;\n}\n.swagger-section .authorize-wrapper {\n  margin: 15px 0 10px;\n}\n.swagger-section .authorize-wrapper_operation {\n  float: right;\n}\n.swagger-section .authorize__btn:hover {\n  text-decoration: underline;\n  cursor: pointer;\n}\n.swagger-section .authorize__btn_operation:hover .authorize-scopes {\n  display: block;\n}\n.swagger-section .authorize-scopes {\n  position: absolute;\n  margin-top: 20px;\n  background: #FFF;\n  border: 1px solid #ccc;\n  border-radius: 5px;\n  display: none;\n  font-size: 13px;\n  max-width: 300px;\n  line-height: 30px;\n  color: black;\n  padding: 5px;\n}\n.swagger-section .authorize-scopes .authorize__scope {\n  text-decoration: none;\n}\n.swagger-section .authorize__btn_operation {\n  height: 18px;\n  vertical-align: middle;\n  display: inline-block;\n  background: url(data:image/png;base64,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) no-repeat;\n}\n.swagger-section .authorize__btn_operation_login {\n  background-position: 0 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .authorize__btn_operation_logout {\n  background-position: -30px 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section #auth_container {\n  color: #fff;\n  display: inline-block;\n  border: none;\n  padding: 5px;\n  width: 87px;\n  height: 13px;\n}\n.swagger-section #auth_container .authorize__btn {\n  color: #fff;\n}\n.swagger-section .auth_container {\n  padding: 0 0 10px;\n  margin-bottom: 5px;\n  border-bottom: solid 1px #CCC;\n  font-size: 0.9em;\n}\n.swagger-section .auth_container .auth__title {\n  color: #547f00;\n  font-size: 1.2em;\n}\n.swagger-section .auth_container .basic_auth__label {\n  display: inline-block;\n  width: 60px;\n}\n.swagger-section .auth_container .auth__description {\n  color: #999999;\n  margin-bottom: 5px;\n}\n.swagger-section .auth_container .auth__button {\n  margin-top: 10px;\n  height: 30px;\n}\n.swagger-section .auth_container .key_auth__field {\n  margin: 5px 0;\n}\n.swagger-section .auth_container .key_auth__label {\n  display: inline-block;\n  width: 60px;\n}\n.swagger-section .api-popup-dialog {\n  position: absolute;\n  display: none;\n}\n.swagger-section .api-popup-dialog-wrapper {\n  z-index: 1000;\n  width: 500px;\n  background: #FFF;\n  padding: 20px;\n  border: 1px solid #ccc;\n  border-radius: 5px;\n  font-size: 13px;\n  color: #777;\n  position: fixed;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n.swagger-section .api-popup-dialog-shadow {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  opacity: 0.2;\n  background-color: gray;\n  z-index: 900;\n}\n.swagger-section .api-popup-dialog .api-popup-title {\n  font-size: 24px;\n  padding: 10px 0;\n}\n.swagger-section .api-popup-dialog .api-popup-title {\n  font-size: 24px;\n  padding: 10px 0;\n}\n.swagger-section .api-popup-dialog .error-msg {\n  padding-left: 5px;\n  padding-bottom: 5px;\n}\n.swagger-section .api-popup-dialog .api-popup-content {\n  max-height: 500px;\n  overflow-y: auto;\n}\n.swagger-section .api-popup-dialog .api-popup-authbtn {\n  height: 30px;\n}\n.swagger-section .api-popup-dialog .api-popup-cancel {\n  height: 30px;\n}\n.swagger-section .api-popup-scopes {\n  padding: 10px 20px;\n}\n.swagger-section .api-popup-scopes li {\n  padding: 5px 0;\n  line-height: 20px;\n}\n.swagger-section .api-popup-scopes li input {\n  position: relative;\n  top: 2px;\n}\n.swagger-section .api-popup-scopes .api-scope-desc {\n  padding-left: 20px;\n  font-style: italic;\n}\n.swagger-section .api-popup-actions {\n  padding-top: 10px;\n}\n.swagger-section .access {\n  float: right;\n}\n.swagger-section .auth {\n  float: right;\n}\n.swagger-section .api-ic {\n  height: 18px;\n  vertical-align: middle;\n  display: inline-block;\n  background: url(data:image/png;base64,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) no-repeat;\n}\n.swagger-section .api-ic .api_information_panel {\n  position: relative;\n  margin-top: 20px;\n  margin-left: -5px;\n  background: #FFF;\n  border: 1px solid #ccc;\n  border-radius: 5px;\n  display: none;\n  font-size: 13px;\n  max-width: 300px;\n  line-height: 30px;\n  color: black;\n  padding: 5px;\n}\n.swagger-section .api-ic .api_information_panel p .api-msg-enabled {\n  color: green;\n}\n.swagger-section .api-ic .api_information_panel p .api-msg-disabled {\n  color: red;\n}\n.swagger-section .api-ic:hover .api_information_panel {\n  position: absolute;\n  display: block;\n}\n.swagger-section .ic-info {\n  background-position: 0 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .ic-warning {\n  background-position: -60px 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .ic-error {\n  background-position: -30px 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .ic-off {\n  background-position: -90px 0;\n  width: 58px;\n  margin-top: -4px;\n  cursor: pointer;\n}\n.swagger-section .ic-on {\n  background-position: -160px 0;\n  width: 58px;\n  margin-top: -4px;\n  cursor: pointer;\n}\n.swagger-section #header {\n  background-color: #89bf04;\n  padding: 9px 14px 19px 14px;\n  height: 23px;\n  min-width: 775px;\n}\n.swagger-section #input_baseUrl {\n  width: 400px;\n}\n.swagger-section #api_selector {\n  display: block;\n  clear: none;\n  float: right;\n}\n.swagger-section #api_selector .input {\n  display: inline-block;\n  clear: none;\n  margin: 0 10px 0 0;\n}\n.swagger-section #api_selector input {\n  font-size: 0.9em;\n  padding: 3px;\n  margin: 0;\n}\n.swagger-section #input_apiKey {\n  width: 200px;\n}\n.swagger-section #explore,\n.swagger-section #auth_container .authorize__btn {\n  display: block;\n  text-decoration: none;\n  font-weight: bold;\n  padding: 6px 8px;\n  font-size: 0.9em;\n  color: white;\n  background-color: #547f00;\n  -moz-border-radius: 4px;\n  -webkit-border-radius: 4px;\n  -o-border-radius: 4px;\n  -ms-border-radius: 4px;\n  -khtml-border-radius: 4px;\n  border-radius: 4px;\n}\n.swagger-section #explore:hover,\n.swagger-section #auth_container .authorize__btn:hover {\n  background-color: #547f00;\n}\n.swagger-section #header #logo {\n  font-size: 1.5em;\n  font-weight: bold;\n  text-decoration: none;\n  color: white;\n}\n.swagger-section #header #logo .logo__img {\n  display: block;\n  float: left;\n  margin-top: 2px;\n}\n.swagger-section #header #logo .logo__title {\n  display: inline-block;\n  padding: 5px 0 0 10px;\n}\n.swagger-section #content_message {\n  margin: 10px 15px;\n  font-style: italic;\n  color: #999999;\n}\n.swagger-section #message-bar {\n  min-height: 30px;\n  text-align: center;\n  padding-top: 10px;\n}\n.swagger-section .swagger-collapse:before {\n  content: \"-\";\n}\n.swagger-section .swagger-expand:before {\n  content: \"+\";\n}\n.swagger-section .error {\n  outline-color: #cc0000;\n  background-color: #f2dede;\n}\n</style>\n\n  <!-- <script src='lib/object-assign-pollyfill.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery-1.8.0.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery.slideto.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery.wiggle.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery.ba-bbq.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/handlebars-2.0.0.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/lodash.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/backbone-min.js' type='text/javascript'></script> -->\n  <!-- <script src='swagger-ui.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/highlight.9.1.0.pack.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/highlight.9.1.0.pack_extended.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jsoneditor.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/marked.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/swagger-oauth.js' type='text/javascript'></script> -->\n  <script src='assets.swagger_ui.rollup.js'></script>\n\n  <!-- Some basic translations -->\n  <!-- <script src='lang/translator.js' type='text/javascript'></script> -->\n  <!-- <script src='lang/ru.js' type='text/javascript'></script> -->\n  <!-- <script src='lang/en.js' type='text/javascript'></script> -->\n\n  <script type=\"text/javascript\">\n    $(function () {\n      var url = (/url=([^&]+)/).exec(window.location.search);\n      if (url && url.length > 1) {\n        url = decodeURIComponent(url[1]);\n      } else {\n        url = \"assets.swagger_ui.petstore.json\";\n        if (!(/^(?:\\/|http:|https:)/).test(url)) {\n            url = location.pathname.replace((/[^\\/]*?\\.html$/), '') + url;\n        }\n      }\n\n      hljs.configure({\n        highlightSizeThreshold: 5000\n      });\n\n      // Pre load translate...\n      if(window.SwaggerTranslator) {\n        window.SwaggerTranslator.translate();\n      }\n      window.swaggerUi = new SwaggerUi({\n        url: url,\n        dom_id: \"swagger-ui-container\",\n        supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],\n        onComplete: function(swaggerApi, swaggerUi){\n          if(typeof initOAuth == \"function\") {\n            initOAuth({\n              clientId: \"your-client-id\",\n              clientSecret: \"your-client-secret-if-required\",\n              realm: \"your-realms\",\n              appName: \"your-app-name\",\n              scopeSeparator: \",\",\n              additionalQueryStringParams: {}\n            });\n          }\n\n          if(window.SwaggerTranslator) {\n            window.SwaggerTranslator.translate();\n          }\n        },\n        onFailure: function(data) {\n          log(\"Unable to Load SwaggerUI\");\n        },\n        docExpansion: \"none\",\n        jsonEditor: false,\n        defaultModelRendering: 'schema',\n        showRequestHeaders: false\n      });\n\n      window.swaggerUi.load();\n\n      function log() {\n        if ('console' in window) {\n          console.log.apply(console, arguments);\n        }\n      }\n  });\n  </script>\n</head>\n\n<body class=\"swagger-section\">\n<div id='header'>\n  <div class=\"swagger-ui-wrap\">\n    <a id=\"logo\" href=\"http://swagger.io\"><img class=\"logo__img\" alt=\"swagger\" height=\"30\" width=\"30\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAqRJREFUeNrEVz1s00AUfnGXii5maMXoEUEHVwIpEkPNgkBdMnQoU5ytiKHJwpp2Q2JIO8DCUDOxIJFIVOoWZyJSh3pp1Q2PVVlcCVBH3ufeVZZ9Zye1Ay86nXV+ue/9fO/lheg/Se02X1rvksmbnTiKvuxQMBNgBnN4a/LCbmnUAP6JV58NCUsBC8CuAJxGPF47OgNqBaA93tolUhnx6jC4NxGwyOEwlccyAs+3kwdzKq0HDn2vEBTi8J2XpyMaywNDE157BhXUE3zJhlq8GKq+Zd2zaWHepPA8oN9XkfLmRdOiJV4XUUg/IyWncLjCYY/SHndV2u7zHr3bPKZtdxgboJOnthvrfGj/oMf3G0r7JVmNlLfKklmrt2MvvcNO7LFOhoFHfuAJI5o6ta10jpt5CQLgwXhXG2YIwvu+34qf78ybOjWTnWwkgR36d7JqJOrW0hHmNrKg9xhiS4+1jFmrxymh03B0w+6kURIAu3yHtOD5oaUNojMnGgbcctNvwdAnyxvxRR+/vaJnjzbpzcZX+nN1SdGv85i9eH8w3qPO+mdm/y4dnQ1iI8Fq6Nf4cxL6GWSjiFDSs0VRnxC5g0xSB2cgHpaseTxfqOv5uoHkNQ6Ha/N1Yz9mNMppEkEkYKj79q6uCq4bCHcSX3fJ0Vk/k9siASjCm1N6gZH6Ec9IXt2WkFES2K/ixoIyktJPAu/ptOA1SgO5zqtr6KASJPF0nMV8dgMsRhRPOcMwqQAOoi0VAIMLAEWJ6YYC1c8ibj1GP51RqwzYwZVMHQuvOzMCBUtb2tGHx5NAdLKqp5AX7Ng4d+Zi8AGDI9z1ijx9yaCH04y3GCP2S+QcvaGl+pcxyUBvinFlawoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\" /><span class=\"logo__title\">swagger</span></a>\n    <form id='api_selector'>\n      <div class='input'><input placeholder=\"http://example.com/api\" id=\"input_baseUrl\" name=\"baseUrl\" type=\"text\"/></div>\n      <div id='auth_container'></div>\n      <div class='input'><a id=\"explore\" class=\"header__btn\" href=\"#\" data-sw-translate>Explore</a></div>\n    </form>\n  </div>\n</div>\n\n<div id=\"message-bar\" class=\"swagger-ui-wrap\" data-sw-translate>&nbsp;</div>\n<div id=\"swagger-ui-container\" class=\"swagger-ui-wrap\"></div>\n</body>\n</html>\n\n",
-            "/assets.example.js": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/*\nexample.js\n\nthis script will run a web-demo of swagger-ui-lite\n\ninstruction\n    1. save this script as example.js\n    2. run the shell command:\n        $ npm install swagger-ui-lite && PORT=8081 node example.js\n    3. open a browser to http://127.0.0.1:8081 and play with the web-demo\n    4. edit this script to suit your needs\n*/\n\n\n\n/* istanbul instrument in package swagger_ui */\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n(function () {\n    'use strict';\n    var local;\n\n\n\n    // run shared js-env code - init-before\n    (function () {\n        // init local\n        local = {};\n        // init isBrowser\n        local.isBrowser = typeof window === \"object\" &&\n            typeof window.XMLHttpRequest === \"function\" &&\n            window.document &&\n            typeof window.document.querySelectorAll === \"function\";\n        // init global\n        local.global = local.isBrowser\n            ? window\n            : global;\n        // re-init local\n        local = local.global.utility2_rollup || (local.isBrowser\n            ? local.global.utility2_swagger_ui\n            : global.utility2_moduleExports);\n        // init exports\n        local.global.local = local;\n    }());\n\n\n\n    // run browser js-env code - init-test\n    /* istanbul ignore next */\n    (function () {\n        if (!local.isBrowser) {\n            return;\n        }\n    }());\n\n\n\n    // run node js-env code - init-test\n    /* istanbul ignore next */\n    (function () {\n        if (local.isBrowser) {\n            return;\n        }\n        // init exports\n        module.exports = local;\n        // require builtins\n        // local.assert = require('assert');\n        local.buffer = require('buffer');\n        local.child_process = require('child_process');\n        local.cluster = require('cluster');\n        local.crypto = require('crypto');\n        local.dgram = require('dgram');\n        local.dns = require('dns');\n        local.domain = require('domain');\n        local.events = require('events');\n        local.fs = require('fs');\n        local.http = require('http');\n        local.https = require('https');\n        local.net = require('net');\n        local.os = require('os');\n        local.path = require('path');\n        local.querystring = require('querystring');\n        local.readline = require('readline');\n        local.repl = require('repl');\n        local.stream = require('stream');\n        local.string_decoder = require('string_decoder');\n        local.timers = require('timers');\n        local.tls = require('tls');\n        local.tty = require('tty');\n        local.url = require('url');\n        local.util = require('util');\n        local.v8 = require('v8');\n        local.vm = require('vm');\n        local.zlib = require('zlib');\n        /* validateLineSortedReset */\n        // init assets\n        local.assetsDict = local.assetsDict || {};\n        [\n            'assets.index.template.html',\n            'assets.swgg.swagger.json',\n            'assets.swgg.swagger.server.json'\n        ].forEach(function (file) {\n            file = '/' + file;\n            local.assetsDict[file] = local.assetsDict[file] || '';\n            if (local.fs.existsSync(local.__dirname + file)) {\n                local.assetsDict[file] = local.fs.readFileSync(\n                    local.__dirname + file,\n                    'utf8'\n                );\n            }\n        });\n        /* validateLineSortedReset */\n        /* jslint-ignore-begin */\n        // bug-workaround - long $npm_package_buildCustomOrg\n        local.assetsDict['/assets.swagger_ui.js'] =\n            local.assetsDict['/assets.swagger_ui.js'] ||\n            local.fs.readFileSync(local.__dirname + '/lib.swagger_ui.js', 'utf8'\n        ).replace((/^#!\\//), '// ');\n        /* jslint-ignore-end */\n        /* validateLineSortedReset */\n        local.assetsDict['/'] =\n            local.assetsDict['/assets.example.html'] =\n            local.assetsDict['/index.html'] =\n            local.assetsDict['/assets.index.template.html']\n            .replace((/\\{\\{env\\.(\\w+?)\\}\\}/g), function (match0, match1) {\n                switch (match1) {\n                case 'npm_package_description':\n                    return 'the greatest app in the world!';\n                case 'npm_package_name':\n                    return 'swagger-ui-lite';\n                case 'npm_package_nameLib':\n                    return 'swagger_ui';\n                case 'npm_package_version':\n                    return '0.0.1';\n                default:\n                    return match0;\n                }\n            });\n        // init cli\n        if (module !== require.main || local.global.utility2_rollup) {\n            return;\n        }\n        local.assetsDict['/assets.example.js'] =\n            local.assetsDict['/assets.example.js'] ||\n            local.fs.readFileSync(__filename, 'utf8');\n        local.assetsDict['/favicon.ico'] = local.assetsDict['/favicon.ico'] || '';\n        // if $npm_config_timeout_exit exists,\n        // then exit this process after $npm_config_timeout_exit ms\n        if (Number(process.env.npm_config_timeout_exit)) {\n            setTimeout(process.exit, Number(process.env.npm_config_timeout_exit));\n        }\n        // start server\n        if (local.global.utility2_serverHttp1) {\n            return;\n        }\n        process.env.PORT = process.env.PORT || '8081';\n        console.error('server starting on port ' + process.env.PORT);\n        local.http.createServer(function (request, response) {\n            request.urlParsed = local.url.parse(request.url);\n            if (local.assetsDict[request.urlParsed.pathname] !== undefined) {\n                response.end(local.assetsDict[request.urlParsed.pathname]);\n                return;\n            }\n            response.statusCode = 404;\n            response.end();\n        }).listen(process.env.PORT);\n    }());\n}());",
+            "/assets.example.js": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/*\nexample.js\n\nthis script will run a web-demo of swagger-ui-lite\n\ninstruction\n    1. save this script as example.js\n    2. run the shell command:\n        $ npm install swagger-ui-lite && PORT=8081 node example.js\n    3. open a browser to http://127.0.0.1:8081 and play with the web-demo\n    4. edit this script to suit your needs\n*/\n\n\n\n/* istanbul instrument in package swagger_ui */\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n(function () {\n    'use strict';\n    var local;\n\n\n\n    // run shared js-env code - init-before\n    (function () {\n        // init local\n        local = {};\n        // init isBrowser\n        local.isBrowser = typeof window === \"object\" &&\n            typeof window.XMLHttpRequest === \"function\" &&\n            window.document &&\n            typeof window.document.querySelectorAll === \"function\";\n        // init global\n        local.global = local.isBrowser\n            ? window\n            : global;\n        // re-init local\n        local = local.global.utility2_rollup || (local.isBrowser\n            ? local.global.utility2_swagger_ui\n            : global.utility2_moduleExports);\n        // init exports\n        local.global.local = local;\n    }());\n\n\n\n    // run browser js-env code - init-test\n    /* istanbul ignore next */\n    (function () {\n        if (!local.isBrowser) {\n            return;\n        }\n    }());\n\n\n\n    // run node js-env code - init-test\n    /* istanbul ignore next */\n    (function () {\n        if (local.isBrowser) {\n            return;\n        }\n        // init exports\n        module.exports = local;\n        // require builtins\n        // local.assert = require('assert');\n        local.buffer = require('buffer');\n        local.child_process = require('child_process');\n        local.cluster = require('cluster');\n        local.crypto = require('crypto');\n        local.dgram = require('dgram');\n        local.dns = require('dns');\n        local.domain = require('domain');\n        local.events = require('events');\n        local.fs = require('fs');\n        local.http = require('http');\n        local.https = require('https');\n        local.net = require('net');\n        local.os = require('os');\n        local.path = require('path');\n        local.querystring = require('querystring');\n        local.readline = require('readline');\n        local.repl = require('repl');\n        local.stream = require('stream');\n        local.string_decoder = require('string_decoder');\n        local.timers = require('timers');\n        local.tls = require('tls');\n        local.tty = require('tty');\n        local.url = require('url');\n        local.util = require('util');\n        local.vm = require('vm');\n        local.zlib = require('zlib');\n        /* validateLineSortedReset */\n        // init assets\n        local.assetsDict = local.assetsDict || {};\n        [\n            'assets.index.template.html',\n            'assets.swgg.swagger.json',\n            'assets.swgg.swagger.server.json'\n        ].forEach(function (file) {\n            file = '/' + file;\n            local.assetsDict[file] = local.assetsDict[file] || '';\n            if (local.fs.existsSync(local.__dirname + file)) {\n                local.assetsDict[file] = local.fs.readFileSync(\n                    local.__dirname + file,\n                    'utf8'\n                );\n            }\n        });\n        /* validateLineSortedReset */\n        /* jslint-ignore-begin */\n        // bug-workaround - long $npm_package_buildCustomOrg\n        local.assetsDict['/assets.swagger_ui.js'] =\n            local.assetsDict['/assets.swagger_ui.js'] ||\n            local.fs.readFileSync(local.__dirname + '/lib.swagger_ui.js', 'utf8'\n        ).replace((/^#!\\//), '// ');\n        /* jslint-ignore-end */\n        /* validateLineSortedReset */\n        local.assetsDict['/'] =\n            local.assetsDict['/assets.example.html'] =\n            local.assetsDict['/index.html'] =\n            local.assetsDict['/assets.index.template.html']\n            .replace((/\\{\\{env\\.(\\w+?)\\}\\}/g), function (match0, match1) {\n                switch (match1) {\n                case 'npm_package_description':\n                    return 'the greatest app in the world!';\n                case 'npm_package_name':\n                    return 'swagger-ui-lite';\n                case 'npm_package_nameLib':\n                    return 'swagger_ui';\n                case 'npm_package_version':\n                    return '0.0.1';\n                default:\n                    return match0;\n                }\n            });\n        // init cli\n        if (module !== require.main || local.global.utility2_rollup) {\n            return;\n        }\n        local.assetsDict['/assets.example.js'] =\n            local.assetsDict['/assets.example.js'] ||\n            local.fs.readFileSync(__filename, 'utf8');\n        local.assetsDict['/favicon.ico'] = local.assetsDict['/favicon.ico'] || '';\n        // if $npm_config_timeout_exit exists,\n        // then exit this process after $npm_config_timeout_exit ms\n        if (Number(process.env.npm_config_timeout_exit)) {\n            setTimeout(process.exit, Number(process.env.npm_config_timeout_exit));\n        }\n        // start server\n        if (local.global.utility2_serverHttp1) {\n            return;\n        }\n        process.env.PORT = process.env.PORT || '8081';\n        console.error('server starting on port ' + process.env.PORT);\n        local.http.createServer(function (request, response) {\n            request.urlParsed = local.url.parse(request.url);\n            if (local.assetsDict[request.urlParsed.pathname] !== undefined) {\n                response.end(local.assetsDict[request.urlParsed.pathname]);\n                return;\n            }\n            response.statusCode = 404;\n            response.end();\n        }).listen(process.env.PORT);\n    }());\n}());",
             "/assets.swgg.swagger.json": "",
-            "/assets.test.js": "/* istanbul instrument in package swagger_ui */\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n(function () {\n    'use strict';\n    var local;\n\n\n\n    // run shared js-env code - init-before\n    (function () {\n        // init local\n        local = {};\n        // init isBrowser\n        local.isBrowser = typeof window === \"object\" &&\n            typeof window.XMLHttpRequest === \"function\" &&\n            window.document &&\n            typeof window.document.querySelectorAll === \"function\";\n        // init global\n        local.global = local.isBrowser\n            ? window\n            : global;\n        // re-init local\n        local = local.global.local = (local.global.utility2 ||\n            require('utility2')).requireReadme();\n        // init test\n        local.testRunInit(local);\n    }());\n\n\n\n    // run shared js-env code - function\n    (function () {\n        local.testCase_buildApidoc_default = function (options, onError) {\n        /*\n         * this function will test buildApidoc's default handling-behavior-behavior\n         */\n            if (local.isBrowser) {\n                onError(null, options);\n                return;\n            }\n            options = {};\n            options.global = local.objectSetDefault({}, local.global);\n            options.polyfill = function () {\n                var $, Backbone, Handlebars, window;\n                $ = Backbone = Handlebars = function (arg0) {\n                    return arg0;\n                };\n                // jslint-hack\n                $(Backbone, Handlebars, window);\n                [\n                    'Collection',\n                    'Model',\n                    'Router',\n                    'View',\n                    'extend',\n                    'registerHelper',\n                    'template'\n                ].forEach(function (key) {\n                    $[key] = $;\n                });\n                window = global;\n            };\n            // coverage-hack\n            options.polyfill();\n            local.vm.runInThisContext(local.jslintAndPrint(\n/* jslint-ignore-begin */\n'\\\n/*jslint\\n\\\n    node: true\\n\\\n*/\\n\\\n\"use strict\";\\n\\\nvar $, Backbone, Handlebars, window;\\n\\\n$ = Backbone = Handlebars = function (arg0) {\\n\\\n    return arg0;\\n\\\n};\\n\\\n// jslint-hack\\n\\\n$(Backbone, Handlebars, window);\\n\\\n[\\n\\\n    \"Collection\",\\n\\\n    \"Model\",\\n\\\n    \"Router\",\\n\\\n    \"View\",\\n\\\n    \"extend\",\\n\\\n    \"registerHelper\",\\n\\\n    \"template\"\\n\\\n].forEach(function (key) {\\n\\\n    $[key] = $;\\n\\\n});\\n\\\nwindow = global;\\n\\\n', 'polyfill.js'\n/* jslint-ignore-end */\n            ) + local.fs.readFileSync('assets.swagger_ui.rollup.js', 'utf8')\n                    .replace((/^\\/\\/ init lib [\\S\\s]*?\\n\\n\\n\\n/gm), function (match0) {\n                    if (match0.indexOf('init lib swagger') < 0) {\n                        return '';\n                    }\n                    return match0;\n                })\n                );\n            options.exports = local.objectSetDefault({}, local.global);\n            Object.keys(options.exports).forEach(function (key) {\n                if (options.exports[key] === options.global[key]) {\n                    delete options.exports[key];\n                }\n            });\n            delete options.exports.$.Backbone;\n            delete options.exports.$.Handlebars;\n            delete options.exports.Backbone;\n            delete options.exports.Handlebars;\n            delete options.exports.$;\n            options.moduleDict = {\n                exampleFileList: ['assets.swagger_ui.rollup.js'],\n                swagger_ui: { exports: options.exports }\n            };\n            local.buildApidoc(options, onError);\n        };\n\n        local.testCase_buildApp_default = function (options, onError) {\n        /*\n         * this function will test buildApp's default handling-behavior-behavior\n         */\n            if (local.isBrowser) {\n                onError(null, options);\n                return;\n            }\n            local.testCase_buildReadme_default(options, local.onErrorThrow);\n            local.testCase_buildLib_default(options, local.onErrorThrow);\n            local.testCase_buildTest_default(options, local.onErrorThrow);\n            local.testCase_buildCustomOrg_default(options, local.onErrorThrow);\n            options = { assetsList: [{\n                file: '/assets.swagger_ui.html',\n                url: '/assets.swagger_ui.html'\n            }, {\n                file: '/assets.swagger_ui.petstore.json',\n                url: '/assets.swagger_ui.petstore.json'\n            }, {\n                file: '/assets.swagger_ui.rollup.js',\n                url: '/assets.swagger_ui.rollup.js'\n            }] };\n            local.buildApp(options, onError);\n        };\n    }());\n}());\n",
+            "/assets.test.js": "/* istanbul instrument in package swagger_ui */\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n(function () {\n    'use strict';\n    var local;\n\n\n\n    // run shared js-env code - init-before\n    (function () {\n        // init local\n        local = {};\n        // init isBrowser\n        local.isBrowser = typeof window === \"object\" &&\n            typeof window.XMLHttpRequest === \"function\" &&\n            window.document &&\n            typeof window.document.querySelectorAll === \"function\";\n        // init global\n        local.global = local.isBrowser\n            ? window\n            : global;\n        // re-init local\n        local = local.global.local = (local.global.utility2 ||\n            require('utility2')).requireReadme();\n        // init test\n        local.testRunDefault(local);\n    }());\n\n\n\n    // run shared js-env code - function\n    (function () {\n        local.testCase_buildApidoc_default = function (options, onError) {\n        /*\n         * this function will test buildApidoc's default handling-behavior-behavior\n         */\n            if (local.isBrowser) {\n                onError(null, options);\n                return;\n            }\n            options = {};\n            options.global = local.objectSetDefault({}, local.global);\n            options.polyfill = function () {\n                var $, Backbone, Handlebars, window;\n                $ = Backbone = Handlebars = function (arg0) {\n                    return arg0;\n                };\n                // jslint-hack\n                $(Backbone, Handlebars, window);\n                [\n                    'Collection',\n                    'Model',\n                    'Router',\n                    'View',\n                    'extend',\n                    'registerHelper',\n                    'template'\n                ].forEach(function (key) {\n                    $[key] = $;\n                });\n                window = global;\n            };\n            // coverage-hack\n            options.polyfill();\n            local.vm.runInThisContext(local.jslintAndPrint(\n/* jslint-ignore-begin */\n'\\\n/*jslint\\n\\\n    node: true\\n\\\n*/\\n\\\n\"use strict\";\\n\\\nvar $, Backbone, Handlebars, window;\\n\\\n$ = Backbone = Handlebars = function (arg0) {\\n\\\n    return arg0;\\n\\\n};\\n\\\n// jslint-hack\\n\\\n$(Backbone, Handlebars, window);\\n\\\n[\\n\\\n    \"Collection\",\\n\\\n    \"Model\",\\n\\\n    \"Router\",\\n\\\n    \"View\",\\n\\\n    \"extend\",\\n\\\n    \"registerHelper\",\\n\\\n    \"template\"\\n\\\n].forEach(function (key) {\\n\\\n    $[key] = $;\\n\\\n});\\n\\\nwindow = global;\\n\\\n', 'polyfill.js'\n/* jslint-ignore-end */\n            ) + local.fs.readFileSync('assets.swagger_ui.rollup.js', 'utf8')\n                    .replace((/^\\/\\/ init lib [\\S\\s]*?\\n\\n\\n\\n/gm), function (match0) {\n                    if (match0.indexOf('init lib swagger') < 0) {\n                        return '';\n                    }\n                    return match0;\n                })\n                );\n            options.exports = local.objectSetDefault({}, local.global);\n            Object.keys(options.exports).forEach(function (key) {\n                if (options.exports[key] === options.global[key]) {\n                    delete options.exports[key];\n                }\n            });\n            delete options.exports.$.Backbone;\n            delete options.exports.$.Handlebars;\n            delete options.exports.Backbone;\n            delete options.exports.Handlebars;\n            delete options.exports.$;\n            options.moduleDict = {\n                exampleFileList: ['assets.swagger_ui.rollup.js'],\n                swagger_ui: { exports: options.exports }\n            };\n            local.buildApidoc(options, onError);\n        };\n\n        local.testCase_buildApp_default = function (options, onError) {\n        /*\n         * this function will test buildApp's default handling-behavior-behavior\n         */\n            if (local.isBrowser) {\n                onError(null, options);\n                return;\n            }\n            local.testCase_buildReadme_default(options, local.onErrorThrow);\n            local.testCase_buildLib_default(options, local.onErrorThrow);\n            local.testCase_buildTest_default(options, local.onErrorThrow);\n            local.testCase_buildCustomOrg_default(options, local.onErrorThrow);\n            options = { assetsList: [{\n                file: '/assets.swagger_ui.html',\n                url: '/assets.swagger_ui.html'\n            }, {\n                file: '/assets.swagger_ui.petstore.json',\n                url: '/assets.swagger_ui.petstore.json'\n            }, {\n                file: '/assets.swagger_ui.rollup.js',\n                url: '/assets.swagger_ui.rollup.js'\n            }] };\n            local.buildApp(options, onError);\n        };\n    }());\n}());\n",
             "/assets.utility2.base.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<!-- \"assets.utility2.template.html\" -->\n<title>swagger-ui-lite (2018.8.11)</title>\n<style>\n/* jslint-utility2 */\n/*csslint\n*/\n/* jslint-ignore-begin */\n*,\n*:after,\n*:before {\n    box-sizing: border-box;\n}\n/* jslint-ignore-end */\n@keyframes uiAnimateShake {\n    0%, 50% {\n        transform: translateX(10px);\n    }\n    25%, 75% {\n        transform: translateX(-10px);\n    }\n    100% {\n        transform: translateX(0);\n    }\n}\n@keyframes uiAnimateSpin {\n    0% {\n        transform: rotate(0deg);\n    }\n    100% {\n        transform: rotate(360deg);\n    }\n}\na {\n    overflow-wrap: break-word;\n}\nbody {\n    background: #eef;\n    font-family: Arial, Helvetica, sans-serif;\n    margin: 0 40px;\n}\nbody > div,\nbody > form > div,\nbody > form > input,\nbody > form > pre,\nbody > form > textarea,\nbody > form > .button,\nbody > input,\nbody > pre,\nbody > textarea,\nbody > .button {\n    margin-bottom: 20px;\n}\nbody > form > input,\nbody > form > .button,\nbody > input,\nbody > .button {\n    width: 20rem;\n}\nbody > form > textarea,\nbody > textarea {\n    height: 10rem;\n    width: 100%;\n}\nbody > textarea[readonly] {\n    background: #ddd;\n}\ncode,\npre,\ntextarea {\n    font-family: Consolas, Menlo, monospace;\n    font-size: small;\n}\npre {\n    overflow-wrap: break-word;\n    white-space: pre-wrap;\n}\ntextarea {\n    overflow: auto;\n    white-space: pre;\n}\n.button {\n    background-color: #fff;\n    border: 1px solid;\n    border-bottom-color: rgb(186, 186, 186);\n    border-left-color: rgb(209, 209, 209);\n    border-radius: 4px;\n    border-right-color: rgb(209, 209, 209);\n    border-top-color: rgb(216, 216, 216);\n    color: #00d;\n    cursor: pointer;\n    display: inline-block;\n    font-family: Arial, Helvetica, sans-serif;\n    font-size: 12px;\n    font-style: normal;\n    font-weight: normal;\n    margin: 0;\n    padding: 2px 7px 3px 7px;\n    text-align: center;\n    text-decoration: underline;\n}\n.colorError {\n    color: #d00;\n}\n.uiAnimateShake {\n    animation-duration: 500ms;\n    animation-name: uiAnimateShake;\n}\n.uiAnimateSlide {\n    overflow-y: hidden;\n    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\n}\n.utility2FooterDiv {\n    text-align: center;\n}\n.zeroPixel {\n    border: 0;\n    height: 0;\n    margin: 0;\n    padding: 0;\n    width: 0;\n}\n</style>\n</head>\n<body>\n<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\n<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\n<a class=\"zeroPixel\" download=\"db.persistence.json\" href=\"\" id=\"dbExportA1\"></a>\n<input class=\"zeroPixel\" id=\"dbImportInput1\" type=\"file\">\n<script>\n/* jslint-utility2 */\n/*jslint\n    bitwise: true,\n    browser: true,\n    maxerr: 4,\n    maxlen: 100,\n    node: true,\n    nomen: true,\n    regexp: true,\n    stupid: true\n*/\n// init domOnEventWindowOnloadTimeElapsed\n(function () {\n/*\n * this function will measure and print the time-elapsed for window.onload\n */\n    \"use strict\";\n    if (window.domOnEventWindowOnloadTimeElapsed) {\n        return;\n    }\n    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\n    window.addEventListener(\"load\", function () {\n        setTimeout(function () {\n            window.domOnEventWindowOnloadTimeElapsed = Date.now() -\n                window.domOnEventWindowOnloadTimeElapsed;\n            console.error(\"domOnEventWindowOnloadTimeElapsed = \" +\n                window.domOnEventWindowOnloadTimeElapsed);\n        }, 100);\n    });\n}());\n// init timerIntervalAjaxProgressUpdate\n(function () {\n/*\n * this function will increment the ajax-progress-bar until the webpage has loaded\n */\n    \"use strict\";\n    var ajaxProgressDiv1,\n        ajaxProgressState,\n        ajaxProgressUpdate;\n    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector(\"#ajaxProgressDiv1\")) {\n        return;\n    }\n    ajaxProgressDiv1 = document.querySelector(\"#ajaxProgressDiv1\");\n    setTimeout(function () {\n        ajaxProgressDiv1.style.width = \"25%\";\n    });\n    ajaxProgressState = 0;\n    ajaxProgressUpdate = (window.local &&\n        window.local.ajaxProgressUpdate) || function () {\n        ajaxProgressDiv1.style.width = \"100%\";\n        setTimeout(function () {\n            ajaxProgressDiv1.style.background = \"transparent\";\n            setTimeout(function () {\n                ajaxProgressDiv1.style.width = \"0%\";\n            }, 500);\n        }, 1500);\n    };\n    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\n        ajaxProgressState += 1;\n        ajaxProgressDiv1.style.width = Math.max(\n            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\n            ajaxProgressDiv1.style.width.slice(0, -1) | 0\n        ) + \"%\";\n    }, 1000);\n    window.addEventListener(\"load\", function () {\n        clearInterval(window.timerIntervalAjaxProgressUpdate);\n        ajaxProgressUpdate();\n    });\n}());\n// init domOnEventSelectAllWithinPre\n(function () {\n/*\n * this function will limit select-all within <pre tabIndex=\"0\"> elements\n * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\n */\n    \"use strict\";\n    if (window.domOnEventSelectAllWithinPre) {\n        return;\n    }\n    window.domOnEventSelectAllWithinPre = function (event) {\n        var range, selection;\n        if (event &&\n                event.key === \"a\" &&\n                (event.ctrlKey || event.metaKey) &&\n                event.target.closest(\"pre\")) {\n            range = document.createRange();\n            range.selectNodeContents(event.target.closest(\"pre\"));\n            selection = window.getSelection();\n            selection.removeAllRanges();\n            selection.addRange(range);\n            event.preventDefault();\n        }\n    };\n    document.addEventListener(\"keydown\", window.domOnEventSelectAllWithinPre);\n}());\n</script>\n<h1>\n\n    <a\n        \n        href=\"https://github.com/kaizhu256/node-swagger-ui-lite\"\n        \n        target=\"_blank\"\n    >\n\n        swagger-ui-lite (2018.8.11)\n\n    </a>\n\n</h1>\n<h3>this zero-dependency package will provide a rollup, single-script version of the swagger-ui client (v2.1.5), with a working web-demo</h3>\n\n<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\n<button class=\"button onclick onreset\" id=\"testRunButton1\">run internal test</button><br>\n<div class=\"uiAnimateSlide\" id=\"testReportDiv1\" style=\"border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;\"></div>\n\n\n\n\n<label>stderr and stdout</label>\n<textarea class=\"resettable\" id=\"outputStdoutTextarea1\" readonly></textarea>\n\n\n<script src=\"assets.app.js\"></script>\n\n\n<div class=\"utility2FooterDiv\">\n    [ this app was created with\n    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\n    ]\n</div>\n</body>\n</html>\n",
-            "/index.html": "<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Swagger UI</title>\n  <link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,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\" sizes=\"32x32\" />\n  <link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACTElEQVQ4jY2TT0iTYRzHP8/zvppm1pplsst0SCjm1sVuCY0OUsnGOu1UEFKHohIRFDpEVB48FB5CJNCLFzFyRn8u78EOecwNSWVoOyg03BjGpOn7vk+HzTmdQb/Lw/Pw/X6fH9/v7yc4VLZteRSqB4QfVHP+VcRBGQIxJqW2WooX+0RbV9hPUao/lojoC2vTbP7OY+tqPVxsCtHuDpgIOSwQT6SUZlGgQJ5KZlaCE0aY9fTC4cYAcDl93PZPUu9oiQjETSmlKQAs23qezCwPvp69TDaXOpK8V8ePOXnU/ZV6R8uQJrUBaduWB2X3TxhhsrkUNzpe0BuYLyP2Br7R3fGS7VyacSMMyu6zbcsjFepOLBHR99r2uoOMfr5eJvDm0zW8jUEANtJRoon3uoIeCeLq97XpIrBCq2LH3C4T2DGz6FpV8b6w9g7Ar4NqThXc7my7T3JrhfpT5zlRfZad3SwIQYVWTTaX4lfmB51tD5hbHGFzaxVQzfLgPwKUKmQjQORTFoVTKYXYTx4AHUS8rtZz6WdynrnFEa5ceEwys8y6dTBKTVbScLqV0S95f86c9AAiLgHD1xQqAnetP1TqNWUeVOo1mFauePc1hgAMKWDM6w6YLqcXgFhihrtdH8oE7nV9JJaYAcDlbKe9MWgKGCsZpKXBV7OdbP/HID3snuOco3VIk9pAySirqWRmKThuhNlIR48ku5xebvknaXC0Rigd5RKRZyi7L5qYyS/T1mrRMF9TCK87aCLEsEAeXKbS+vc6Ywh4K6UWL8X/BRbH8zwWREZpAAAAAElFTkSuQmCC\" sizes=\"16x16\" />\n  <!-- <link href='css/typography.css' media='screen' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/reset.css' media='screen' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/screen.css' media='screen' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/reset.css' media='print' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/print.css' media='print' rel='stylesheet' type='text/css'/> -->\n<style>\n/* init style reset */\n/* http://meyerweb.com/eric/tools/css/reset/ v2.0 | 20110126 */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font-size: 100%;\n  font: inherit;\n  vertical-align: baseline;\n}\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block;\n}\nbody {\n  line-height: 1;\n}\nol,\nul {\n  list-style: none;\n}\nblockquote,\nq {\n  quotes: none;\n}\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: '';\n  content: none;\n}\ntable {\n  border-collapse: collapse;\n  border-spacing: 0;\n}\n\n\n\n/* init style screen */\n/* Original style from softwaremaniacs.org (c) Ivan Sagalaev <Maniac@SoftwareManiacs.Org> */\n.swagger-section pre code {\n  display: block;\n  padding: 0.5em;\n  background: #F0F0F0;\n}\n.swagger-section pre code,\n.swagger-section pre .subst,\n.swagger-section pre .tag .title,\n.swagger-section pre .lisp .title,\n.swagger-section pre .clojure .built_in,\n.swagger-section pre .nginx .title {\n  color: black;\n}\n.swagger-section pre .string,\n.swagger-section pre .title,\n.swagger-section pre .constant,\n.swagger-section pre .parent,\n.swagger-section pre .tag .value,\n.swagger-section pre .rules .value,\n.swagger-section pre .rules .value .number,\n.swagger-section pre .preprocessor,\n.swagger-section pre .ruby .symbol,\n.swagger-section pre .ruby .symbol .string,\n.swagger-section pre .aggregate,\n.swagger-section pre .template_tag,\n.swagger-section pre .django .variable,\n.swagger-section pre .smalltalk .class,\n.swagger-section pre .addition,\n.swagger-section pre .flow,\n.swagger-section pre .stream,\n.swagger-section pre .bash .variable,\n.swagger-section pre .apache .tag,\n.swagger-section pre .apache .cbracket,\n.swagger-section pre .tex .command,\n.swagger-section pre .tex .special,\n.swagger-section pre .erlang_repl .function_or_atom,\n.swagger-section pre .markdown .header {\n  color: #800;\n}\n.swagger-section pre .comment,\n.swagger-section pre .annotation,\n.swagger-section pre .template_comment,\n.swagger-section pre .diff .header,\n.swagger-section pre .chunk,\n.swagger-section pre .markdown .blockquote {\n  color: #888;\n}\n.swagger-section pre .number,\n.swagger-section pre .date,\n.swagger-section pre .regexp,\n.swagger-section pre .literal,\n.swagger-section pre .smalltalk .symbol,\n.swagger-section pre .smalltalk .char,\n.swagger-section pre .go .constant,\n.swagger-section pre .change,\n.swagger-section pre .markdown .bullet,\n.swagger-section pre .markdown .link_url {\n  color: #080;\n}\n.swagger-section pre .label,\n.swagger-section pre .javadoc,\n.swagger-section pre .ruby .string,\n.swagger-section pre .decorator,\n.swagger-section pre .filter .argument,\n.swagger-section pre .localvars,\n.swagger-section pre .array,\n.swagger-section pre .attr_selector,\n.swagger-section pre .important,\n.swagger-section pre .pseudo,\n.swagger-section pre .pi,\n.swagger-section pre .doctype,\n.swagger-section pre .deletion,\n.swagger-section pre .envvar,\n.swagger-section pre .shebang,\n.swagger-section pre .apache .sqbracket,\n.swagger-section pre .nginx .built_in,\n.swagger-section pre .tex .formula,\n.swagger-section pre .erlang_repl .reserved,\n.swagger-section pre .prompt,\n.swagger-section pre .markdown .link_label,\n.swagger-section pre .vhdl .attribute,\n.swagger-section pre .clojure .attribute,\n.swagger-section pre .coffeescript .property {\n  color: #88F;\n}\n.swagger-section pre .keyword,\n.swagger-section pre .id,\n.swagger-section pre .phpdoc,\n.swagger-section pre .title,\n.swagger-section pre .built_in,\n.swagger-section pre .aggregate,\n.swagger-section pre .css .tag,\n.swagger-section pre .javadoctag,\n.swagger-section pre .phpdoc,\n.swagger-section pre .yardoctag,\n.swagger-section pre .smalltalk .class,\n.swagger-section pre .winutils,\n.swagger-section pre .bash .variable,\n.swagger-section pre .apache .tag,\n.swagger-section pre .go .typename,\n.swagger-section pre .tex .command,\n.swagger-section pre .markdown .strong,\n.swagger-section pre .request,\n.swagger-section pre .status {\n  font-weight: bold;\n}\n.swagger-section pre .markdown .emphasis {\n  font-style: italic;\n}\n.swagger-section pre .nginx .built_in {\n  font-weight: normal;\n}\n.swagger-section pre .coffeescript .javascript,\n.swagger-section pre .javascript .xml,\n.swagger-section pre .tex .formula,\n.swagger-section pre .xml .javascript,\n.swagger-section pre .xml .vbscript,\n.swagger-section pre .xml .css,\n.swagger-section pre .xml .cdata {\n  opacity: 0.5;\n}\n.swagger-section .hljs {\n  display: block;\n  overflow-x: auto;\n  padding: 0.5em;\n  background: #F0F0F0;\n}\n.swagger-section .hljs,\n.swagger-section .hljs-subst {\n  color: #444;\n}\n.swagger-section .hljs-keyword,\n.swagger-section .hljs-attribute,\n.swagger-section .hljs-selector-tag,\n.swagger-section .hljs-meta-keyword,\n.swagger-section .hljs-doctag,\n.swagger-section .hljs-name {\n  font-weight: bold;\n}\n.swagger-section .hljs-built_in,\n.swagger-section .hljs-literal,\n.swagger-section .hljs-bullet,\n.swagger-section .hljs-code,\n.swagger-section .hljs-addition {\n  color: #1F811F;\n}\n.swagger-section .hljs-regexp,\n.swagger-section .hljs-symbol,\n.swagger-section .hljs-variable,\n.swagger-section .hljs-template-variable,\n.swagger-section .hljs-link,\n.swagger-section .hljs-selector-attr,\n.swagger-section .hljs-selector-pseudo {\n  color: #BC6060;\n}\n.swagger-section .hljs-type,\n.swagger-section .hljs-string,\n.swagger-section .hljs-number,\n.swagger-section .hljs-selector-id,\n.swagger-section .hljs-selector-class,\n.swagger-section .hljs-quote,\n.swagger-section .hljs-template-tag,\n.swagger-section .hljs-deletion {\n  color: #880000;\n}\n.swagger-section .hljs-title,\n.swagger-section .hljs-section {\n  color: #880000;\n  font-weight: bold;\n}\n.swagger-section .hljs-comment {\n  color: #888888;\n}\n.swagger-section .hljs-meta {\n  color: #2B6EA1;\n}\n.swagger-section .hljs-emphasis {\n  font-style: italic;\n}\n.swagger-section .hljs-strong {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap {\n  line-height: 1;\n  font-family: \"Droid Sans\", sans-serif;\n  min-width: 760px;\n  max-width: 960px;\n  margin-left: auto;\n  margin-right: auto;\n  /* JSONEditor specific styling */\n}\n.swagger-section .swagger-ui-wrap b,\n.swagger-section .swagger-ui-wrap strong {\n  font-family: \"Droid Sans\", sans-serif;\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap q,\n.swagger-section .swagger-ui-wrap blockquote {\n  quotes: none;\n}\n.swagger-section .swagger-ui-wrap p {\n  line-height: 1.4em;\n  padding: 0 0 10px;\n  color: #333333;\n}\n.swagger-section .swagger-ui-wrap q:before,\n.swagger-section .swagger-ui-wrap q:after,\n.swagger-section .swagger-ui-wrap blockquote:before,\n.swagger-section .swagger-ui-wrap blockquote:after {\n  content: none;\n}\n.swagger-section .swagger-ui-wrap .heading_with_menu h1,\n.swagger-section .swagger-ui-wrap .heading_with_menu h2,\n.swagger-section .swagger-ui-wrap .heading_with_menu h3,\n.swagger-section .swagger-ui-wrap .heading_with_menu h4,\n.swagger-section .swagger-ui-wrap .heading_with_menu h5,\n.swagger-section .swagger-ui-wrap .heading_with_menu h6 {\n  display: block;\n  clear: none;\n  float: left;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  width: 60%;\n}\n.swagger-section .swagger-ui-wrap table {\n  border-collapse: collapse;\n  border-spacing: 0;\n}\n.swagger-section .swagger-ui-wrap table thead tr th {\n  padding: 5px;\n  font-size: 0.9em;\n  color: #666666;\n  border-bottom: 1px solid #999999;\n}\n.swagger-section .swagger-ui-wrap table tbody tr:last-child td {\n  border-bottom: none;\n}\n.swagger-section .swagger-ui-wrap table tbody tr.offset {\n  background-color: #f0f0f0;\n}\n.swagger-section .swagger-ui-wrap table tbody tr td {\n  padding: 6px;\n  font-size: 0.9em;\n  border-bottom: 1px solid #cccccc;\n  vertical-align: top;\n  line-height: 1.3em;\n}\n.swagger-section .swagger-ui-wrap ol {\n  margin: 0px 0 10px;\n  padding: 0 0 0 18px;\n  list-style-type: decimal;\n}\n.swagger-section .swagger-ui-wrap ol li {\n  padding: 5px 0px;\n  font-size: 0.9em;\n  color: #333333;\n}\n.swagger-section .swagger-ui-wrap ol,\n.swagger-section .swagger-ui-wrap ul {\n  list-style: none;\n}\n.swagger-section .swagger-ui-wrap h1 a,\n.swagger-section .swagger-ui-wrap h2 a,\n.swagger-section .swagger-ui-wrap h3 a,\n.swagger-section .swagger-ui-wrap h4 a,\n.swagger-section .swagger-ui-wrap h5 a,\n.swagger-section .swagger-ui-wrap h6 a {\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap h1 a:hover,\n.swagger-section .swagger-ui-wrap h2 a:hover,\n.swagger-section .swagger-ui-wrap h3 a:hover,\n.swagger-section .swagger-ui-wrap h4 a:hover,\n.swagger-section .swagger-ui-wrap h5 a:hover,\n.swagger-section .swagger-ui-wrap h6 a:hover {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap h1 span.divider,\n.swagger-section .swagger-ui-wrap h2 span.divider,\n.swagger-section .swagger-ui-wrap h3 span.divider,\n.swagger-section .swagger-ui-wrap h4 span.divider,\n.swagger-section .swagger-ui-wrap h5 span.divider,\n.swagger-section .swagger-ui-wrap h6 span.divider {\n  color: #aaaaaa;\n}\n.swagger-section .swagger-ui-wrap a {\n  color: #547f00;\n}\n.swagger-section .swagger-ui-wrap a img {\n  border: none;\n}\n.swagger-section .swagger-ui-wrap article,\n.swagger-section .swagger-ui-wrap aside,\n.swagger-section .swagger-ui-wrap details,\n.swagger-section .swagger-ui-wrap figcaption,\n.swagger-section .swagger-ui-wrap figure,\n.swagger-section .swagger-ui-wrap footer,\n.swagger-section .swagger-ui-wrap header,\n.swagger-section .swagger-ui-wrap hgroup,\n.swagger-section .swagger-ui-wrap menu,\n.swagger-section .swagger-ui-wrap nav,\n.swagger-section .swagger-ui-wrap section,\n.swagger-section .swagger-ui-wrap summary {\n  display: block;\n}\n.swagger-section .swagger-ui-wrap pre {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  background-color: #fcf6db;\n  border: 1px solid #e5e0c6;\n  padding: 10px;\n}\n.swagger-section .swagger-ui-wrap pre code {\n  line-height: 1.6em;\n  background: none;\n}\n.swagger-section .swagger-ui-wrap .content > .content-type > div > label {\n  clear: both;\n  display: block;\n  color: #0F6AB4;\n  font-size: 1.1em;\n  margin: 0;\n  padding: 15px 0 5px;\n}\n.swagger-section .swagger-ui-wrap .content pre {\n  font-size: 12px;\n  margin-top: 5px;\n  padding: 5px;\n}\n.swagger-section .swagger-ui-wrap .icon-btn {\n  cursor: pointer;\n}\n.swagger-section .swagger-ui-wrap .info_title {\n  padding-bottom: 10px;\n  font-weight: bold;\n  font-size: 25px;\n}\n.swagger-section .swagger-ui-wrap .footer {\n  margin-top: 20px;\n}\n.swagger-section .swagger-ui-wrap p.big,\n.swagger-section .swagger-ui-wrap div.big p {\n  font-size: 1em;\n  margin-bottom: 10px;\n}\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.string input,\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.url input,\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.text textarea,\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.numeric input {\n  width: 500px !important;\n}\n.swagger-section .swagger-ui-wrap .info_license {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_tos {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .message-fail {\n  color: #cc0000;\n}\n.swagger-section .swagger-ui-wrap .info_url {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_email {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_name {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_description {\n  padding-bottom: 10px;\n  font-size: 15px;\n}\n.swagger-section .swagger-ui-wrap .markdown ol li,\n.swagger-section .swagger-ui-wrap .markdown ul li {\n  padding: 3px 0px;\n  line-height: 1.4em;\n  color: #333333;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.string input,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.url input,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.numeric input {\n  display: block;\n  padding: 4px;\n  width: auto;\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.string input.title,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.url input.title,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.numeric input.title {\n  font-size: 1.3em;\n}\n.swagger-section .swagger-ui-wrap table.fullwidth {\n  width: 100%;\n}\n.swagger-section .swagger-ui-wrap .model-signature {\n  font-family: \"Droid Sans\", sans-serif;\n  font-size: 1em;\n  line-height: 1.5em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-nav a {\n  text-decoration: none;\n  color: #AAA;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-nav a:hover {\n  text-decoration: underline;\n  color: black;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-nav .selected {\n  color: black;\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propType {\n  color: #5555aa;\n}\n.swagger-section .swagger-ui-wrap .model-signature pre:hover {\n  background-color: #ffffdd;\n}\n.swagger-section .swagger-ui-wrap .model-signature pre {\n  font-size: .85em;\n  line-height: 1.2em;\n  overflow: auto;\n  max-height: 200px;\n  cursor: pointer;\n}\n.swagger-section .swagger-ui-wrap .model-signature ul.signature-nav {\n  display: block;\n  min-width: 230px;\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap .model-signature ul.signature-nav li:last-child {\n  padding-right: 0;\n  border-right: none;\n}\n.swagger-section .swagger-ui-wrap .model-signature ul.signature-nav li {\n  float: left;\n  margin: 0 5px 5px 0;\n  padding: 2px 5px 2px 0;\n  border-right: 1px solid #ddd;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propOpt {\n  color: #555;\n}\n.swagger-section .swagger-ui-wrap .model-signature .snippet small {\n  font-size: 0.75em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propOptKey {\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .strong {\n  font-weight: bold;\n  color: #000;\n  font-size: .9em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description div {\n  font-size: 0.9em;\n  line-height: 1.5em;\n  margin-left: 1em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .stronger {\n  font-weight: bold;\n  color: #000;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper {\n  border-spacing: 0;\n  position: absolute;\n  background-color: #ffffff;\n  border: 1px solid #bbbbbb;\n  display: none;\n  font-size: 11px;\n  max-width: 400px;\n  line-height: 30px;\n  color: black;\n  padding: 5px;\n  margin-left: 10px;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper th {\n  text-align: center;\n  background-color: #eeeeee;\n  border: 1px solid #bbbbbb;\n  font-size: 11px;\n  color: #666666;\n  font-weight: bold;\n  padding: 5px;\n  line-height: 15px;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper .optionName {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propDesc.markdown > p:first-child,\n.swagger-section .swagger-ui-wrap .model-signature .description .propDesc.markdown > p:last-child {\n  display: inline;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propDesc.markdown > p:not(:first-child):before {\n  display: block;\n  content: '';\n}\n.swagger-section .swagger-ui-wrap .model-signature .description span:last-of-type.propDesc.markdown > p:only-child {\n  margin-right: -3px;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propName {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-container {\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap .body-textarea {\n  width: 300px;\n  height: 100px;\n  border: 1px solid #aaa;\n}\n.swagger-section .swagger-ui-wrap .markdown p code,\n.swagger-section .swagger-ui-wrap .markdown li code {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  background-color: #f0f0f0;\n  color: black;\n  padding: 1px 3px;\n}\n.swagger-section .swagger-ui-wrap .required {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .editor_holder {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap .editor_holder label {\n  font-weight: normal!important;\n  /* JSONEditor uses bold by default for all labels, we revert that back to normal to not give the impression that by default fields are required */\n}\n.swagger-section .swagger-ui-wrap .editor_holder label.required {\n  font-weight: bold!important;\n}\n.swagger-section .swagger-ui-wrap input.parameter {\n  width: 300px;\n  border: 1px solid #aaa;\n}\n.swagger-section .swagger-ui-wrap h1 {\n  color: black;\n  font-size: 1.5em;\n  line-height: 1.3em;\n  padding: 10px 0 10px 0;\n  font-family: \"Droid Sans\", sans-serif;\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .heading_with_menu {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap .heading_with_menu ul {\n  display: block;\n  clear: none;\n  float: right;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  margin-top: 10px;\n}\n.swagger-section .swagger-ui-wrap h2 {\n  color: black;\n  font-size: 1.3em;\n  padding: 10px 0 10px 0;\n}\n.swagger-section .swagger-ui-wrap h2 a {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap h2 span.sub {\n  font-size: 0.7em;\n  color: #999999;\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap h2 span.sub a {\n  color: #777777;\n}\n.swagger-section .swagger-ui-wrap span.weak {\n  color: #666666;\n}\n.swagger-section .swagger-ui-wrap .message-success {\n  color: #89BF04;\n}\n.swagger-section .swagger-ui-wrap caption,\n.swagger-section .swagger-ui-wrap th,\n.swagger-section .swagger-ui-wrap td {\n  text-align: left;\n  font-weight: normal;\n  vertical-align: middle;\n}\n.swagger-section .swagger-ui-wrap .code {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.text textarea {\n  font-family: \"Droid Sans\", sans-serif;\n  height: 250px;\n  padding: 4px;\n  display: block;\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.select select {\n  display: block;\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.boolean {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.boolean label {\n  display: block;\n  float: left;\n  clear: none;\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.boolean input {\n  display: block;\n  float: left;\n  clear: none;\n  margin: 0 5px 0 0;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.required label {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li label {\n  display: block;\n  clear: both;\n  width: auto;\n  padding: 0 0 3px;\n  color: #666666;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li label abbr {\n  padding-left: 3px;\n  color: #888888;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li p.inline-hints {\n  margin-left: 0;\n  font-style: italic;\n  font-size: 0.9em;\n  margin: 0;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.buttons {\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap span.blank,\n.swagger-section .swagger-ui-wrap span.empty {\n  color: #888888;\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap .markdown h3 {\n  color: #547f00;\n}\n.swagger-section .swagger-ui-wrap .markdown h4 {\n  color: #666666;\n}\n.swagger-section .swagger-ui-wrap .markdown pre {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  background-color: #fcf6db;\n  border: 1px solid #e5e0c6;\n  padding: 10px;\n  margin: 0 0 10px 0;\n}\n.swagger-section .swagger-ui-wrap .markdown pre code {\n  line-height: 1.6em;\n  overflow: auto;\n}\n.swagger-section .swagger-ui-wrap div.gist {\n  margin: 20px 0 25px 0 !important;\n}\n.swagger-section .swagger-ui-wrap ul#resources {\n  font-family: \"Droid Sans\", sans-serif;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource {\n  border-bottom: 1px solid #dddddd;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource:hover div.heading h2 a,\n.swagger-section .swagger-ui-wrap ul#resources li.resource.active div.heading h2 a {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource:hover div.heading ul.options li a,\n.swagger-section .swagger-ui-wrap ul#resources li.resource.active div.heading ul.options li a {\n  color: #555555;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource:last-child {\n  border-bottom: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading {\n  border: 1px solid transparent;\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options {\n  overflow: hidden;\n  padding: 0;\n  display: block;\n  clear: none;\n  float: right;\n  margin: 14px 10px 0 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li {\n  float: left;\n  clear: none;\n  margin: 0;\n  padding: 2px 10px;\n  border-right: 1px solid #dddddd;\n  color: #666666;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a {\n  color: #aaaaaa;\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a:hover {\n  text-decoration: underline;\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a:hover,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a:active,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a.active {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li.last {\n  padding-right: 0;\n  border-right: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading h2 {\n  color: #999999;\n  padding-left: 0;\n  display: block;\n  clear: none;\n  float: left;\n  font-family: \"Droid Sans\", sans-serif;\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading h2 a {\n  color: #999999;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading h2 a:hover {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n  margin: 0 0 10px;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 {\n  display: block;\n  clear: none;\n  float: left;\n  width: auto;\n  margin: 0;\n  padding: 0;\n  line-height: 1.1em;\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path {\n  padding-left: 10px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path a {\n  color: black;\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path a.toggleOperation.deprecated {\n  text-decoration: line-through;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path a:hover {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.http_method a {\n  text-transform: uppercase;\n  text-decoration: none;\n  color: white;\n  display: inline-block;\n  width: 50px;\n  font-size: 0.7em;\n  text-align: center;\n  padding: 7px 0 4px;\n  -moz-border-radius: 2px;\n  -webkit-border-radius: 2px;\n  -o-border-radius: 2px;\n  -ms-border-radius: 2px;\n  -khtml-border-radius: 2px;\n  border-radius: 2px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span {\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options {\n  overflow: hidden;\n  padding: 0;\n  display: block;\n  clear: none;\n  float: right;\n  margin: 6px 10px 0 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options li {\n  float: left;\n  clear: none;\n  margin: 0;\n  padding: 2px 10px;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options li a {\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options li.access {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content {\n  border-top: none;\n  padding: 10px;\n  -moz-border-radius-bottomleft: 6px;\n  -webkit-border-bottom-left-radius: 6px;\n  -o-border-bottom-left-radius: 6px;\n  -ms-border-bottom-left-radius: 6px;\n  -khtml-border-bottom-left-radius: 6px;\n  border-bottom-left-radius: 6px;\n  -moz-border-radius-bottomright: 6px;\n  -webkit-border-bottom-right-radius: 6px;\n  -o-border-bottom-right-radius: 6px;\n  -ms-border-bottom-right-radius: 6px;\n  -khtml-border-bottom-right-radius: 6px;\n  border-bottom-right-radius: 6px;\n  margin: 0 0 20px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content h4 {\n  font-size: 1.1em;\n  margin: 0;\n  padding: 15px 0 5px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header a {\n  padding: 4px 0 0 10px;\n  display: inline-block;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header input.submit {\n  display: block;\n  clear: none;\n  float: left;\n  padding: 6px 8px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header span.response_throbber {\n  background-image: url('data:image/gif;base64,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');\n  width: 128px;\n  height: 16px;\n  display: block;\n  clear: none;\n  float: right;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content form input[type='text'].error {\n  outline: 2px solid black;\n  outline-color: #cc0000;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content form select[name='parameterContentType'] {\n  max-width: 300px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.response div.block pre {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  padding: 10px;\n  font-size: 0.9em;\n  max-height: 400px;\n  overflow-y: auto;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading {\n  background-color: #f9f2e9;\n  border: 1px solid #f0e0ca;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading h3 span.http_method a {\n  background-color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #f0e0ca;\n  color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li a {\n  color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content {\n  background-color: #faf5ee;\n  border: 1px solid #f0e0ca;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content h4 {\n  color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content div.sandbox_header a {\n  color: #dcb67f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading {\n  background-color: #fcffcd;\n  border: 1px solid black;\n  border-color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading h3 span.http_method a {\n  text-transform: uppercase;\n  background-color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #ffd20f;\n  color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li a {\n  color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content {\n  background-color: #fcffcd;\n  border: 1px solid black;\n  border-color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content h4 {\n  color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content div.sandbox_header a {\n  color: #6fc992;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading {\n  background-color: #f5e8e8;\n  border: 1px solid #e8c6c7;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading h3 span.http_method a {\n  text-transform: uppercase;\n  background-color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #e8c6c7;\n  color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li a {\n  color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content {\n  background-color: #f7eded;\n  border: 1px solid #e8c6c7;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content h4 {\n  color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content div.sandbox_header a {\n  color: #c8787a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading {\n  background-color: #e7f6ec;\n  border: 1px solid #c3e8d1;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading h3 span.http_method a {\n  background-color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #c3e8d1;\n  color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li a {\n  color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content {\n  background-color: #ebf7f0;\n  border: 1px solid #c3e8d1;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content h4 {\n  color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content div.sandbox_header a {\n  color: #6fc992;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading {\n  background-color: #FCE9E3;\n  border: 1px solid #F5D5C3;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading h3 span.http_method a {\n  background-color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #f0cecb;\n  color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li a {\n  color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content {\n  background-color: #faf0ef;\n  border: 1px solid #f0cecb;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content h4 {\n  color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content div.sandbox_header a {\n  color: #dcb67f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading {\n  background-color: #e7f0f7;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading h3 span.http_method a {\n  background-color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #c3d9ec;\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li a {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content {\n  background-color: #ebf3f9;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content h4 {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content div.sandbox_header a {\n  color: #6fa5d2;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading {\n  background-color: #e7f0f7;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading h3 span.http_method a {\n  background-color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #c3d9ec;\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading ul.options li a {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content {\n  background-color: #ebf3f9;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content h4 {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content div.sandbox_header a {\n  color: #6fa5d2;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content {\n  border-top: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li.last {\n  padding-right: 0;\n  border-right: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li a:hover,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li a:active,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li a.active {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap p#colophon {\n  margin: 0 15px 40px 15px;\n  padding: 10px 0;\n  font-size: 0.8em;\n  border-top: 1px solid #dddddd;\n  font-family: \"Droid Sans\", sans-serif;\n  color: #999999;\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap p#colophon a {\n  text-decoration: none;\n  color: #547f00;\n}\n.swagger-section .swagger-ui-wrap h3 {\n  color: black;\n  font-size: 1.1em;\n  padding: 10px 0 10px 0;\n}\n.swagger-section .swagger-ui-wrap .markdown ol,\n.swagger-section .swagger-ui-wrap .markdown ul {\n  font-family: \"Droid Sans\", sans-serif;\n  margin: 5px 0 10px;\n  padding: 0 0 0 18px;\n  list-style-type: disc;\n}\n.swagger-section .swagger-ui-wrap form.form_box {\n  background-color: #ebf3f9;\n  border: 1px solid #c3d9ec;\n  padding: 10px;\n}\n.swagger-section .swagger-ui-wrap form.form_box label {\n  color: #0f6ab4 !important;\n}\n.swagger-section .swagger-ui-wrap form.form_box input[type=submit] {\n  display: block;\n  padding: 10px;\n}\n.swagger-section .swagger-ui-wrap form.form_box p.weak {\n  font-size: 0.8em;\n}\n.swagger-section .swagger-ui-wrap form.form_box p {\n  font-size: 0.9em;\n  padding: 0 0 15px;\n  color: #7e7b6d;\n}\n.swagger-section .swagger-ui-wrap form.form_box p a {\n  color: #646257;\n}\n.swagger-section .swagger-ui-wrap form.form_box p strong {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap .operation-status td.markdown > p:last-child {\n  padding-bottom: 0;\n}\n.swagger-section .title {\n  font-style: bold;\n}\n.swagger-section .secondary_form {\n  display: none;\n}\n.swagger-section .main_image {\n  display: block;\n  margin-left: auto;\n  margin-right: auto;\n}\n.swagger-section .oauth_body {\n  margin-left: 100px;\n  margin-right: 100px;\n}\n.swagger-section .oauth_submit {\n  text-align: center;\n  display: inline-block;\n}\n.swagger-section .authorize-wrapper {\n  margin: 15px 0 10px;\n}\n.swagger-section .authorize-wrapper_operation {\n  float: right;\n}\n.swagger-section .authorize__btn:hover {\n  text-decoration: underline;\n  cursor: pointer;\n}\n.swagger-section .authorize__btn_operation:hover .authorize-scopes {\n  display: block;\n}\n.swagger-section .authorize-scopes {\n  position: absolute;\n  margin-top: 20px;\n  background: #FFF;\n  border: 1px solid #ccc;\n  border-radius: 5px;\n  display: none;\n  font-size: 13px;\n  max-width: 300px;\n  line-height: 30px;\n  color: black;\n  padding: 5px;\n}\n.swagger-section .authorize-scopes .authorize__scope {\n  text-decoration: none;\n}\n.swagger-section .authorize__btn_operation {\n  height: 18px;\n  vertical-align: middle;\n  display: inline-block;\n  background: url(data:image/png;base64,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) no-repeat;\n}\n.swagger-section .authorize__btn_operation_login {\n  background-position: 0 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .authorize__btn_operation_logout {\n  background-position: -30px 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section #auth_container {\n  color: #fff;\n  display: inline-block;\n  border: none;\n  padding: 5px;\n  width: 87px;\n  height: 13px;\n}\n.swagger-section #auth_container .authorize__btn {\n  color: #fff;\n}\n.swagger-section .auth_container {\n  padding: 0 0 10px;\n  margin-bottom: 5px;\n  border-bottom: solid 1px #CCC;\n  font-size: 0.9em;\n}\n.swagger-section .auth_container .auth__title {\n  color: #547f00;\n  font-size: 1.2em;\n}\n.swagger-section .auth_container .basic_auth__label {\n  display: inline-block;\n  width: 60px;\n}\n.swagger-section .auth_container .auth__description {\n  color: #999999;\n  margin-bottom: 5px;\n}\n.swagger-section .auth_container .auth__button {\n  margin-top: 10px;\n  height: 30px;\n}\n.swagger-section .auth_container .key_auth__field {\n  margin: 5px 0;\n}\n.swagger-section .auth_container .key_auth__label {\n  display: inline-block;\n  width: 60px;\n}\n.swagger-section .api-popup-dialog {\n  position: absolute;\n  display: none;\n}\n.swagger-section .api-popup-dialog-wrapper {\n  z-index: 1000;\n  width: 500px;\n  background: #FFF;\n  padding: 20px;\n  border: 1px solid #ccc;\n  border-radius: 5px;\n  font-size: 13px;\n  color: #777;\n  position: fixed;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n.swagger-section .api-popup-dialog-shadow {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  opacity: 0.2;\n  background-color: gray;\n  z-index: 900;\n}\n.swagger-section .api-popup-dialog .api-popup-title {\n  font-size: 24px;\n  padding: 10px 0;\n}\n.swagger-section .api-popup-dialog .api-popup-title {\n  font-size: 24px;\n  padding: 10px 0;\n}\n.swagger-section .api-popup-dialog .error-msg {\n  padding-left: 5px;\n  padding-bottom: 5px;\n}\n.swagger-section .api-popup-dialog .api-popup-content {\n  max-height: 500px;\n  overflow-y: auto;\n}\n.swagger-section .api-popup-dialog .api-popup-authbtn {\n  height: 30px;\n}\n.swagger-section .api-popup-dialog .api-popup-cancel {\n  height: 30px;\n}\n.swagger-section .api-popup-scopes {\n  padding: 10px 20px;\n}\n.swagger-section .api-popup-scopes li {\n  padding: 5px 0;\n  line-height: 20px;\n}\n.swagger-section .api-popup-scopes li input {\n  position: relative;\n  top: 2px;\n}\n.swagger-section .api-popup-scopes .api-scope-desc {\n  padding-left: 20px;\n  font-style: italic;\n}\n.swagger-section .api-popup-actions {\n  padding-top: 10px;\n}\n.swagger-section .access {\n  float: right;\n}\n.swagger-section .auth {\n  float: right;\n}\n.swagger-section .api-ic {\n  height: 18px;\n  vertical-align: middle;\n  display: inline-block;\n  background: url(data:image/png;base64,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) no-repeat;\n}\n.swagger-section .api-ic .api_information_panel {\n  position: relative;\n  margin-top: 20px;\n  margin-left: -5px;\n  background: #FFF;\n  border: 1px solid #ccc;\n  border-radius: 5px;\n  display: none;\n  font-size: 13px;\n  max-width: 300px;\n  line-height: 30px;\n  color: black;\n  padding: 5px;\n}\n.swagger-section .api-ic .api_information_panel p .api-msg-enabled {\n  color: green;\n}\n.swagger-section .api-ic .api_information_panel p .api-msg-disabled {\n  color: red;\n}\n.swagger-section .api-ic:hover .api_information_panel {\n  position: absolute;\n  display: block;\n}\n.swagger-section .ic-info {\n  background-position: 0 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .ic-warning {\n  background-position: -60px 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .ic-error {\n  background-position: -30px 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .ic-off {\n  background-position: -90px 0;\n  width: 58px;\n  margin-top: -4px;\n  cursor: pointer;\n}\n.swagger-section .ic-on {\n  background-position: -160px 0;\n  width: 58px;\n  margin-top: -4px;\n  cursor: pointer;\n}\n.swagger-section #header {\n  background-color: #89bf04;\n  padding: 9px 14px 19px 14px;\n  height: 23px;\n  min-width: 775px;\n}\n.swagger-section #input_baseUrl {\n  width: 400px;\n}\n.swagger-section #api_selector {\n  display: block;\n  clear: none;\n  float: right;\n}\n.swagger-section #api_selector .input {\n  display: inline-block;\n  clear: none;\n  margin: 0 10px 0 0;\n}\n.swagger-section #api_selector input {\n  font-size: 0.9em;\n  padding: 3px;\n  margin: 0;\n}\n.swagger-section #input_apiKey {\n  width: 200px;\n}\n.swagger-section #explore,\n.swagger-section #auth_container .authorize__btn {\n  display: block;\n  text-decoration: none;\n  font-weight: bold;\n  padding: 6px 8px;\n  font-size: 0.9em;\n  color: white;\n  background-color: #547f00;\n  -moz-border-radius: 4px;\n  -webkit-border-radius: 4px;\n  -o-border-radius: 4px;\n  -ms-border-radius: 4px;\n  -khtml-border-radius: 4px;\n  border-radius: 4px;\n}\n.swagger-section #explore:hover,\n.swagger-section #auth_container .authorize__btn:hover {\n  background-color: #547f00;\n}\n.swagger-section #header #logo {\n  font-size: 1.5em;\n  font-weight: bold;\n  text-decoration: none;\n  color: white;\n}\n.swagger-section #header #logo .logo__img {\n  display: block;\n  float: left;\n  margin-top: 2px;\n}\n.swagger-section #header #logo .logo__title {\n  display: inline-block;\n  padding: 5px 0 0 10px;\n}\n.swagger-section #content_message {\n  margin: 10px 15px;\n  font-style: italic;\n  color: #999999;\n}\n.swagger-section #message-bar {\n  min-height: 30px;\n  text-align: center;\n  padding-top: 10px;\n}\n.swagger-section .swagger-collapse:before {\n  content: \"-\";\n}\n.swagger-section .swagger-expand:before {\n  content: \"+\";\n}\n.swagger-section .error {\n  outline-color: #cc0000;\n  background-color: #f2dede;\n}\n</style>\n\n  <!-- <script src='lib/object-assign-pollyfill.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery-1.8.0.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery.slideto.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery.wiggle.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery.ba-bbq.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/handlebars-2.0.0.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/lodash.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/backbone-min.js' type='text/javascript'></script> -->\n  <!-- <script src='swagger-ui.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/highlight.9.1.0.pack.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/highlight.9.1.0.pack_extended.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jsoneditor.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/marked.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/swagger-oauth.js' type='text/javascript'></script> -->\n  <script src='assets.swagger_ui.rollup.js'></script>\n\n  <!-- Some basic translations -->\n  <!-- <script src='lang/translator.js' type='text/javascript'></script> -->\n  <!-- <script src='lang/ru.js' type='text/javascript'></script> -->\n  <!-- <script src='lang/en.js' type='text/javascript'></script> -->\n\n  <script type=\"text/javascript\">\n    $(function () {\n      var url = (/url=([^&]+)/).exec(window.location.search);\n      if (url && url.length > 1) {\n        url = decodeURIComponent(url[1]);\n      } else {\n        url = \"assets.swagger_ui.petstore.json\";\n        if (!(/^(?:\\/|http:|https:)/).test(url)) {\n            url = location.pathname.replace((/[^\\/]*?\\.html$/), '') + url;\n        }\n      }\n\n      hljs.configure({\n        highlightSizeThreshold: 5000\n      });\n\n      // Pre load translate...\n      if(window.SwaggerTranslator) {\n        window.SwaggerTranslator.translate();\n      }\n      window.swaggerUi = new SwaggerUi({\n        url: url,\n        dom_id: \"swagger-ui-container\",\n        supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],\n        onComplete: function(swaggerApi, swaggerUi){\n          if(typeof initOAuth == \"function\") {\n            initOAuth({\n              clientId: \"your-client-id\",\n              clientSecret: \"your-client-secret-if-required\",\n              realm: \"your-realms\",\n              appName: \"your-app-name\",\n              scopeSeparator: \",\",\n              additionalQueryStringParams: {}\n            });\n          }\n\n          if(window.SwaggerTranslator) {\n            window.SwaggerTranslator.translate();\n          }\n        },\n        onFailure: function(data) {\n          log(\"Unable to Load SwaggerUI\");\n        },\n        docExpansion: \"none\",\n        jsonEditor: false,\n        defaultModelRendering: 'schema',\n        showRequestHeaders: false\n      });\n\n      window.swaggerUi.load();\n\n      function log() {\n        if ('console' in window) {\n          console.log.apply(console, arguments);\n        }\n      }\n  });\n  </script>\n</head>\n\n<body class=\"swagger-section\">\n<div id='header'>\n  <div class=\"swagger-ui-wrap\">\n    <a id=\"logo\" href=\"http://swagger.io\"><img class=\"logo__img\" alt=\"swagger\" height=\"30\" width=\"30\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAqRJREFUeNrEVz1s00AUfnGXii5maMXoEUEHVwIpEkPNgkBdMnQoU5ytiKHJwpp2Q2JIO8DCUDOxIJFIVOoWZyJSh3pp1Q2PVVlcCVBH3ufeVZZ9Zye1Ay86nXV+ue/9fO/lheg/Se02X1rvksmbnTiKvuxQMBNgBnN4a/LCbmnUAP6JV58NCUsBC8CuAJxGPF47OgNqBaA93tolUhnx6jC4NxGwyOEwlccyAs+3kwdzKq0HDn2vEBTi8J2XpyMaywNDE157BhXUE3zJhlq8GKq+Zd2zaWHepPA8oN9XkfLmRdOiJV4XUUg/IyWncLjCYY/SHndV2u7zHr3bPKZtdxgboJOnthvrfGj/oMf3G0r7JVmNlLfKklmrt2MvvcNO7LFOhoFHfuAJI5o6ta10jpt5CQLgwXhXG2YIwvu+34qf78ybOjWTnWwkgR36d7JqJOrW0hHmNrKg9xhiS4+1jFmrxymh03B0w+6kURIAu3yHtOD5oaUNojMnGgbcctNvwdAnyxvxRR+/vaJnjzbpzcZX+nN1SdGv85i9eH8w3qPO+mdm/y4dnQ1iI8Fq6Nf4cxL6GWSjiFDSs0VRnxC5g0xSB2cgHpaseTxfqOv5uoHkNQ6Ha/N1Yz9mNMppEkEkYKj79q6uCq4bCHcSX3fJ0Vk/k9siASjCm1N6gZH6Ec9IXt2WkFES2K/ixoIyktJPAu/ptOA1SgO5zqtr6KASJPF0nMV8dgMsRhRPOcMwqQAOoi0VAIMLAEWJ6YYC1c8ibj1GP51RqwzYwZVMHQuvOzMCBUtb2tGHx5NAdLKqp5AX7Ng4d+Zi8AGDI9z1ijx9yaCH04y3GCP2S+QcvaGl+pcxyUBvinFlawoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\" /><span class=\"logo__title\">swagger</span></a>\n    <form id='api_selector'>\n      <div class='input'><input placeholder=\"http://example.com/api\" id=\"input_baseUrl\" name=\"baseUrl\" type=\"text\"/></div>\n      <div id='auth_container'></div>\n      <div class='input'><a id=\"explore\" class=\"header__btn\" href=\"#\" data-sw-translate>Explore</a></div>\n    </form>\n  </div>\n</div>\n\n<div id=\"message-bar\" class=\"swagger-ui-wrap\" data-sw-translate>&nbsp;</div>\n<div id=\"swagger-ui-container\" class=\"swagger-ui-wrap\"></div>\n</body>\n</html>\n\n",
+            "/index.rollup.html": "<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Swagger UI</title>\n  <link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,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\" sizes=\"32x32\" />\n  <link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACTElEQVQ4jY2TT0iTYRzHP8/zvppm1pplsst0SCjm1sVuCY0OUsnGOu1UEFKHohIRFDpEVB48FB5CJNCLFzFyRn8u78EOecwNSWVoOyg03BjGpOn7vk+HzTmdQb/Lw/Pw/X6fH9/v7yc4VLZteRSqB4QfVHP+VcRBGQIxJqW2WooX+0RbV9hPUao/lojoC2vTbP7OY+tqPVxsCtHuDpgIOSwQT6SUZlGgQJ5KZlaCE0aY9fTC4cYAcDl93PZPUu9oiQjETSmlKQAs23qezCwPvp69TDaXOpK8V8ePOXnU/ZV6R8uQJrUBaduWB2X3TxhhsrkUNzpe0BuYLyP2Br7R3fGS7VyacSMMyu6zbcsjFepOLBHR99r2uoOMfr5eJvDm0zW8jUEANtJRoon3uoIeCeLq97XpIrBCq2LH3C4T2DGz6FpV8b6w9g7Ar4NqThXc7my7T3JrhfpT5zlRfZad3SwIQYVWTTaX4lfmB51tD5hbHGFzaxVQzfLgPwKUKmQjQORTFoVTKYXYTx4AHUS8rtZz6WdynrnFEa5ceEwys8y6dTBKTVbScLqV0S95f86c9AAiLgHD1xQqAnetP1TqNWUeVOo1mFauePc1hgAMKWDM6w6YLqcXgFhihrtdH8oE7nV9JJaYAcDlbKe9MWgKGCsZpKXBV7OdbP/HID3snuOco3VIk9pAySirqWRmKThuhNlIR48ku5xebvknaXC0Rigd5RKRZyi7L5qYyS/T1mrRMF9TCK87aCLEsEAeXKbS+vc6Ywh4K6UWL8X/BRbH8zwWREZpAAAAAElFTkSuQmCC\" sizes=\"16x16\" />\n  <!-- <link href='css/typography.css' media='screen' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/reset.css' media='screen' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/screen.css' media='screen' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/reset.css' media='print' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/print.css' media='print' rel='stylesheet' type='text/css'/> -->\n<style>\n/* init style reset */\n/* http://meyerweb.com/eric/tools/css/reset/ v2.0 | 20110126 */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font-size: 100%;\n  font: inherit;\n  vertical-align: baseline;\n}\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block;\n}\nbody {\n  line-height: 1;\n}\nol,\nul {\n  list-style: none;\n}\nblockquote,\nq {\n  quotes: none;\n}\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: '';\n  content: none;\n}\ntable {\n  border-collapse: collapse;\n  border-spacing: 0;\n}\n\n\n\n/* init style screen */\n/* Original style from softwaremaniacs.org (c) Ivan Sagalaev <Maniac@SoftwareManiacs.Org> */\n.swagger-section pre code {\n  display: block;\n  padding: 0.5em;\n  background: #F0F0F0;\n}\n.swagger-section pre code,\n.swagger-section pre .subst,\n.swagger-section pre .tag .title,\n.swagger-section pre .lisp .title,\n.swagger-section pre .clojure .built_in,\n.swagger-section pre .nginx .title {\n  color: black;\n}\n.swagger-section pre .string,\n.swagger-section pre .title,\n.swagger-section pre .constant,\n.swagger-section pre .parent,\n.swagger-section pre .tag .value,\n.swagger-section pre .rules .value,\n.swagger-section pre .rules .value .number,\n.swagger-section pre .preprocessor,\n.swagger-section pre .ruby .symbol,\n.swagger-section pre .ruby .symbol .string,\n.swagger-section pre .aggregate,\n.swagger-section pre .template_tag,\n.swagger-section pre .django .variable,\n.swagger-section pre .smalltalk .class,\n.swagger-section pre .addition,\n.swagger-section pre .flow,\n.swagger-section pre .stream,\n.swagger-section pre .bash .variable,\n.swagger-section pre .apache .tag,\n.swagger-section pre .apache .cbracket,\n.swagger-section pre .tex .command,\n.swagger-section pre .tex .special,\n.swagger-section pre .erlang_repl .function_or_atom,\n.swagger-section pre .markdown .header {\n  color: #800;\n}\n.swagger-section pre .comment,\n.swagger-section pre .annotation,\n.swagger-section pre .template_comment,\n.swagger-section pre .diff .header,\n.swagger-section pre .chunk,\n.swagger-section pre .markdown .blockquote {\n  color: #888;\n}\n.swagger-section pre .number,\n.swagger-section pre .date,\n.swagger-section pre .regexp,\n.swagger-section pre .literal,\n.swagger-section pre .smalltalk .symbol,\n.swagger-section pre .smalltalk .char,\n.swagger-section pre .go .constant,\n.swagger-section pre .change,\n.swagger-section pre .markdown .bullet,\n.swagger-section pre .markdown .link_url {\n  color: #080;\n}\n.swagger-section pre .label,\n.swagger-section pre .javadoc,\n.swagger-section pre .ruby .string,\n.swagger-section pre .decorator,\n.swagger-section pre .filter .argument,\n.swagger-section pre .localvars,\n.swagger-section pre .array,\n.swagger-section pre .attr_selector,\n.swagger-section pre .important,\n.swagger-section pre .pseudo,\n.swagger-section pre .pi,\n.swagger-section pre .doctype,\n.swagger-section pre .deletion,\n.swagger-section pre .envvar,\n.swagger-section pre .shebang,\n.swagger-section pre .apache .sqbracket,\n.swagger-section pre .nginx .built_in,\n.swagger-section pre .tex .formula,\n.swagger-section pre .erlang_repl .reserved,\n.swagger-section pre .prompt,\n.swagger-section pre .markdown .link_label,\n.swagger-section pre .vhdl .attribute,\n.swagger-section pre .clojure .attribute,\n.swagger-section pre .coffeescript .property {\n  color: #88F;\n}\n.swagger-section pre .keyword,\n.swagger-section pre .id,\n.swagger-section pre .phpdoc,\n.swagger-section pre .title,\n.swagger-section pre .built_in,\n.swagger-section pre .aggregate,\n.swagger-section pre .css .tag,\n.swagger-section pre .javadoctag,\n.swagger-section pre .phpdoc,\n.swagger-section pre .yardoctag,\n.swagger-section pre .smalltalk .class,\n.swagger-section pre .winutils,\n.swagger-section pre .bash .variable,\n.swagger-section pre .apache .tag,\n.swagger-section pre .go .typename,\n.swagger-section pre .tex .command,\n.swagger-section pre .markdown .strong,\n.swagger-section pre .request,\n.swagger-section pre .status {\n  font-weight: bold;\n}\n.swagger-section pre .markdown .emphasis {\n  font-style: italic;\n}\n.swagger-section pre .nginx .built_in {\n  font-weight: normal;\n}\n.swagger-section pre .coffeescript .javascript,\n.swagger-section pre .javascript .xml,\n.swagger-section pre .tex .formula,\n.swagger-section pre .xml .javascript,\n.swagger-section pre .xml .vbscript,\n.swagger-section pre .xml .css,\n.swagger-section pre .xml .cdata {\n  opacity: 0.5;\n}\n.swagger-section .hljs {\n  display: block;\n  overflow-x: auto;\n  padding: 0.5em;\n  background: #F0F0F0;\n}\n.swagger-section .hljs,\n.swagger-section .hljs-subst {\n  color: #444;\n}\n.swagger-section .hljs-keyword,\n.swagger-section .hljs-attribute,\n.swagger-section .hljs-selector-tag,\n.swagger-section .hljs-meta-keyword,\n.swagger-section .hljs-doctag,\n.swagger-section .hljs-name {\n  font-weight: bold;\n}\n.swagger-section .hljs-built_in,\n.swagger-section .hljs-literal,\n.swagger-section .hljs-bullet,\n.swagger-section .hljs-code,\n.swagger-section .hljs-addition {\n  color: #1F811F;\n}\n.swagger-section .hljs-regexp,\n.swagger-section .hljs-symbol,\n.swagger-section .hljs-variable,\n.swagger-section .hljs-template-variable,\n.swagger-section .hljs-link,\n.swagger-section .hljs-selector-attr,\n.swagger-section .hljs-selector-pseudo {\n  color: #BC6060;\n}\n.swagger-section .hljs-type,\n.swagger-section .hljs-string,\n.swagger-section .hljs-number,\n.swagger-section .hljs-selector-id,\n.swagger-section .hljs-selector-class,\n.swagger-section .hljs-quote,\n.swagger-section .hljs-template-tag,\n.swagger-section .hljs-deletion {\n  color: #880000;\n}\n.swagger-section .hljs-title,\n.swagger-section .hljs-section {\n  color: #880000;\n  font-weight: bold;\n}\n.swagger-section .hljs-comment {\n  color: #888888;\n}\n.swagger-section .hljs-meta {\n  color: #2B6EA1;\n}\n.swagger-section .hljs-emphasis {\n  font-style: italic;\n}\n.swagger-section .hljs-strong {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap {\n  line-height: 1;\n  font-family: \"Droid Sans\", sans-serif;\n  min-width: 760px;\n  max-width: 960px;\n  margin-left: auto;\n  margin-right: auto;\n  /* JSONEditor specific styling */\n}\n.swagger-section .swagger-ui-wrap b,\n.swagger-section .swagger-ui-wrap strong {\n  font-family: \"Droid Sans\", sans-serif;\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap q,\n.swagger-section .swagger-ui-wrap blockquote {\n  quotes: none;\n}\n.swagger-section .swagger-ui-wrap p {\n  line-height: 1.4em;\n  padding: 0 0 10px;\n  color: #333333;\n}\n.swagger-section .swagger-ui-wrap q:before,\n.swagger-section .swagger-ui-wrap q:after,\n.swagger-section .swagger-ui-wrap blockquote:before,\n.swagger-section .swagger-ui-wrap blockquote:after {\n  content: none;\n}\n.swagger-section .swagger-ui-wrap .heading_with_menu h1,\n.swagger-section .swagger-ui-wrap .heading_with_menu h2,\n.swagger-section .swagger-ui-wrap .heading_with_menu h3,\n.swagger-section .swagger-ui-wrap .heading_with_menu h4,\n.swagger-section .swagger-ui-wrap .heading_with_menu h5,\n.swagger-section .swagger-ui-wrap .heading_with_menu h6 {\n  display: block;\n  clear: none;\n  float: left;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  width: 60%;\n}\n.swagger-section .swagger-ui-wrap table {\n  border-collapse: collapse;\n  border-spacing: 0;\n}\n.swagger-section .swagger-ui-wrap table thead tr th {\n  padding: 5px;\n  font-size: 0.9em;\n  color: #666666;\n  border-bottom: 1px solid #999999;\n}\n.swagger-section .swagger-ui-wrap table tbody tr:last-child td {\n  border-bottom: none;\n}\n.swagger-section .swagger-ui-wrap table tbody tr.offset {\n  background-color: #f0f0f0;\n}\n.swagger-section .swagger-ui-wrap table tbody tr td {\n  padding: 6px;\n  font-size: 0.9em;\n  border-bottom: 1px solid #cccccc;\n  vertical-align: top;\n  line-height: 1.3em;\n}\n.swagger-section .swagger-ui-wrap ol {\n  margin: 0px 0 10px;\n  padding: 0 0 0 18px;\n  list-style-type: decimal;\n}\n.swagger-section .swagger-ui-wrap ol li {\n  padding: 5px 0px;\n  font-size: 0.9em;\n  color: #333333;\n}\n.swagger-section .swagger-ui-wrap ol,\n.swagger-section .swagger-ui-wrap ul {\n  list-style: none;\n}\n.swagger-section .swagger-ui-wrap h1 a,\n.swagger-section .swagger-ui-wrap h2 a,\n.swagger-section .swagger-ui-wrap h3 a,\n.swagger-section .swagger-ui-wrap h4 a,\n.swagger-section .swagger-ui-wrap h5 a,\n.swagger-section .swagger-ui-wrap h6 a {\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap h1 a:hover,\n.swagger-section .swagger-ui-wrap h2 a:hover,\n.swagger-section .swagger-ui-wrap h3 a:hover,\n.swagger-section .swagger-ui-wrap h4 a:hover,\n.swagger-section .swagger-ui-wrap h5 a:hover,\n.swagger-section .swagger-ui-wrap h6 a:hover {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap h1 span.divider,\n.swagger-section .swagger-ui-wrap h2 span.divider,\n.swagger-section .swagger-ui-wrap h3 span.divider,\n.swagger-section .swagger-ui-wrap h4 span.divider,\n.swagger-section .swagger-ui-wrap h5 span.divider,\n.swagger-section .swagger-ui-wrap h6 span.divider {\n  color: #aaaaaa;\n}\n.swagger-section .swagger-ui-wrap a {\n  color: #547f00;\n}\n.swagger-section .swagger-ui-wrap a img {\n  border: none;\n}\n.swagger-section .swagger-ui-wrap article,\n.swagger-section .swagger-ui-wrap aside,\n.swagger-section .swagger-ui-wrap details,\n.swagger-section .swagger-ui-wrap figcaption,\n.swagger-section .swagger-ui-wrap figure,\n.swagger-section .swagger-ui-wrap footer,\n.swagger-section .swagger-ui-wrap header,\n.swagger-section .swagger-ui-wrap hgroup,\n.swagger-section .swagger-ui-wrap menu,\n.swagger-section .swagger-ui-wrap nav,\n.swagger-section .swagger-ui-wrap section,\n.swagger-section .swagger-ui-wrap summary {\n  display: block;\n}\n.swagger-section .swagger-ui-wrap pre {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  background-color: #fcf6db;\n  border: 1px solid #e5e0c6;\n  padding: 10px;\n}\n.swagger-section .swagger-ui-wrap pre code {\n  line-height: 1.6em;\n  background: none;\n}\n.swagger-section .swagger-ui-wrap .content > .content-type > div > label {\n  clear: both;\n  display: block;\n  color: #0F6AB4;\n  font-size: 1.1em;\n  margin: 0;\n  padding: 15px 0 5px;\n}\n.swagger-section .swagger-ui-wrap .content pre {\n  font-size: 12px;\n  margin-top: 5px;\n  padding: 5px;\n}\n.swagger-section .swagger-ui-wrap .icon-btn {\n  cursor: pointer;\n}\n.swagger-section .swagger-ui-wrap .info_title {\n  padding-bottom: 10px;\n  font-weight: bold;\n  font-size: 25px;\n}\n.swagger-section .swagger-ui-wrap .footer {\n  margin-top: 20px;\n}\n.swagger-section .swagger-ui-wrap p.big,\n.swagger-section .swagger-ui-wrap div.big p {\n  font-size: 1em;\n  margin-bottom: 10px;\n}\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.string input,\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.url input,\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.text textarea,\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.numeric input {\n  width: 500px !important;\n}\n.swagger-section .swagger-ui-wrap .info_license {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_tos {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .message-fail {\n  color: #cc0000;\n}\n.swagger-section .swagger-ui-wrap .info_url {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_email {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_name {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_description {\n  padding-bottom: 10px;\n  font-size: 15px;\n}\n.swagger-section .swagger-ui-wrap .markdown ol li,\n.swagger-section .swagger-ui-wrap .markdown ul li {\n  padding: 3px 0px;\n  line-height: 1.4em;\n  color: #333333;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.string input,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.url input,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.numeric input {\n  display: block;\n  padding: 4px;\n  width: auto;\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.string input.title,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.url input.title,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.numeric input.title {\n  font-size: 1.3em;\n}\n.swagger-section .swagger-ui-wrap table.fullwidth {\n  width: 100%;\n}\n.swagger-section .swagger-ui-wrap .model-signature {\n  font-family: \"Droid Sans\", sans-serif;\n  font-size: 1em;\n  line-height: 1.5em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-nav a {\n  text-decoration: none;\n  color: #AAA;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-nav a:hover {\n  text-decoration: underline;\n  color: black;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-nav .selected {\n  color: black;\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propType {\n  color: #5555aa;\n}\n.swagger-section .swagger-ui-wrap .model-signature pre:hover {\n  background-color: #ffffdd;\n}\n.swagger-section .swagger-ui-wrap .model-signature pre {\n  font-size: .85em;\n  line-height: 1.2em;\n  overflow: auto;\n  max-height: 200px;\n  cursor: pointer;\n}\n.swagger-section .swagger-ui-wrap .model-signature ul.signature-nav {\n  display: block;\n  min-width: 230px;\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap .model-signature ul.signature-nav li:last-child {\n  padding-right: 0;\n  border-right: none;\n}\n.swagger-section .swagger-ui-wrap .model-signature ul.signature-nav li {\n  float: left;\n  margin: 0 5px 5px 0;\n  padding: 2px 5px 2px 0;\n  border-right: 1px solid #ddd;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propOpt {\n  color: #555;\n}\n.swagger-section .swagger-ui-wrap .model-signature .snippet small {\n  font-size: 0.75em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propOptKey {\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .strong {\n  font-weight: bold;\n  color: #000;\n  font-size: .9em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description div {\n  font-size: 0.9em;\n  line-height: 1.5em;\n  margin-left: 1em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .stronger {\n  font-weight: bold;\n  color: #000;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper {\n  border-spacing: 0;\n  position: absolute;\n  background-color: #ffffff;\n  border: 1px solid #bbbbbb;\n  display: none;\n  font-size: 11px;\n  max-width: 400px;\n  line-height: 30px;\n  color: black;\n  padding: 5px;\n  margin-left: 10px;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper th {\n  text-align: center;\n  background-color: #eeeeee;\n  border: 1px solid #bbbbbb;\n  font-size: 11px;\n  color: #666666;\n  font-weight: bold;\n  padding: 5px;\n  line-height: 15px;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper .optionName {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propDesc.markdown > p:first-child,\n.swagger-section .swagger-ui-wrap .model-signature .description .propDesc.markdown > p:last-child {\n  display: inline;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propDesc.markdown > p:not(:first-child):before {\n  display: block;\n  content: '';\n}\n.swagger-section .swagger-ui-wrap .model-signature .description span:last-of-type.propDesc.markdown > p:only-child {\n  margin-right: -3px;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propName {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-container {\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap .body-textarea {\n  width: 300px;\n  height: 100px;\n  border: 1px solid #aaa;\n}\n.swagger-section .swagger-ui-wrap .markdown p code,\n.swagger-section .swagger-ui-wrap .markdown li code {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  background-color: #f0f0f0;\n  color: black;\n  padding: 1px 3px;\n}\n.swagger-section .swagger-ui-wrap .required {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .editor_holder {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap .editor_holder label {\n  font-weight: normal!important;\n  /* JSONEditor uses bold by default for all labels, we revert that back to normal to not give the impression that by default fields are required */\n}\n.swagger-section .swagger-ui-wrap .editor_holder label.required {\n  font-weight: bold!important;\n}\n.swagger-section .swagger-ui-wrap input.parameter {\n  width: 300px;\n  border: 1px solid #aaa;\n}\n.swagger-section .swagger-ui-wrap h1 {\n  color: black;\n  font-size: 1.5em;\n  line-height: 1.3em;\n  padding: 10px 0 10px 0;\n  font-family: \"Droid Sans\", sans-serif;\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .heading_with_menu {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap .heading_with_menu ul {\n  display: block;\n  clear: none;\n  float: right;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  margin-top: 10px;\n}\n.swagger-section .swagger-ui-wrap h2 {\n  color: black;\n  font-size: 1.3em;\n  padding: 10px 0 10px 0;\n}\n.swagger-section .swagger-ui-wrap h2 a {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap h2 span.sub {\n  font-size: 0.7em;\n  color: #999999;\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap h2 span.sub a {\n  color: #777777;\n}\n.swagger-section .swagger-ui-wrap span.weak {\n  color: #666666;\n}\n.swagger-section .swagger-ui-wrap .message-success {\n  color: #89BF04;\n}\n.swagger-section .swagger-ui-wrap caption,\n.swagger-section .swagger-ui-wrap th,\n.swagger-section .swagger-ui-wrap td {\n  text-align: left;\n  font-weight: normal;\n  vertical-align: middle;\n}\n.swagger-section .swagger-ui-wrap .code {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.text textarea {\n  font-family: \"Droid Sans\", sans-serif;\n  height: 250px;\n  padding: 4px;\n  display: block;\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.select select {\n  display: block;\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.boolean {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.boolean label {\n  display: block;\n  float: left;\n  clear: none;\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.boolean input {\n  display: block;\n  float: left;\n  clear: none;\n  margin: 0 5px 0 0;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.required label {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li label {\n  display: block;\n  clear: both;\n  width: auto;\n  padding: 0 0 3px;\n  color: #666666;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li label abbr {\n  padding-left: 3px;\n  color: #888888;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li p.inline-hints {\n  margin-left: 0;\n  font-style: italic;\n  font-size: 0.9em;\n  margin: 0;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.buttons {\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap span.blank,\n.swagger-section .swagger-ui-wrap span.empty {\n  color: #888888;\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap .markdown h3 {\n  color: #547f00;\n}\n.swagger-section .swagger-ui-wrap .markdown h4 {\n  color: #666666;\n}\n.swagger-section .swagger-ui-wrap .markdown pre {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  background-color: #fcf6db;\n  border: 1px solid #e5e0c6;\n  padding: 10px;\n  margin: 0 0 10px 0;\n}\n.swagger-section .swagger-ui-wrap .markdown pre code {\n  line-height: 1.6em;\n  overflow: auto;\n}\n.swagger-section .swagger-ui-wrap div.gist {\n  margin: 20px 0 25px 0 !important;\n}\n.swagger-section .swagger-ui-wrap ul#resources {\n  font-family: \"Droid Sans\", sans-serif;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource {\n  border-bottom: 1px solid #dddddd;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource:hover div.heading h2 a,\n.swagger-section .swagger-ui-wrap ul#resources li.resource.active div.heading h2 a {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource:hover div.heading ul.options li a,\n.swagger-section .swagger-ui-wrap ul#resources li.resource.active div.heading ul.options li a {\n  color: #555555;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource:last-child {\n  border-bottom: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading {\n  border: 1px solid transparent;\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options {\n  overflow: hidden;\n  padding: 0;\n  display: block;\n  clear: none;\n  float: right;\n  margin: 14px 10px 0 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li {\n  float: left;\n  clear: none;\n  margin: 0;\n  padding: 2px 10px;\n  border-right: 1px solid #dddddd;\n  color: #666666;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a {\n  color: #aaaaaa;\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a:hover {\n  text-decoration: underline;\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a:hover,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a:active,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a.active {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li.last {\n  padding-right: 0;\n  border-right: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading h2 {\n  color: #999999;\n  padding-left: 0;\n  display: block;\n  clear: none;\n  float: left;\n  font-family: \"Droid Sans\", sans-serif;\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading h2 a {\n  color: #999999;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading h2 a:hover {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n  margin: 0 0 10px;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 {\n  display: block;\n  clear: none;\n  float: left;\n  width: auto;\n  margin: 0;\n  padding: 0;\n  line-height: 1.1em;\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path {\n  padding-left: 10px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path a {\n  color: black;\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path a.toggleOperation.deprecated {\n  text-decoration: line-through;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path a:hover {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.http_method a {\n  text-transform: uppercase;\n  text-decoration: none;\n  color: white;\n  display: inline-block;\n  width: 50px;\n  font-size: 0.7em;\n  text-align: center;\n  padding: 7px 0 4px;\n  -moz-border-radius: 2px;\n  -webkit-border-radius: 2px;\n  -o-border-radius: 2px;\n  -ms-border-radius: 2px;\n  -khtml-border-radius: 2px;\n  border-radius: 2px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span {\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options {\n  overflow: hidden;\n  padding: 0;\n  display: block;\n  clear: none;\n  float: right;\n  margin: 6px 10px 0 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options li {\n  float: left;\n  clear: none;\n  margin: 0;\n  padding: 2px 10px;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options li a {\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options li.access {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content {\n  border-top: none;\n  padding: 10px;\n  -moz-border-radius-bottomleft: 6px;\n  -webkit-border-bottom-left-radius: 6px;\n  -o-border-bottom-left-radius: 6px;\n  -ms-border-bottom-left-radius: 6px;\n  -khtml-border-bottom-left-radius: 6px;\n  border-bottom-left-radius: 6px;\n  -moz-border-radius-bottomright: 6px;\n  -webkit-border-bottom-right-radius: 6px;\n  -o-border-bottom-right-radius: 6px;\n  -ms-border-bottom-right-radius: 6px;\n  -khtml-border-bottom-right-radius: 6px;\n  border-bottom-right-radius: 6px;\n  margin: 0 0 20px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content h4 {\n  font-size: 1.1em;\n  margin: 0;\n  padding: 15px 0 5px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header a {\n  padding: 4px 0 0 10px;\n  display: inline-block;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header input.submit {\n  display: block;\n  clear: none;\n  float: left;\n  padding: 6px 8px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header span.response_throbber {\n  background-image: url('data:image/gif;base64,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');\n  width: 128px;\n  height: 16px;\n  display: block;\n  clear: none;\n  float: right;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content form input[type='text'].error {\n  outline: 2px solid black;\n  outline-color: #cc0000;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content form select[name='parameterContentType'] {\n  max-width: 300px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.response div.block pre {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  padding: 10px;\n  font-size: 0.9em;\n  max-height: 400px;\n  overflow-y: auto;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading {\n  background-color: #f9f2e9;\n  border: 1px solid #f0e0ca;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading h3 span.http_method a {\n  background-color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #f0e0ca;\n  color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li a {\n  color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content {\n  background-color: #faf5ee;\n  border: 1px solid #f0e0ca;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content h4 {\n  color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content div.sandbox_header a {\n  color: #dcb67f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading {\n  background-color: #fcffcd;\n  border: 1px solid black;\n  border-color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading h3 span.http_method a {\n  text-transform: uppercase;\n  background-color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #ffd20f;\n  color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li a {\n  color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content {\n  background-color: #fcffcd;\n  border: 1px solid black;\n  border-color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content h4 {\n  color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content div.sandbox_header a {\n  color: #6fc992;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading {\n  background-color: #f5e8e8;\n  border: 1px solid #e8c6c7;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading h3 span.http_method a {\n  text-transform: uppercase;\n  background-color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #e8c6c7;\n  color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li a {\n  color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content {\n  background-color: #f7eded;\n  border: 1px solid #e8c6c7;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content h4 {\n  color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content div.sandbox_header a {\n  color: #c8787a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading {\n  background-color: #e7f6ec;\n  border: 1px solid #c3e8d1;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading h3 span.http_method a {\n  background-color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #c3e8d1;\n  color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li a {\n  color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content {\n  background-color: #ebf7f0;\n  border: 1px solid #c3e8d1;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content h4 {\n  color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content div.sandbox_header a {\n  color: #6fc992;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading {\n  background-color: #FCE9E3;\n  border: 1px solid #F5D5C3;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading h3 span.http_method a {\n  background-color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #f0cecb;\n  color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li a {\n  color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content {\n  background-color: #faf0ef;\n  border: 1px solid #f0cecb;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content h4 {\n  color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content div.sandbox_header a {\n  color: #dcb67f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading {\n  background-color: #e7f0f7;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading h3 span.http_method a {\n  background-color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #c3d9ec;\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li a {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content {\n  background-color: #ebf3f9;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content h4 {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content div.sandbox_header a {\n  color: #6fa5d2;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading {\n  background-color: #e7f0f7;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading h3 span.http_method a {\n  background-color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #c3d9ec;\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading ul.options li a {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content {\n  background-color: #ebf3f9;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content h4 {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content div.sandbox_header a {\n  color: #6fa5d2;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content {\n  border-top: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li.last {\n  padding-right: 0;\n  border-right: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li a:hover,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li a:active,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li a.active {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap p#colophon {\n  margin: 0 15px 40px 15px;\n  padding: 10px 0;\n  font-size: 0.8em;\n  border-top: 1px solid #dddddd;\n  font-family: \"Droid Sans\", sans-serif;\n  color: #999999;\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap p#colophon a {\n  text-decoration: none;\n  color: #547f00;\n}\n.swagger-section .swagger-ui-wrap h3 {\n  color: black;\n  font-size: 1.1em;\n  padding: 10px 0 10px 0;\n}\n.swagger-section .swagger-ui-wrap .markdown ol,\n.swagger-section .swagger-ui-wrap .markdown ul {\n  font-family: \"Droid Sans\", sans-serif;\n  margin: 5px 0 10px;\n  padding: 0 0 0 18px;\n  list-style-type: disc;\n}\n.swagger-section .swagger-ui-wrap form.form_box {\n  background-color: #ebf3f9;\n  border: 1px solid #c3d9ec;\n  padding: 10px;\n}\n.swagger-section .swagger-ui-wrap form.form_box label {\n  color: #0f6ab4 !important;\n}\n.swagger-section .swagger-ui-wrap form.form_box input[type=submit] {\n  display: block;\n  padding: 10px;\n}\n.swagger-section .swagger-ui-wrap form.form_box p.weak {\n  font-size: 0.8em;\n}\n.swagger-section .swagger-ui-wrap form.form_box p {\n  font-size: 0.9em;\n  padding: 0 0 15px;\n  color: #7e7b6d;\n}\n.swagger-section .swagger-ui-wrap form.form_box p a {\n  color: #646257;\n}\n.swagger-section .swagger-ui-wrap form.form_box p strong {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap .operation-status td.markdown > p:last-child {\n  padding-bottom: 0;\n}\n.swagger-section .title {\n  font-style: bold;\n}\n.swagger-section .secondary_form {\n  display: none;\n}\n.swagger-section .main_image {\n  display: block;\n  margin-left: auto;\n  margin-right: auto;\n}\n.swagger-section .oauth_body {\n  margin-left: 100px;\n  margin-right: 100px;\n}\n.swagger-section .oauth_submit {\n  text-align: center;\n  display: inline-block;\n}\n.swagger-section .authorize-wrapper {\n  margin: 15px 0 10px;\n}\n.swagger-section .authorize-wrapper_operation {\n  float: right;\n}\n.swagger-section .authorize__btn:hover {\n  text-decoration: underline;\n  cursor: pointer;\n}\n.swagger-section .authorize__btn_operation:hover .authorize-scopes {\n  display: block;\n}\n.swagger-section .authorize-scopes {\n  position: absolute;\n  margin-top: 20px;\n  background: #FFF;\n  border: 1px solid #ccc;\n  border-radius: 5px;\n  display: none;\n  font-size: 13px;\n  max-width: 300px;\n  line-height: 30px;\n  color: black;\n  padding: 5px;\n}\n.swagger-section .authorize-scopes .authorize__scope {\n  text-decoration: none;\n}\n.swagger-section .authorize__btn_operation {\n  height: 18px;\n  vertical-align: middle;\n  display: inline-block;\n  background: url(data:image/png;base64,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) no-repeat;\n}\n.swagger-section .authorize__btn_operation_login {\n  background-position: 0 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .authorize__btn_operation_logout {\n  background-position: -30px 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section #auth_container {\n  color: #fff;\n  display: inline-block;\n  border: none;\n  padding: 5px;\n  width: 87px;\n  height: 13px;\n}\n.swagger-section #auth_container .authorize__btn {\n  color: #fff;\n}\n.swagger-section .auth_container {\n  padding: 0 0 10px;\n  margin-bottom: 5px;\n  border-bottom: solid 1px #CCC;\n  font-size: 0.9em;\n}\n.swagger-section .auth_container .auth__title {\n  color: #547f00;\n  font-size: 1.2em;\n}\n.swagger-section .auth_container .basic_auth__label {\n  display: inline-block;\n  width: 60px;\n}\n.swagger-section .auth_container .auth__description {\n  color: #999999;\n  margin-bottom: 5px;\n}\n.swagger-section .auth_container .auth__button {\n  margin-top: 10px;\n  height: 30px;\n}\n.swagger-section .auth_container .key_auth__field {\n  margin: 5px 0;\n}\n.swagger-section .auth_container .key_auth__label {\n  display: inline-block;\n  width: 60px;\n}\n.swagger-section .api-popup-dialog {\n  position: absolute;\n  display: none;\n}\n.swagger-section .api-popup-dialog-wrapper {\n  z-index: 1000;\n  width: 500px;\n  background: #FFF;\n  padding: 20px;\n  border: 1px solid #ccc;\n  border-radius: 5px;\n  font-size: 13px;\n  color: #777;\n  position: fixed;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n.swagger-section .api-popup-dialog-shadow {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  opacity: 0.2;\n  background-color: gray;\n  z-index: 900;\n}\n.swagger-section .api-popup-dialog .api-popup-title {\n  font-size: 24px;\n  padding: 10px 0;\n}\n.swagger-section .api-popup-dialog .api-popup-title {\n  font-size: 24px;\n  padding: 10px 0;\n}\n.swagger-section .api-popup-dialog .error-msg {\n  padding-left: 5px;\n  padding-bottom: 5px;\n}\n.swagger-section .api-popup-dialog .api-popup-content {\n  max-height: 500px;\n  overflow-y: auto;\n}\n.swagger-section .api-popup-dialog .api-popup-authbtn {\n  height: 30px;\n}\n.swagger-section .api-popup-dialog .api-popup-cancel {\n  height: 30px;\n}\n.swagger-section .api-popup-scopes {\n  padding: 10px 20px;\n}\n.swagger-section .api-popup-scopes li {\n  padding: 5px 0;\n  line-height: 20px;\n}\n.swagger-section .api-popup-scopes li input {\n  position: relative;\n  top: 2px;\n}\n.swagger-section .api-popup-scopes .api-scope-desc {\n  padding-left: 20px;\n  font-style: italic;\n}\n.swagger-section .api-popup-actions {\n  padding-top: 10px;\n}\n.swagger-section .access {\n  float: right;\n}\n.swagger-section .auth {\n  float: right;\n}\n.swagger-section .api-ic {\n  height: 18px;\n  vertical-align: middle;\n  display: inline-block;\n  background: url(data:image/png;base64,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) no-repeat;\n}\n.swagger-section .api-ic .api_information_panel {\n  position: relative;\n  margin-top: 20px;\n  margin-left: -5px;\n  background: #FFF;\n  border: 1px solid #ccc;\n  border-radius: 5px;\n  display: none;\n  font-size: 13px;\n  max-width: 300px;\n  line-height: 30px;\n  color: black;\n  padding: 5px;\n}\n.swagger-section .api-ic .api_information_panel p .api-msg-enabled {\n  color: green;\n}\n.swagger-section .api-ic .api_information_panel p .api-msg-disabled {\n  color: red;\n}\n.swagger-section .api-ic:hover .api_information_panel {\n  position: absolute;\n  display: block;\n}\n.swagger-section .ic-info {\n  background-position: 0 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .ic-warning {\n  background-position: -60px 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .ic-error {\n  background-position: -30px 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .ic-off {\n  background-position: -90px 0;\n  width: 58px;\n  margin-top: -4px;\n  cursor: pointer;\n}\n.swagger-section .ic-on {\n  background-position: -160px 0;\n  width: 58px;\n  margin-top: -4px;\n  cursor: pointer;\n}\n.swagger-section #header {\n  background-color: #89bf04;\n  padding: 9px 14px 19px 14px;\n  height: 23px;\n  min-width: 775px;\n}\n.swagger-section #input_baseUrl {\n  width: 400px;\n}\n.swagger-section #api_selector {\n  display: block;\n  clear: none;\n  float: right;\n}\n.swagger-section #api_selector .input {\n  display: inline-block;\n  clear: none;\n  margin: 0 10px 0 0;\n}\n.swagger-section #api_selector input {\n  font-size: 0.9em;\n  padding: 3px;\n  margin: 0;\n}\n.swagger-section #input_apiKey {\n  width: 200px;\n}\n.swagger-section #explore,\n.swagger-section #auth_container .authorize__btn {\n  display: block;\n  text-decoration: none;\n  font-weight: bold;\n  padding: 6px 8px;\n  font-size: 0.9em;\n  color: white;\n  background-color: #547f00;\n  -moz-border-radius: 4px;\n  -webkit-border-radius: 4px;\n  -o-border-radius: 4px;\n  -ms-border-radius: 4px;\n  -khtml-border-radius: 4px;\n  border-radius: 4px;\n}\n.swagger-section #explore:hover,\n.swagger-section #auth_container .authorize__btn:hover {\n  background-color: #547f00;\n}\n.swagger-section #header #logo {\n  font-size: 1.5em;\n  font-weight: bold;\n  text-decoration: none;\n  color: white;\n}\n.swagger-section #header #logo .logo__img {\n  display: block;\n  float: left;\n  margin-top: 2px;\n}\n.swagger-section #header #logo .logo__title {\n  display: inline-block;\n  padding: 5px 0 0 10px;\n}\n.swagger-section #content_message {\n  margin: 10px 15px;\n  font-style: italic;\n  color: #999999;\n}\n.swagger-section #message-bar {\n  min-height: 30px;\n  text-align: center;\n  padding-top: 10px;\n}\n.swagger-section .swagger-collapse:before {\n  content: \"-\";\n}\n.swagger-section .swagger-expand:before {\n  content: \"+\";\n}\n.swagger-section .error {\n  outline-color: #cc0000;\n  background-color: #f2dede;\n}\n</style>\n\n  <!-- <script src='lib/object-assign-pollyfill.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery-1.8.0.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery.slideto.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery.wiggle.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery.ba-bbq.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/handlebars-2.0.0.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/lodash.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/backbone-min.js' type='text/javascript'></script> -->\n  <!-- <script src='swagger-ui.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/highlight.9.1.0.pack.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/highlight.9.1.0.pack_extended.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jsoneditor.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/marked.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/swagger-oauth.js' type='text/javascript'></script> -->\n  <script src='assets.swagger_ui.rollup.js'></script>\n\n  <!-- Some basic translations -->\n  <!-- <script src='lang/translator.js' type='text/javascript'></script> -->\n  <!-- <script src='lang/ru.js' type='text/javascript'></script> -->\n  <!-- <script src='lang/en.js' type='text/javascript'></script> -->\n\n  <script type=\"text/javascript\">\n    $(function () {\n      var url = (/url=([^&]+)/).exec(window.location.search);\n      if (url && url.length > 1) {\n        url = decodeURIComponent(url[1]);\n      } else {\n        url = \"assets.swagger_ui.petstore.json\";\n        if (!(/^(?:\\/|http:|https:)/).test(url)) {\n            url = location.pathname.replace((/[^\\/]*?\\.html$/), '') + url;\n        }\n      }\n\n      hljs.configure({\n        highlightSizeThreshold: 5000\n      });\n\n      // Pre load translate...\n      if(window.SwaggerTranslator) {\n        window.SwaggerTranslator.translate();\n      }\n      window.swaggerUi = new SwaggerUi({\n        url: url,\n        dom_id: \"swagger-ui-container\",\n        supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],\n        onComplete: function(swaggerApi, swaggerUi){\n          if(typeof initOAuth == \"function\") {\n            initOAuth({\n              clientId: \"your-client-id\",\n              clientSecret: \"your-client-secret-if-required\",\n              realm: \"your-realms\",\n              appName: \"your-app-name\",\n              scopeSeparator: \",\",\n              additionalQueryStringParams: {}\n            });\n          }\n\n          if(window.SwaggerTranslator) {\n            window.SwaggerTranslator.translate();\n          }\n        },\n        onFailure: function(data) {\n          log(\"Unable to Load SwaggerUI\");\n        },\n        docExpansion: \"none\",\n        jsonEditor: false,\n        defaultModelRendering: 'schema',\n        showRequestHeaders: false\n      });\n\n      window.swaggerUi.load();\n\n      function log() {\n        if ('console' in window) {\n          console.log.apply(console, arguments);\n        }\n      }\n  });\n  </script>\n</head>\n\n<body class=\"swagger-section\">\n<div id='header'>\n  <div class=\"swagger-ui-wrap\">\n    <a id=\"logo\" href=\"http://swagger.io\"><img class=\"logo__img\" alt=\"swagger\" height=\"30\" width=\"30\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAqRJREFUeNrEVz1s00AUfnGXii5maMXoEUEHVwIpEkPNgkBdMnQoU5ytiKHJwpp2Q2JIO8DCUDOxIJFIVOoWZyJSh3pp1Q2PVVlcCVBH3ufeVZZ9Zye1Ay86nXV+ue/9fO/lheg/Se02X1rvksmbnTiKvuxQMBNgBnN4a/LCbmnUAP6JV58NCUsBC8CuAJxGPF47OgNqBaA93tolUhnx6jC4NxGwyOEwlccyAs+3kwdzKq0HDn2vEBTi8J2XpyMaywNDE157BhXUE3zJhlq8GKq+Zd2zaWHepPA8oN9XkfLmRdOiJV4XUUg/IyWncLjCYY/SHndV2u7zHr3bPKZtdxgboJOnthvrfGj/oMf3G0r7JVmNlLfKklmrt2MvvcNO7LFOhoFHfuAJI5o6ta10jpt5CQLgwXhXG2YIwvu+34qf78ybOjWTnWwkgR36d7JqJOrW0hHmNrKg9xhiS4+1jFmrxymh03B0w+6kURIAu3yHtOD5oaUNojMnGgbcctNvwdAnyxvxRR+/vaJnjzbpzcZX+nN1SdGv85i9eH8w3qPO+mdm/y4dnQ1iI8Fq6Nf4cxL6GWSjiFDSs0VRnxC5g0xSB2cgHpaseTxfqOv5uoHkNQ6Ha/N1Yz9mNMppEkEkYKj79q6uCq4bCHcSX3fJ0Vk/k9siASjCm1N6gZH6Ec9IXt2WkFES2K/ixoIyktJPAu/ptOA1SgO5zqtr6KASJPF0nMV8dgMsRhRPOcMwqQAOoi0VAIMLAEWJ6YYC1c8ibj1GP51RqwzYwZVMHQuvOzMCBUtb2tGHx5NAdLKqp5AX7Ng4d+Zi8AGDI9z1ijx9yaCH04y3GCP2S+QcvaGl+pcxyUBvinFlawoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\" /><span class=\"logo__title\">swagger</span></a>\n    <form id='api_selector'>\n      <div class='input'><input placeholder=\"http://example.com/api\" id=\"input_baseUrl\" name=\"baseUrl\" type=\"text\"/></div>\n      <div id='auth_container'></div>\n      <div class='input'><a id=\"explore\" class=\"header__btn\" href=\"#\" data-sw-translate>Explore</a></div>\n    </form>\n  </div>\n</div>\n\n<div id=\"message-bar\" class=\"swagger-ui-wrap\" data-sw-translate>&nbsp;</div>\n<div id=\"swagger-ui-container\" class=\"swagger-ui-wrap\"></div>\n</body>\n</html>\n\n",
             "/": "<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Swagger UI</title>\n  <link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,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\" sizes=\"32x32\" />\n  <link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACTElEQVQ4jY2TT0iTYRzHP8/zvppm1pplsst0SCjm1sVuCY0OUsnGOu1UEFKHohIRFDpEVB48FB5CJNCLFzFyRn8u78EOecwNSWVoOyg03BjGpOn7vk+HzTmdQb/Lw/Pw/X6fH9/v7yc4VLZteRSqB4QfVHP+VcRBGQIxJqW2WooX+0RbV9hPUao/lojoC2vTbP7OY+tqPVxsCtHuDpgIOSwQT6SUZlGgQJ5KZlaCE0aY9fTC4cYAcDl93PZPUu9oiQjETSmlKQAs23qezCwPvp69TDaXOpK8V8ePOXnU/ZV6R8uQJrUBaduWB2X3TxhhsrkUNzpe0BuYLyP2Br7R3fGS7VyacSMMyu6zbcsjFepOLBHR99r2uoOMfr5eJvDm0zW8jUEANtJRoon3uoIeCeLq97XpIrBCq2LH3C4T2DGz6FpV8b6w9g7Ar4NqThXc7my7T3JrhfpT5zlRfZad3SwIQYVWTTaX4lfmB51tD5hbHGFzaxVQzfLgPwKUKmQjQORTFoVTKYXYTx4AHUS8rtZz6WdynrnFEa5ceEwys8y6dTBKTVbScLqV0S95f86c9AAiLgHD1xQqAnetP1TqNWUeVOo1mFauePc1hgAMKWDM6w6YLqcXgFhihrtdH8oE7nV9JJaYAcDlbKe9MWgKGCsZpKXBV7OdbP/HID3snuOco3VIk9pAySirqWRmKThuhNlIR48ku5xebvknaXC0Rigd5RKRZyi7L5qYyS/T1mrRMF9TCK87aCLEsEAeXKbS+vc6Ywh4K6UWL8X/BRbH8zwWREZpAAAAAElFTkSuQmCC\" sizes=\"16x16\" />\n  <!-- <link href='css/typography.css' media='screen' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/reset.css' media='screen' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/screen.css' media='screen' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/reset.css' media='print' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/print.css' media='print' rel='stylesheet' type='text/css'/> -->\n<style>\n/* init style reset */\n/* http://meyerweb.com/eric/tools/css/reset/ v2.0 | 20110126 */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font-size: 100%;\n  font: inherit;\n  vertical-align: baseline;\n}\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block;\n}\nbody {\n  line-height: 1;\n}\nol,\nul {\n  list-style: none;\n}\nblockquote,\nq {\n  quotes: none;\n}\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: '';\n  content: none;\n}\ntable {\n  border-collapse: collapse;\n  border-spacing: 0;\n}\n\n\n\n/* init style screen */\n/* Original style from softwaremaniacs.org (c) Ivan Sagalaev <Maniac@SoftwareManiacs.Org> */\n.swagger-section pre code {\n  display: block;\n  padding: 0.5em;\n  background: #F0F0F0;\n}\n.swagger-section pre code,\n.swagger-section pre .subst,\n.swagger-section pre .tag .title,\n.swagger-section pre .lisp .title,\n.swagger-section pre .clojure .built_in,\n.swagger-section pre .nginx .title {\n  color: black;\n}\n.swagger-section pre .string,\n.swagger-section pre .title,\n.swagger-section pre .constant,\n.swagger-section pre .parent,\n.swagger-section pre .tag .value,\n.swagger-section pre .rules .value,\n.swagger-section pre .rules .value .number,\n.swagger-section pre .preprocessor,\n.swagger-section pre .ruby .symbol,\n.swagger-section pre .ruby .symbol .string,\n.swagger-section pre .aggregate,\n.swagger-section pre .template_tag,\n.swagger-section pre .django .variable,\n.swagger-section pre .smalltalk .class,\n.swagger-section pre .addition,\n.swagger-section pre .flow,\n.swagger-section pre .stream,\n.swagger-section pre .bash .variable,\n.swagger-section pre .apache .tag,\n.swagger-section pre .apache .cbracket,\n.swagger-section pre .tex .command,\n.swagger-section pre .tex .special,\n.swagger-section pre .erlang_repl .function_or_atom,\n.swagger-section pre .markdown .header {\n  color: #800;\n}\n.swagger-section pre .comment,\n.swagger-section pre .annotation,\n.swagger-section pre .template_comment,\n.swagger-section pre .diff .header,\n.swagger-section pre .chunk,\n.swagger-section pre .markdown .blockquote {\n  color: #888;\n}\n.swagger-section pre .number,\n.swagger-section pre .date,\n.swagger-section pre .regexp,\n.swagger-section pre .literal,\n.swagger-section pre .smalltalk .symbol,\n.swagger-section pre .smalltalk .char,\n.swagger-section pre .go .constant,\n.swagger-section pre .change,\n.swagger-section pre .markdown .bullet,\n.swagger-section pre .markdown .link_url {\n  color: #080;\n}\n.swagger-section pre .label,\n.swagger-section pre .javadoc,\n.swagger-section pre .ruby .string,\n.swagger-section pre .decorator,\n.swagger-section pre .filter .argument,\n.swagger-section pre .localvars,\n.swagger-section pre .array,\n.swagger-section pre .attr_selector,\n.swagger-section pre .important,\n.swagger-section pre .pseudo,\n.swagger-section pre .pi,\n.swagger-section pre .doctype,\n.swagger-section pre .deletion,\n.swagger-section pre .envvar,\n.swagger-section pre .shebang,\n.swagger-section pre .apache .sqbracket,\n.swagger-section pre .nginx .built_in,\n.swagger-section pre .tex .formula,\n.swagger-section pre .erlang_repl .reserved,\n.swagger-section pre .prompt,\n.swagger-section pre .markdown .link_label,\n.swagger-section pre .vhdl .attribute,\n.swagger-section pre .clojure .attribute,\n.swagger-section pre .coffeescript .property {\n  color: #88F;\n}\n.swagger-section pre .keyword,\n.swagger-section pre .id,\n.swagger-section pre .phpdoc,\n.swagger-section pre .title,\n.swagger-section pre .built_in,\n.swagger-section pre .aggregate,\n.swagger-section pre .css .tag,\n.swagger-section pre .javadoctag,\n.swagger-section pre .phpdoc,\n.swagger-section pre .yardoctag,\n.swagger-section pre .smalltalk .class,\n.swagger-section pre .winutils,\n.swagger-section pre .bash .variable,\n.swagger-section pre .apache .tag,\n.swagger-section pre .go .typename,\n.swagger-section pre .tex .command,\n.swagger-section pre .markdown .strong,\n.swagger-section pre .request,\n.swagger-section pre .status {\n  font-weight: bold;\n}\n.swagger-section pre .markdown .emphasis {\n  font-style: italic;\n}\n.swagger-section pre .nginx .built_in {\n  font-weight: normal;\n}\n.swagger-section pre .coffeescript .javascript,\n.swagger-section pre .javascript .xml,\n.swagger-section pre .tex .formula,\n.swagger-section pre .xml .javascript,\n.swagger-section pre .xml .vbscript,\n.swagger-section pre .xml .css,\n.swagger-section pre .xml .cdata {\n  opacity: 0.5;\n}\n.swagger-section .hljs {\n  display: block;\n  overflow-x: auto;\n  padding: 0.5em;\n  background: #F0F0F0;\n}\n.swagger-section .hljs,\n.swagger-section .hljs-subst {\n  color: #444;\n}\n.swagger-section .hljs-keyword,\n.swagger-section .hljs-attribute,\n.swagger-section .hljs-selector-tag,\n.swagger-section .hljs-meta-keyword,\n.swagger-section .hljs-doctag,\n.swagger-section .hljs-name {\n  font-weight: bold;\n}\n.swagger-section .hljs-built_in,\n.swagger-section .hljs-literal,\n.swagger-section .hljs-bullet,\n.swagger-section .hljs-code,\n.swagger-section .hljs-addition {\n  color: #1F811F;\n}\n.swagger-section .hljs-regexp,\n.swagger-section .hljs-symbol,\n.swagger-section .hljs-variable,\n.swagger-section .hljs-template-variable,\n.swagger-section .hljs-link,\n.swagger-section .hljs-selector-attr,\n.swagger-section .hljs-selector-pseudo {\n  color: #BC6060;\n}\n.swagger-section .hljs-type,\n.swagger-section .hljs-string,\n.swagger-section .hljs-number,\n.swagger-section .hljs-selector-id,\n.swagger-section .hljs-selector-class,\n.swagger-section .hljs-quote,\n.swagger-section .hljs-template-tag,\n.swagger-section .hljs-deletion {\n  color: #880000;\n}\n.swagger-section .hljs-title,\n.swagger-section .hljs-section {\n  color: #880000;\n  font-weight: bold;\n}\n.swagger-section .hljs-comment {\n  color: #888888;\n}\n.swagger-section .hljs-meta {\n  color: #2B6EA1;\n}\n.swagger-section .hljs-emphasis {\n  font-style: italic;\n}\n.swagger-section .hljs-strong {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap {\n  line-height: 1;\n  font-family: \"Droid Sans\", sans-serif;\n  min-width: 760px;\n  max-width: 960px;\n  margin-left: auto;\n  margin-right: auto;\n  /* JSONEditor specific styling */\n}\n.swagger-section .swagger-ui-wrap b,\n.swagger-section .swagger-ui-wrap strong {\n  font-family: \"Droid Sans\", sans-serif;\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap q,\n.swagger-section .swagger-ui-wrap blockquote {\n  quotes: none;\n}\n.swagger-section .swagger-ui-wrap p {\n  line-height: 1.4em;\n  padding: 0 0 10px;\n  color: #333333;\n}\n.swagger-section .swagger-ui-wrap q:before,\n.swagger-section .swagger-ui-wrap q:after,\n.swagger-section .swagger-ui-wrap blockquote:before,\n.swagger-section .swagger-ui-wrap blockquote:after {\n  content: none;\n}\n.swagger-section .swagger-ui-wrap .heading_with_menu h1,\n.swagger-section .swagger-ui-wrap .heading_with_menu h2,\n.swagger-section .swagger-ui-wrap .heading_with_menu h3,\n.swagger-section .swagger-ui-wrap .heading_with_menu h4,\n.swagger-section .swagger-ui-wrap .heading_with_menu h5,\n.swagger-section .swagger-ui-wrap .heading_with_menu h6 {\n  display: block;\n  clear: none;\n  float: left;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  width: 60%;\n}\n.swagger-section .swagger-ui-wrap table {\n  border-collapse: collapse;\n  border-spacing: 0;\n}\n.swagger-section .swagger-ui-wrap table thead tr th {\n  padding: 5px;\n  font-size: 0.9em;\n  color: #666666;\n  border-bottom: 1px solid #999999;\n}\n.swagger-section .swagger-ui-wrap table tbody tr:last-child td {\n  border-bottom: none;\n}\n.swagger-section .swagger-ui-wrap table tbody tr.offset {\n  background-color: #f0f0f0;\n}\n.swagger-section .swagger-ui-wrap table tbody tr td {\n  padding: 6px;\n  font-size: 0.9em;\n  border-bottom: 1px solid #cccccc;\n  vertical-align: top;\n  line-height: 1.3em;\n}\n.swagger-section .swagger-ui-wrap ol {\n  margin: 0px 0 10px;\n  padding: 0 0 0 18px;\n  list-style-type: decimal;\n}\n.swagger-section .swagger-ui-wrap ol li {\n  padding: 5px 0px;\n  font-size: 0.9em;\n  color: #333333;\n}\n.swagger-section .swagger-ui-wrap ol,\n.swagger-section .swagger-ui-wrap ul {\n  list-style: none;\n}\n.swagger-section .swagger-ui-wrap h1 a,\n.swagger-section .swagger-ui-wrap h2 a,\n.swagger-section .swagger-ui-wrap h3 a,\n.swagger-section .swagger-ui-wrap h4 a,\n.swagger-section .swagger-ui-wrap h5 a,\n.swagger-section .swagger-ui-wrap h6 a {\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap h1 a:hover,\n.swagger-section .swagger-ui-wrap h2 a:hover,\n.swagger-section .swagger-ui-wrap h3 a:hover,\n.swagger-section .swagger-ui-wrap h4 a:hover,\n.swagger-section .swagger-ui-wrap h5 a:hover,\n.swagger-section .swagger-ui-wrap h6 a:hover {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap h1 span.divider,\n.swagger-section .swagger-ui-wrap h2 span.divider,\n.swagger-section .swagger-ui-wrap h3 span.divider,\n.swagger-section .swagger-ui-wrap h4 span.divider,\n.swagger-section .swagger-ui-wrap h5 span.divider,\n.swagger-section .swagger-ui-wrap h6 span.divider {\n  color: #aaaaaa;\n}\n.swagger-section .swagger-ui-wrap a {\n  color: #547f00;\n}\n.swagger-section .swagger-ui-wrap a img {\n  border: none;\n}\n.swagger-section .swagger-ui-wrap article,\n.swagger-section .swagger-ui-wrap aside,\n.swagger-section .swagger-ui-wrap details,\n.swagger-section .swagger-ui-wrap figcaption,\n.swagger-section .swagger-ui-wrap figure,\n.swagger-section .swagger-ui-wrap footer,\n.swagger-section .swagger-ui-wrap header,\n.swagger-section .swagger-ui-wrap hgroup,\n.swagger-section .swagger-ui-wrap menu,\n.swagger-section .swagger-ui-wrap nav,\n.swagger-section .swagger-ui-wrap section,\n.swagger-section .swagger-ui-wrap summary {\n  display: block;\n}\n.swagger-section .swagger-ui-wrap pre {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  background-color: #fcf6db;\n  border: 1px solid #e5e0c6;\n  padding: 10px;\n}\n.swagger-section .swagger-ui-wrap pre code {\n  line-height: 1.6em;\n  background: none;\n}\n.swagger-section .swagger-ui-wrap .content > .content-type > div > label {\n  clear: both;\n  display: block;\n  color: #0F6AB4;\n  font-size: 1.1em;\n  margin: 0;\n  padding: 15px 0 5px;\n}\n.swagger-section .swagger-ui-wrap .content pre {\n  font-size: 12px;\n  margin-top: 5px;\n  padding: 5px;\n}\n.swagger-section .swagger-ui-wrap .icon-btn {\n  cursor: pointer;\n}\n.swagger-section .swagger-ui-wrap .info_title {\n  padding-bottom: 10px;\n  font-weight: bold;\n  font-size: 25px;\n}\n.swagger-section .swagger-ui-wrap .footer {\n  margin-top: 20px;\n}\n.swagger-section .swagger-ui-wrap p.big,\n.swagger-section .swagger-ui-wrap div.big p {\n  font-size: 1em;\n  margin-bottom: 10px;\n}\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.string input,\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.url input,\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.text textarea,\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.numeric input {\n  width: 500px !important;\n}\n.swagger-section .swagger-ui-wrap .info_license {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_tos {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .message-fail {\n  color: #cc0000;\n}\n.swagger-section .swagger-ui-wrap .info_url {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_email {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_name {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_description {\n  padding-bottom: 10px;\n  font-size: 15px;\n}\n.swagger-section .swagger-ui-wrap .markdown ol li,\n.swagger-section .swagger-ui-wrap .markdown ul li {\n  padding: 3px 0px;\n  line-height: 1.4em;\n  color: #333333;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.string input,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.url input,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.numeric input {\n  display: block;\n  padding: 4px;\n  width: auto;\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.string input.title,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.url input.title,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.numeric input.title {\n  font-size: 1.3em;\n}\n.swagger-section .swagger-ui-wrap table.fullwidth {\n  width: 100%;\n}\n.swagger-section .swagger-ui-wrap .model-signature {\n  font-family: \"Droid Sans\", sans-serif;\n  font-size: 1em;\n  line-height: 1.5em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-nav a {\n  text-decoration: none;\n  color: #AAA;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-nav a:hover {\n  text-decoration: underline;\n  color: black;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-nav .selected {\n  color: black;\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propType {\n  color: #5555aa;\n}\n.swagger-section .swagger-ui-wrap .model-signature pre:hover {\n  background-color: #ffffdd;\n}\n.swagger-section .swagger-ui-wrap .model-signature pre {\n  font-size: .85em;\n  line-height: 1.2em;\n  overflow: auto;\n  max-height: 200px;\n  cursor: pointer;\n}\n.swagger-section .swagger-ui-wrap .model-signature ul.signature-nav {\n  display: block;\n  min-width: 230px;\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap .model-signature ul.signature-nav li:last-child {\n  padding-right: 0;\n  border-right: none;\n}\n.swagger-section .swagger-ui-wrap .model-signature ul.signature-nav li {\n  float: left;\n  margin: 0 5px 5px 0;\n  padding: 2px 5px 2px 0;\n  border-right: 1px solid #ddd;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propOpt {\n  color: #555;\n}\n.swagger-section .swagger-ui-wrap .model-signature .snippet small {\n  font-size: 0.75em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propOptKey {\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .strong {\n  font-weight: bold;\n  color: #000;\n  font-size: .9em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description div {\n  font-size: 0.9em;\n  line-height: 1.5em;\n  margin-left: 1em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .stronger {\n  font-weight: bold;\n  color: #000;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper {\n  border-spacing: 0;\n  position: absolute;\n  background-color: #ffffff;\n  border: 1px solid #bbbbbb;\n  display: none;\n  font-size: 11px;\n  max-width: 400px;\n  line-height: 30px;\n  color: black;\n  padding: 5px;\n  margin-left: 10px;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper th {\n  text-align: center;\n  background-color: #eeeeee;\n  border: 1px solid #bbbbbb;\n  font-size: 11px;\n  color: #666666;\n  font-weight: bold;\n  padding: 5px;\n  line-height: 15px;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper .optionName {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propDesc.markdown > p:first-child,\n.swagger-section .swagger-ui-wrap .model-signature .description .propDesc.markdown > p:last-child {\n  display: inline;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propDesc.markdown > p:not(:first-child):before {\n  display: block;\n  content: '';\n}\n.swagger-section .swagger-ui-wrap .model-signature .description span:last-of-type.propDesc.markdown > p:only-child {\n  margin-right: -3px;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propName {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-container {\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap .body-textarea {\n  width: 300px;\n  height: 100px;\n  border: 1px solid #aaa;\n}\n.swagger-section .swagger-ui-wrap .markdown p code,\n.swagger-section .swagger-ui-wrap .markdown li code {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  background-color: #f0f0f0;\n  color: black;\n  padding: 1px 3px;\n}\n.swagger-section .swagger-ui-wrap .required {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .editor_holder {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap .editor_holder label {\n  font-weight: normal!important;\n  /* JSONEditor uses bold by default for all labels, we revert that back to normal to not give the impression that by default fields are required */\n}\n.swagger-section .swagger-ui-wrap .editor_holder label.required {\n  font-weight: bold!important;\n}\n.swagger-section .swagger-ui-wrap input.parameter {\n  width: 300px;\n  border: 1px solid #aaa;\n}\n.swagger-section .swagger-ui-wrap h1 {\n  color: black;\n  font-size: 1.5em;\n  line-height: 1.3em;\n  padding: 10px 0 10px 0;\n  font-family: \"Droid Sans\", sans-serif;\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .heading_with_menu {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap .heading_with_menu ul {\n  display: block;\n  clear: none;\n  float: right;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  margin-top: 10px;\n}\n.swagger-section .swagger-ui-wrap h2 {\n  color: black;\n  font-size: 1.3em;\n  padding: 10px 0 10px 0;\n}\n.swagger-section .swagger-ui-wrap h2 a {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap h2 span.sub {\n  font-size: 0.7em;\n  color: #999999;\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap h2 span.sub a {\n  color: #777777;\n}\n.swagger-section .swagger-ui-wrap span.weak {\n  color: #666666;\n}\n.swagger-section .swagger-ui-wrap .message-success {\n  color: #89BF04;\n}\n.swagger-section .swagger-ui-wrap caption,\n.swagger-section .swagger-ui-wrap th,\n.swagger-section .swagger-ui-wrap td {\n  text-align: left;\n  font-weight: normal;\n  vertical-align: middle;\n}\n.swagger-section .swagger-ui-wrap .code {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.text textarea {\n  font-family: \"Droid Sans\", sans-serif;\n  height: 250px;\n  padding: 4px;\n  display: block;\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.select select {\n  display: block;\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.boolean {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.boolean label {\n  display: block;\n  float: left;\n  clear: none;\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.boolean input {\n  display: block;\n  float: left;\n  clear: none;\n  margin: 0 5px 0 0;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.required label {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li label {\n  display: block;\n  clear: both;\n  width: auto;\n  padding: 0 0 3px;\n  color: #666666;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li label abbr {\n  padding-left: 3px;\n  color: #888888;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li p.inline-hints {\n  margin-left: 0;\n  font-style: italic;\n  font-size: 0.9em;\n  margin: 0;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.buttons {\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap span.blank,\n.swagger-section .swagger-ui-wrap span.empty {\n  color: #888888;\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap .markdown h3 {\n  color: #547f00;\n}\n.swagger-section .swagger-ui-wrap .markdown h4 {\n  color: #666666;\n}\n.swagger-section .swagger-ui-wrap .markdown pre {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  background-color: #fcf6db;\n  border: 1px solid #e5e0c6;\n  padding: 10px;\n  margin: 0 0 10px 0;\n}\n.swagger-section .swagger-ui-wrap .markdown pre code {\n  line-height: 1.6em;\n  overflow: auto;\n}\n.swagger-section .swagger-ui-wrap div.gist {\n  margin: 20px 0 25px 0 !important;\n}\n.swagger-section .swagger-ui-wrap ul#resources {\n  font-family: \"Droid Sans\", sans-serif;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource {\n  border-bottom: 1px solid #dddddd;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource:hover div.heading h2 a,\n.swagger-section .swagger-ui-wrap ul#resources li.resource.active div.heading h2 a {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource:hover div.heading ul.options li a,\n.swagger-section .swagger-ui-wrap ul#resources li.resource.active div.heading ul.options li a {\n  color: #555555;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource:last-child {\n  border-bottom: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading {\n  border: 1px solid transparent;\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options {\n  overflow: hidden;\n  padding: 0;\n  display: block;\n  clear: none;\n  float: right;\n  margin: 14px 10px 0 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li {\n  float: left;\n  clear: none;\n  margin: 0;\n  padding: 2px 10px;\n  border-right: 1px solid #dddddd;\n  color: #666666;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a {\n  color: #aaaaaa;\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a:hover {\n  text-decoration: underline;\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a:hover,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a:active,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a.active {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li.last {\n  padding-right: 0;\n  border-right: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading h2 {\n  color: #999999;\n  padding-left: 0;\n  display: block;\n  clear: none;\n  float: left;\n  font-family: \"Droid Sans\", sans-serif;\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading h2 a {\n  color: #999999;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading h2 a:hover {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n  margin: 0 0 10px;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 {\n  display: block;\n  clear: none;\n  float: left;\n  width: auto;\n  margin: 0;\n  padding: 0;\n  line-height: 1.1em;\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path {\n  padding-left: 10px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path a {\n  color: black;\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path a.toggleOperation.deprecated {\n  text-decoration: line-through;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path a:hover {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.http_method a {\n  text-transform: uppercase;\n  text-decoration: none;\n  color: white;\n  display: inline-block;\n  width: 50px;\n  font-size: 0.7em;\n  text-align: center;\n  padding: 7px 0 4px;\n  -moz-border-radius: 2px;\n  -webkit-border-radius: 2px;\n  -o-border-radius: 2px;\n  -ms-border-radius: 2px;\n  -khtml-border-radius: 2px;\n  border-radius: 2px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span {\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options {\n  overflow: hidden;\n  padding: 0;\n  display: block;\n  clear: none;\n  float: right;\n  margin: 6px 10px 0 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options li {\n  float: left;\n  clear: none;\n  margin: 0;\n  padding: 2px 10px;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options li a {\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options li.access {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content {\n  border-top: none;\n  padding: 10px;\n  -moz-border-radius-bottomleft: 6px;\n  -webkit-border-bottom-left-radius: 6px;\n  -o-border-bottom-left-radius: 6px;\n  -ms-border-bottom-left-radius: 6px;\n  -khtml-border-bottom-left-radius: 6px;\n  border-bottom-left-radius: 6px;\n  -moz-border-radius-bottomright: 6px;\n  -webkit-border-bottom-right-radius: 6px;\n  -o-border-bottom-right-radius: 6px;\n  -ms-border-bottom-right-radius: 6px;\n  -khtml-border-bottom-right-radius: 6px;\n  border-bottom-right-radius: 6px;\n  margin: 0 0 20px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content h4 {\n  font-size: 1.1em;\n  margin: 0;\n  padding: 15px 0 5px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header a {\n  padding: 4px 0 0 10px;\n  display: inline-block;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header input.submit {\n  display: block;\n  clear: none;\n  float: left;\n  padding: 6px 8px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header span.response_throbber {\n  background-image: url('data:image/gif;base64,R0lGODlhgAAQAIQAAHx+fMzOzKSipOzq7JSSlLS2tPT29IyKjOTi5ISGhNza3KyqrPTy9JyenLy+vPz+/ISChNTS1KSmpOzu7JSWlLy6vPz6/IyOjOTm5AAAAAAAAAAAAAAAAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJBAAPACwAAAAAgAAQAAAF/uAjjmRpnmiqrmzrvnAsz3Rt33iu73zv/zTLZDBJWQYDRsqAVKIYSEMKOrCghERjc7l9RqdIq8niICQoETFpUrgkBAr1CLE4HBaYk0KQuBScJBYRZgQOciJkZmiHD2xucIx0dnh6fH6AI4KEhiYRABCfBwomFaCgDXkkBgugnxKYDwMNn58FJgoXtBABnbqipKYAqCWrrRCvJbK6tiW4urwlErSfFSYHANgQEBHJCboJAyURwRAHJg6t2AIm0sbVJdfZ293f4STjvufpAOvR5O8krhnjRmJAgnTgxBkDYK5EqU+g+pGQ8M/atHkFD2IDkPDewoYkHmrjZyKAsQujlEoUCDaMBAOKEJGRwNDAGDMSuIxBI2EyG0oTK2m1HPHS1DFYNG3euqBzTAUCEAgEYMTmwJs4JiQlWIBgjIIGdgrYCxSAUAVGFp5GnWqi6tVIdbZ2LWHha9ixmcomIHD2xBEMRa4MwMCAkQgGGJJMSSwFxZAqggFrIWz4AWLFTxineFwZiOfPoEOLHk26tOnTqFO7CAEAIfkECQQAFgAsAAAAAIAAEACFBAIEhIKExMbETEpMpKKk5ObkHB4clJKU3Nrc9Pb0tLa0DA4MZGZkNDI0jIqMzM7M7O7snJqcDAoMrKqsJCYk5OLk/P78vL68dHZ0BAYEhIaEzMrMVFZUpKak7OrsJCIklJaU3N7c/Pr8vLq8FBIUNDY0jI6M1NLU9PL0nJ6cfH58AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABv5Ai3BILBqPyKRyyWw6n9CodEqtWo+biIaAuHq/4CsK81lISI2OKMxuu4kVDmBOz2BQRZHHg0cm9n1HKHsJSYMea0ciEB4QSXp8SX+RSIeFlXuJQiImEnSfJApEEAomWwiaQxUTDg4TBUcIBBomCoFDIicHGgcXqZsXuyAnvxakplzFq62vsbO1t5u6vL5DBQOf2QxEIwEq3hGwRAkT3t8d0R4R39+iRQgm7AEPRifyDl1F3ezhReTmAdAVUSfPHRF48ugJQUAh26cGRByomBggwImBGuRp8FDkREZvARwYuWBuIgEjHdh9G2FEIkWLGDVyJOLx3siSKk4ubOhwDtPEIRLNabhIxIOGkhs7AlQhUh9IbzqJdAC5sqXKoRiRzhxyYmlTbk9zWsPWE8C2IQqo9iOCYuq3gNEKpABocAg8gAqJPABoIh+RtPzEDWn7VCARuXSN3KWYl5MnhwvqknJwShkrDRMqGBGBIEUrBVtxPdh1YEQxESMOBDjwoNjkykaWYdacp/Pn0JtG8zINR042O9H0FEBRTAiKApQEIb90hBEiJMIdQfcwvLiF48mNYGduxLlrDAbMLGiQgvub8+irCNgVwW/69/Djy59Pv759N0EAACH5BAkEADAALAAAAACAABAAhQQCBISChMTCxERCRKSipOTi5CQmJGRiZJSSlLSytPTy9BQWFNTS1FRSVAwKDIyKjKyqrOzq7DQyNHx+fJyanLy6vPz6/Nza3MzKzExOTGxqbBweHFxaXDw6PAQGBISGhERGRKSmpOTm5GRmZJSWlLS2tPT29BwaHNTW1AwODIyOjKyurOzu7DQ2NJyenLy+vPz+/Nze3MzOzFxeXAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAb+QJhwSCwaj8ikcslsOp/QqHRKrVqnFgHikxBdv+Awk9LozCrGSOaUciwGL7F8fr2AAHiA5+AVoiR5eQ4URiYREQpJCocmiocWSBYsESxJFoeJSIaIjhGNSIsRkEQsB4F4Dh+QChqneQsRRAUQDw8rBUcXBB8qJZlEFgxbCC+jwC9bJAzGQywJKh8EF8xCs7W3ubu9v0PBw8VEAgauAC0xMBiA5AAkQyYQARMTASHcMBEU8/MJRhcq+gFkGGEA8MEFIxXixaPQxx08efTs4QPIr4g/gAKHuPBAzoHABCfWATgwJMIHgB9iEWFwUuEDIy/iyZtAwEgIffPQFHkwM0D+AAZFTKJUOYRlQZgy5dUcQoCjKwdAS4RcN6Lkh6QpizCQGe9lkYTz4i0lEkJhTiM8ZX4ASsQkVqJCtkKc4JUIWJ80ibwY58ocOnXk2glRUDZsvSIiXHCtSMQf14xEZHBVcbBICbMMixBWGBGxYoiMhziGCPmeqVMeHjRSMMLpqQW4hlj7ACE2sAsuaiWoVMSCjGEVqMGwUAFBAAQyhDuDJk347NpGLODWzRvY7w8IglscEGiP7T+uPBDSLIITqPKfjkwSFSmCiOrR3SsQPri8PSIK0CdZT98CiQYScFCCESKskYIHb5RAHx0MNkiFCRVAA52DFFZo4YUYZqjhhnICBAEAIfkECQQAHAAsAAAAAIAAEACFBAIEhIKExMbEREJEpKKk5ObkZGJkNDI0FBIU1NbUtLK0lJKUVFZU9Pb0dHJ0DAoMjIqMzM7MTEpMrKqs7O7sHBoc3N7cvLq8bGpsPD48nJ6cXF5c/P78BAYEhIaEzMrMREZEpKak7OrsNDY0FBYU3NrctLa0lJaUXFpc/Pr8fH58DA4MjI6M1NLUTE5MrK6s9PL0HB4c5OLkvL68bG5sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABv5AjnBILBqPyKRyyWw6n9CodEqtWq9JmIkFuVCw4PAVZkkhRSxJxvExfgaV1aPCSIjv+KVs8wA8AiJFETEAhQArATBDH32GhSttRTAiIg1ZlGZHKRQiX0gplIpIDaGXlaaZRDIgjh0YgUIyA46PE0Iis7SFA55CJQQeLCaiRCktCx4LM6lDKTPIJy3MQhQKLB4EJdMcMhMQEC8yR7/Bw0bGyMrTLCu0JApDGgi6ABJCCiT0AO9DIhoqAQDCK1KCBUCAEYy0OBgAQgkjFwIG1FCgSIMJAQGGIHbrn8SBRAoyTDgExgZ6HjI50LdCCDt9DyAMaSERoMwiMzKqUEHASP6IgwAvGIGwE2CAFkVEeGDoAdbMmg2N5CzKk4hJlJlosBSyoJGuFTc50NwZMOyQiEarFgkBVWgRohmPJvWgs2mRsQfNCkEbIGBPIhC8FuInRB49exzw6SPMoYCGuCCHFIxLkkiEuCweFjFRk6IktkY3FnEM2chkspV9sTLUwUDFWBm+2uIgYrWuAU5TlNDwTUGvZhHSXdiW4sKCAAsibKt2Ldu2bhA8TBBXRDdvCL7PBU823IgFBh38qHi9iJAhRL0ECH4kwAiMAqeQcBKxTQioAr+riygAoz6H9yJwJAl8lsiHSRYlFGiECBCAcAAN7RUhwAAkyEGCC6nloeGGWBNUE50J+XEo4ogklmjiiSimuEQQACH5BAkEADAALAAAAACAABAAhQQCBISChMTCxERCRKSipOTi5CQiJJSSlGRiZLSytPTy9BQWFNTS1DQyNAwKDIyKjFxeXKyqrOzq7JyanHx+fLy6vPz6/Nza3Dw6PMzKzExKTGxqbBweHAQGBISGhERGRKSmpOTm5CQmJJSWlGRmZLS2tPT29BwaHNTW1DQ2NAwODIyOjKyurOzu7JyenLy+vPz+/Nze3Dw+PMzOzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAb+QJhwSCwaj8ikcslsOp/QqHRKrVqv1lAicBCYsODwVRJLXgKDQeBStEQwC4eKQ1KI73dLS9JCCjQdAAYTfUQECwCJAAsERBMOiooNKEYKEhIWSHp8SRaXdkgmn0mWEl9IpZlGFi8HHiMMqkMXHJEqD6cwF4iRi2wwIby9HRugMBYMrgcvskOsrrDNQi0JKx4EF9IwBREPDywFRxcEHislxs7JHsvaDBQB7w+/Qxu9ACLzFPaJFEIT+4kaZJi14t27GUbcwQsgz0iFhRQmhChiIgK8dyDQwZAwwWCABEYuFFyIsAgIg+8qEGnRYB9IIQMAyhBSD+CClzBeXKRAoZH+SZQBVBZ5wPNdAAZFJHjw6EFCEQZLFz4worNoTyMgIAZd2dJeiSEyAA6gCXARzodGr5rUKpQI0YsekBJRurPp04vwphZBGwCeTyIz8K6YJwSBPQOUhOjb1w/GP4ACCeItCVgwYSElIEosoiCr0YxFQrjAi1MyzwCUnVU4wGWGNAYnbAUwtsvegsTBANZxNkNZBW0WVrfWRs0aNm3cHniIEK7NBRfeEhQiYqH3ut9HPIWYXuTFh0QcRnCH4ULYIheOAvWaZGQPJk0StneKr0CbEAUhJGgkgt9UEvf2PSHBZURcQAEGGFCQmDMRpBCHAydAMB4eFFYYRgEglPNCLhYNdujhhyCGKOKIJCYRBAAh+QQJBAAZACwAAAAAgAAQAIUEAgSEgoTExsRERkSkoqQkIiTk5uSUkpQUEhRkZmS0trT09vTc2tw0MjQMCgyMiozMzsysqqzs7uycmpx0dnRUVlQsLiwcHhy8vrz8/vw8PjwEBgSEhoTMysxMSkykpqQkJiTs6uyUlpQUFhR0cnS8urz8+vzk4uQ0NjQMDgyMjozU0tSsrqz08vScnpx8fnwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG/sCMcEgsGo/IpHLJbDqf0Kh0Sq1ar9glgxCYdLLgcNVgSHZIGo8qVFwcLAhHqqBaiO9NkyQkSZpCIS1HJiwoAAAoLCZELQEph4cXX0ItJBuQkBUnRXp8foCCSAugSS2AdkimIYtGJhgHHCIrrEQSCiocBAy0QiwjmCMRRCwImIcamxklxcYADge0rrCyvEK2uLrVGScRDw8syUVbHCoKoUQmK7AHGNorLwHwDwxGJfHxE2VEDc0oRB7NACBwISRBwEMD9GV4d29evXsv8rWJEA/eh3NCQkyAB0+BEQYqOAaAYOQDR3gljDx4wTJAgBVEQhxU+CggCSGGDoKgJ8Rk/sUAKYusbPmySAgOIjmwIbICaUMjGCqyJFASIlCVJznAHCIzIM2DNzPkDFiAZ4YPVoMSWVlRq1EOUpUWWfHzxYOH8OJRLQLhpwqzQxRAlEjEQjML/wKmIJjB4MGEQ/q2/GtEMEfCQ1qgzXuxiAEXPz2KU/GTJKcSBwIcgKDN1oNcu4p8+AUJwV4hEWpiQiakhG5MDlREQ62atRHXsLVxex0h3BATDFx4U7AUHYR1JbRl+GOgDxLuLbQtiMAPgAUWqCg5wiQpM4VLxjRxCtH9k4HwqQwEKqU//XFA2olxgnNFCECCBQM8oBAlKliQghwXcIARHhRWiAUDEwQgggAWDHbo4YcghijiiBUGAQAh+QQJBAA0ACwAAAAAgAAQAIUEAgSEgoTEwsREQkTk4uSkoqRkYmQkIiSUkpTU0tRUUlT08vQUEhS0trQ0MjQMCgyMiozMysxMSkzs6ux0dnScmpzc2txcWlz8+vysqqy8vrw8OjwEBgSEhoTExsRERkTk5uSkpqRkZmQkJiSUlpTU1tRUVlT09vQcHhy8urw0NjQMDgyMjozMzsxMTkzs7ux8fnycnpzc3txcXlz8/vwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG/kCacEgsGo/IpHLJbDqf0Kh0Sq1ar1hspNIpWLLgcJUwSaZmG0UMU1xQDqsHwxFii8WY1+SVxEwmC0knf4FGCxUHABwSAkUgBg8AkgAfX0IECpOTHBSFQ36AgoRJC38npH92RRgaCB0kCapDLw0sXRaylxkQEBkgRScQK5ooljQYHZGaAAZ8GCzDywAMDUS0tl65NAS7vb9GFgUdLA2enwmuCBraCTAB7hDGQynv7xXfQycZ7+4h5hYjpIkYImODNAAjNNAAIeGgpIHz6sG4B2wfjH7maEyo4M5dtSIWWHQM0MJIiI7uUhiBcNFdgARFJnQY2aHMkAYHHfChkUDZ/jIOBWgAdAjAARGWFwO8jDmzXs0iCZrCM6KB38WgRUJIDKCyCEt+HWASkWn16c2cNlv41ARUaECHRod8vRiWaVmbQxLwewfBCD2XMLASabGXhTwhDSRSJLJAq0t/RCwkWjZjCAEVBw8oZEjUAJHEHRcPaVwvAGQiIGLs/RiZxd6Sq1IgCICghTZaEG5p45Y7A4E2AaJJQgGbxolkPw2UebZ20grWNHDrNsK7g28jGCzE4NUA76cW6VJoOzYBxM4jfkAsGE9jAYhQRl6QQCHpg0IiBAxw0DSghGUT0nCSUXrrIeEefEcceAoSekzA3h1LWICPEQ1c4IALJOTyAgUoHcSxggMxLAjhiCSC4YErFfhX4oostujiizDGKEUQACH5BAkEADEALAAAAACAABAAhQQCBISChMTCxERCRKSipOTi5CQmJGRiZJSSlLSytPTy9BQWFNTS1FRSVAwKDIyKjExKTKyqrOzq7DQyNHx+fJyanLy6vPz6/Nza3MzKzGxqbBweHFxaXDw6PAQGBISGhERGRKSmpOTm5GRmZJSWlLS2tPT29BwaHNTW1AwODIyOjExOTKyurOzu7DQ2NJyenLy+vPz+/Nze3MzOzFxeXAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAb+wJhwSCwaj8ikcslsOp/QqHRKrVqv2OzyIkB8EiKteBy9yBTJSqNDsxglkE3KsRjAyNBLS9JKXiQSaEgmgIJHCoAmRxIfDgAeNAVFGCAAlo8HYUIoE5eXDhVGhIFJiBKKSKYXRxcwXiQMq0UtCSofBBiyRAURDw8skkYYBB8qJYZCEhoeniDBMS0HnpYOH6sKGtOXCxK7vb/PRMPFx0YXDF4IMLpDDBQB7w8YRhbw8BWaQyYR8O8hyDEkVHj3LkGRBCempXgwRIABbQBcyIiRoRNEACT08aPgD6BAggEMTlIBcoaREATfuSnygOO7AAyKMAL5oRsRBh9AMhxy4QP+RBqCXjDT5sAkwosADgyZaa9mEZw6jcDox5HASXsqjbTs9yEmEUZUnd7sB2+nkAsPIHJARWDoNAcxSyS8OGLph7A225GlYHZIvZcUrBaZQVbFvCIlsOIroiCEvQD/ioh4QVbkEBYLpnkwC+OhNokULULMKKTx48hEJlcWpoKsySIXLCAIgGAGOyG0bOG6HYPXgw8Rwp3F8MJXgj5fD7gFMGBiMmmaHyhSMGL5tnC+gQuPcYG4ceRELsxIZ4E3dwkiwJtDr8B8DAUiSKWKj0pyAEceODgfgmGAJw8HPMOJNh6Ewlh8ABEB3ylJ7CGBe3hYYQIG6oVHQgMTcFCCESIfrHBCCh7UUQKEEZZo4hMmWGBLcCe26OKLMMYoY4xBAAAh+QQJBAAcACwAAAAAgAAQAIUEAgSEgoTExsREQkSkoqTk5uRkYmQ0MjQUEhTU1tS0srSUkpRUVlT09vR0cnQMCgyMiozMzsxMSkysqqzs7uwcGhzc3ty8urxsamw8PjycnpxcXlz8/vwEBgSEhoTMysxERkSkpqTs6uw0NjQUFhTc2ty0trSUlpRcWlz8+vx8fnwMDgyMjozU0tRMTkysrqz08vQcHhzk4uS8vrxsbmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG/kCOcEgsGo/IpHLJbDqf0Kh0Sq1ar9gsFmZiQS4UrXgchVlSSBFLknF8jJ9BZfWoMBLkYYoiCiNTIiIwSQ2Bg0gwgQ1JiSJoRjIbDwAPASJFETEAmwArAYccH5OcmytvRY2LiIGPRSkzCx4nLa1DFAosHgQltUIyExAQLzJHJQQeLCagei2xCzO9MiCkHRiXvgOkpRNCItnamwN+QsbIykYpzR7PvRwtKgHwECVGF/HxGgVFDRPx8CHLOIjQAA+eAiMlWBQMEKEIixXaSBwUogEBOAAShCggcRGAxCEDF04kknBhwyIhCsK7YASCipcBArQoIsLDQg/XhrS4J8/I/gx/LwkQgbHhoodHDjquEPKw4wMIOnkGgFrk58ugRkJIZVnEpT+ZND0AxVlkJ0wVVInYgxdP6BCiRh/RUCpkwShwK9KaLZh2yNqYKtwSifCVBb0iJnjmQ6WVLcAiBTR8HTkk4deTQyDc3fSRokVwGTls7NiZQ+TJCFlcRndhQYAFEdrdyrWr3S8IHiYQc1VCQzAF4/REcHahV4lpnDoY0OcrA15uApGDG5AzRe/fwYWkGL6u+BFABbITAQ+jnRAYBQQxSq/qCB9HRyww6EBJBfMhHzRx8jROwOZSAhiBngjtGfGeeXkkiEoJBRIhAgQgHEBDgEUIMAAJdJDgAmYKFXbo4RS34GaCeB+WaOKJKKaoYhNBAAAh+QQJBAAwACwAAAAAgAAQAIUEAgSEgoTEwsREQkSkoqTk4uQkIiSUkpRkYmS0srT08vQUFhTU0tQ0MjQMCgyMioxcXlysqqzs6uycmpx8fny8urz8+vzc2tw8OjzMysxMSkxsamwcHhwEBgSEhoRERkSkpqTk5uQkJiSUlpRkZmS0trT09vQcGhzU1tQ0NjQMDgyMjoysrqzs7uycnpy8vrz8/vzc3tw8PjzMzswAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG/kCYcEgsGo/IpHLJbDqf0Kh0Sq1ar9isdhlKBA4C03ZMdkpiyUtgMAhcipYIZuFQcUiKqaUlaSUtEhJ5SCaBg0cKgWJIiRIWSHt9SAIaHQAGE35EBAsAngALBEQTDp+fDShGjY9GFi8HHiMMrEQtCSseBBe0QwURDw8sBUcXBB4rJYdDFgywBy+8Qq6wstEXHKYqD4swF52moG8wId/gHRuHzM7QRgwUAe8P4kQV8PATIUUmEfDvIMowJEx49y6BkQsrCAaY0U6hvCIbwAEQMY+CRE8UhEy46KlBhiEIFTIsAoLguwpGHlBYGSAAgyISPCj0IKEIA5n2Hhh50W+l/iiSJgOgHNKiwUWDQgZwlCEkIscFSGHwXOnTCAh7J1Oa9PCSSMyeNG32g6ezSL138H4SuapwqJCiF0sMkcFxQFOOoKKebUlB7ZAZY1fMG1ICK74iCti2/FckhIuxUUGuGDuSCGCWgosgkGgglRCLFzPC2MjRo2TKrSoc+DIjGgxbuHS59vXAQ4RhcC64AJZAExELM5xVcG1BNetoDE5kC3DIm8QFnslxxLMsuIcDw48ACuG7lYQQClwLURBCUBLyErgZ4eMI0vfuRF588MRhBHwX5UC5GGUJHKr1gYhXxoBSSDBYERdQgAEGFHi2TAQp0OHACRDAR+CFGEZRAAjHDrygXoYghijiiCSWKEQQACH5BAkEABkALAAAAACAABAAhQQCBISChMTGxERGRKSipCQiJOTm5JSSlBQSFGRmZLS2tPT29Nza3DQyNAwKDIyKjMzOzKyqrOzu7JyanHR2dFRWVCwuLBweHLy+vPz+/Dw+PAQGBISGhMzKzExKTKSmpCQmJOzq7JSWlBQWFHRydLy6vPz6/OTi5DQ2NAwODIyOjNTS1KyurPTy9JyenHx+fAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAb+wIxwSCwaj8ikcslsOp/QqHRKrVqv2KwWyyAEJp2tePw0GJIdksajChUXBwvCkSqoFkaTJCRJmkIhLUkLgIJILYB4h4AmSHp8foVHJiwoAAAoLI1DLQEpl5cXYUItJBugoBUnRCYYBxwiK5tEEgoqHAQMs0MnEQ8PLKtGXRwqCoasK68HGLtCra+xzhm1t7nOLCOoIxFELAiolxrCJeDhAA4HihkrLwHuDwxGJe/vE2dECxHv7h/IQiEmuHOnYJiKgQEgGGlXL968ei/uFWlwDgURD+cAIHAhJEHGSx7wZfgw0F0JIw9eqAwQYEWREBwQcnBDZEXMhkYw8FNJwAj+SX4BThZJubIlkRAfRX7KSEKIpY8gXAr5ADEoypIcpA6BuXNmkRVAXzx46O5dzyJUEQolkpJf1qNJhyw91zTD04wg5AmBAFSFXiIKIEok0iItS39FDLgAWrAIAxVAFRbhu9KvkcADBw+xcM7CxYwpOGbw+DHkEBMlDgQ4AGFarQe4dBnpBTuCMFYMXPxSQJMVhGUlpqFWzdq1AtjX0GoDheCskAhzQY0TUiI6qA0qdv0x0MdRCAMtppEyEChJC/LrjOwJIT7D9u6Tvoc3oo8iAAss0neKLooThVPhqELGgATycpsRApBgwQAPiESKChakQMcFHPxT4IUYPsHABAENiCBAhiCGKOKIJI4RBAAh+QQJBAAtACwAAAAAgAAQAIUEAgSEgoTEwsREQkSkoqTk4uQkIiRkYmSUkpT08vRUUlTU0tS0trQcHhw0MjQMCgyMioxMSkzs6uycmpz8+vzc2tysqqx8fnxcWly8vrw8OjwEBgSEhoTMzsxERkSkpqTk5uQkJiRkZmSUlpT09vTU1tS8urw0NjQMDgyMjoxMTkzs7uycnpz8/vzc3txcXlwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG/sCWcEgsGo/IpHLJbDqf0Kh0Sq1ar9isdsvtercFSdL00ihYlCNlJVklKRJJIkmKz5GJOCmZl6TVbG5IcHJ0dkcJEwYAGxECRSAHDwCUAB4VRRQZCBwjC39EKwwpHAQVoEMFFhAQFiBHFQQcKQx3RBQLnAgZqEKanJ69LaKkpsKqrK5FJBAolQANmL4ck88AB4JCCxcB3BDSRCbd3ROvRCQW3dwftkISE9zcDEYVKfEBHUbb499G4vHllqW7sK5dhRDWAIgY4kJDQgAhMhD5EI+bCSMQCHILsKCIBA73OIghsgAkPyMZ1BEkYISiugAXi2QkGICjR5PcRBJh8NCB5qAF1axtYDnkwziLGCty6Ejko0qdJF9egOBvXDeiE4/CTKpu6c2nI4XwTOhgZIegz4YS6fAyBbghDI4GJJLA6EZ2kFi8nFek3st8RdjSdGskLkBzQ+paxTukwiJrL1KdeGhA4hAKJhAEQNBBmCgIpU4ZQcbBQgEjFCqwYMUg7OUOukwIw6yZs2cGoI2NXlX6NN0Azio1ANyCBDWhB1y3gAMiG2oJIBIIE5IARCE81vcgYeNnEHTnmaBLx369yIoRDSh5sJzqwIZnA0p8mU/fSQXEhTE4UDFiev3/AAYo4IAEFmiggEEAACH5BAkEABYALAAAAACAABAAhQQCBISChMzOzKSipERCROzq7LSytJSSlGRmZBQWFNze3PT29AwKDIyKjKyqrFxaXLy6vNza3PTy9JyenHx+fOTm5Pz+/AQGBISGhNTS1KSmpExKTOzu7LS2tJSWlGxqbBwaHOTi5Pz6/AwODIyOjKyurFxeXLy+vAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAb+QItwSCwaj8ikcslsOp/QqHRKrVqv2Kx2y+16v0iRQpIUcQqccqFARi7W7aNkvUjOC6LwOR2GJ99sdnRHBRgMABcmIUYiJwcYHhl5RRwGJBgDEZNEIQ4NDSWLRhEDGCQdcUMiGY8HJ5uqjpCSRpWXmbBCnZ+hR6SmqEUFHxcAxgAEokMZFAHNDRFGEM7OExVFCw7OzRqpFgUTzc0GoyTiAQJGzNTQ0tQU1tjaFNze4OfkRAYgx8YjJEU0iGsGwUgDes0CZBCG4RyGAkUyvAvQwMiJbfQGGBG4LUDBIgfpBVDI0CFEIhLPVVSFod+xB6k0TPxI5GDHhUQKYXwYsSPGhZVEpiWkoDHgTIMDSebEsPPkMp9ALYho4NLYgzpDBHQkEa1Ih3fxiEiQmbBbkQoTOuYjEoFEx3RFtIrkauSruLBDxlILYJYIWrVFSiRweSGqVAgHAhwQkMuCLUyajOzC4ECZqggTPhngQ0SEgFYQGotArJhxLUuQG0+uzAizZs5CCiAodoyAAkYFKsAuIiK3hMZCJFQIhER4AaxHzuDpo1tNhd/Fh3sTOxw5pwCHLjy4Daa79ysLIuz+Tr68+fPo06tf3z0IADs=');\n  width: 128px;\n  height: 16px;\n  display: block;\n  clear: none;\n  float: right;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content form input[type='text'].error {\n  outline: 2px solid black;\n  outline-color: #cc0000;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content form select[name='parameterContentType'] {\n  max-width: 300px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.response div.block pre {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  padding: 10px;\n  font-size: 0.9em;\n  max-height: 400px;\n  overflow-y: auto;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading {\n  background-color: #f9f2e9;\n  border: 1px solid #f0e0ca;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading h3 span.http_method a {\n  background-color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #f0e0ca;\n  color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li a {\n  color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content {\n  background-color: #faf5ee;\n  border: 1px solid #f0e0ca;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content h4 {\n  color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content div.sandbox_header a {\n  color: #dcb67f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading {\n  background-color: #fcffcd;\n  border: 1px solid black;\n  border-color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading h3 span.http_method a {\n  text-transform: uppercase;\n  background-color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #ffd20f;\n  color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li a {\n  color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content {\n  background-color: #fcffcd;\n  border: 1px solid black;\n  border-color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content h4 {\n  color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content div.sandbox_header a {\n  color: #6fc992;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading {\n  background-color: #f5e8e8;\n  border: 1px solid #e8c6c7;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading h3 span.http_method a {\n  text-transform: uppercase;\n  background-color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #e8c6c7;\n  color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li a {\n  color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content {\n  background-color: #f7eded;\n  border: 1px solid #e8c6c7;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content h4 {\n  color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content div.sandbox_header a {\n  color: #c8787a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading {\n  background-color: #e7f6ec;\n  border: 1px solid #c3e8d1;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading h3 span.http_method a {\n  background-color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #c3e8d1;\n  color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li a {\n  color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content {\n  background-color: #ebf7f0;\n  border: 1px solid #c3e8d1;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content h4 {\n  color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content div.sandbox_header a {\n  color: #6fc992;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading {\n  background-color: #FCE9E3;\n  border: 1px solid #F5D5C3;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading h3 span.http_method a {\n  background-color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #f0cecb;\n  color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li a {\n  color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content {\n  background-color: #faf0ef;\n  border: 1px solid #f0cecb;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content h4 {\n  color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content div.sandbox_header a {\n  color: #dcb67f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading {\n  background-color: #e7f0f7;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading h3 span.http_method a {\n  background-color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #c3d9ec;\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li a {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content {\n  background-color: #ebf3f9;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content h4 {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content div.sandbox_header a {\n  color: #6fa5d2;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading {\n  background-color: #e7f0f7;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading h3 span.http_method a {\n  background-color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #c3d9ec;\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading ul.options li a {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content {\n  background-color: #ebf3f9;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content h4 {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content div.sandbox_header a {\n  color: #6fa5d2;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content {\n  border-top: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li.last {\n  padding-right: 0;\n  border-right: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li a:hover,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li a:active,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li a.active {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap p#colophon {\n  margin: 0 15px 40px 15px;\n  padding: 10px 0;\n  font-size: 0.8em;\n  border-top: 1px solid #dddddd;\n  font-family: \"Droid Sans\", sans-serif;\n  color: #999999;\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap p#colophon a {\n  text-decoration: none;\n  color: #547f00;\n}\n.swagger-section .swagger-ui-wrap h3 {\n  color: black;\n  font-size: 1.1em;\n  padding: 10px 0 10px 0;\n}\n.swagger-section .swagger-ui-wrap .markdown ol,\n.swagger-section .swagger-ui-wrap .markdown ul {\n  font-family: \"Droid Sans\", sans-serif;\n  margin: 5px 0 10px;\n  padding: 0 0 0 18px;\n  list-style-type: disc;\n}\n.swagger-section .swagger-ui-wrap form.form_box {\n  background-color: #ebf3f9;\n  border: 1px solid #c3d9ec;\n  padding: 10px;\n}\n.swagger-section .swagger-ui-wrap form.form_box label {\n  color: #0f6ab4 !important;\n}\n.swagger-section .swagger-ui-wrap form.form_box input[type=submit] {\n  display: block;\n  padding: 10px;\n}\n.swagger-section .swagger-ui-wrap form.form_box p.weak {\n  font-size: 0.8em;\n}\n.swagger-section .swagger-ui-wrap form.form_box p {\n  font-size: 0.9em;\n  padding: 0 0 15px;\n  color: #7e7b6d;\n}\n.swagger-section .swagger-ui-wrap form.form_box p a {\n  color: #646257;\n}\n.swagger-section .swagger-ui-wrap form.form_box p strong {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap .operation-status td.markdown > p:last-child {\n  padding-bottom: 0;\n}\n.swagger-section .title {\n  font-style: bold;\n}\n.swagger-section .secondary_form {\n  display: none;\n}\n.swagger-section .main_image {\n  display: block;\n  margin-left: auto;\n  margin-right: auto;\n}\n.swagger-section .oauth_body {\n  margin-left: 100px;\n  margin-right: 100px;\n}\n.swagger-section .oauth_submit {\n  text-align: center;\n  display: inline-block;\n}\n.swagger-section .authorize-wrapper {\n  margin: 15px 0 10px;\n}\n.swagger-section .authorize-wrapper_operation {\n  float: right;\n}\n.swagger-section .authorize__btn:hover {\n  text-decoration: underline;\n  cursor: pointer;\n}\n.swagger-section .authorize__btn_operation:hover .authorize-scopes {\n  display: block;\n}\n.swagger-section .authorize-scopes {\n  position: absolute;\n  margin-top: 20px;\n  background: #FFF;\n  border: 1px solid #ccc;\n  border-radius: 5px;\n  display: none;\n  font-size: 13px;\n  max-width: 300px;\n  line-height: 30px;\n  color: black;\n  padding: 5px;\n}\n.swagger-section .authorize-scopes .authorize__scope {\n  text-decoration: none;\n}\n.swagger-section .authorize__btn_operation {\n  height: 18px;\n  vertical-align: middle;\n  display: inline-block;\n  background: url(data:image/png;base64,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) no-repeat;\n}\n.swagger-section .authorize__btn_operation_login {\n  background-position: 0 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .authorize__btn_operation_logout {\n  background-position: -30px 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section #auth_container {\n  color: #fff;\n  display: inline-block;\n  border: none;\n  padding: 5px;\n  width: 87px;\n  height: 13px;\n}\n.swagger-section #auth_container .authorize__btn {\n  color: #fff;\n}\n.swagger-section .auth_container {\n  padding: 0 0 10px;\n  margin-bottom: 5px;\n  border-bottom: solid 1px #CCC;\n  font-size: 0.9em;\n}\n.swagger-section .auth_container .auth__title {\n  color: #547f00;\n  font-size: 1.2em;\n}\n.swagger-section .auth_container .basic_auth__label {\n  display: inline-block;\n  width: 60px;\n}\n.swagger-section .auth_container .auth__description {\n  color: #999999;\n  margin-bottom: 5px;\n}\n.swagger-section .auth_container .auth__button {\n  margin-top: 10px;\n  height: 30px;\n}\n.swagger-section .auth_container .key_auth__field {\n  margin: 5px 0;\n}\n.swagger-section .auth_container .key_auth__label {\n  display: inline-block;\n  width: 60px;\n}\n.swagger-section .api-popup-dialog {\n  position: absolute;\n  display: none;\n}\n.swagger-section .api-popup-dialog-wrapper {\n  z-index: 1000;\n  width: 500px;\n  background: #FFF;\n  padding: 20px;\n  border: 1px solid #ccc;\n  border-radius: 5px;\n  font-size: 13px;\n  color: #777;\n  position: fixed;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n.swagger-section .api-popup-dialog-shadow {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  opacity: 0.2;\n  background-color: gray;\n  z-index: 900;\n}\n.swagger-section .api-popup-dialog .api-popup-title {\n  font-size: 24px;\n  padding: 10px 0;\n}\n.swagger-section .api-popup-dialog .api-popup-title {\n  font-size: 24px;\n  padding: 10px 0;\n}\n.swagger-section .api-popup-dialog .error-msg {\n  padding-left: 5px;\n  padding-bottom: 5px;\n}\n.swagger-section .api-popup-dialog .api-popup-content {\n  max-height: 500px;\n  overflow-y: auto;\n}\n.swagger-section .api-popup-dialog .api-popup-authbtn {\n  height: 30px;\n}\n.swagger-section .api-popup-dialog .api-popup-cancel {\n  height: 30px;\n}\n.swagger-section .api-popup-scopes {\n  padding: 10px 20px;\n}\n.swagger-section .api-popup-scopes li {\n  padding: 5px 0;\n  line-height: 20px;\n}\n.swagger-section .api-popup-scopes li input {\n  position: relative;\n  top: 2px;\n}\n.swagger-section .api-popup-scopes .api-scope-desc {\n  padding-left: 20px;\n  font-style: italic;\n}\n.swagger-section .api-popup-actions {\n  padding-top: 10px;\n}\n.swagger-section .access {\n  float: right;\n}\n.swagger-section .auth {\n  float: right;\n}\n.swagger-section .api-ic {\n  height: 18px;\n  vertical-align: middle;\n  display: inline-block;\n  background: url(data:image/png;base64,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) no-repeat;\n}\n.swagger-section .api-ic .api_information_panel {\n  position: relative;\n  margin-top: 20px;\n  margin-left: -5px;\n  background: #FFF;\n  border: 1px solid #ccc;\n  border-radius: 5px;\n  display: none;\n  font-size: 13px;\n  max-width: 300px;\n  line-height: 30px;\n  color: black;\n  padding: 5px;\n}\n.swagger-section .api-ic .api_information_panel p .api-msg-enabled {\n  color: green;\n}\n.swagger-section .api-ic .api_information_panel p .api-msg-disabled {\n  color: red;\n}\n.swagger-section .api-ic:hover .api_information_panel {\n  position: absolute;\n  display: block;\n}\n.swagger-section .ic-info {\n  background-position: 0 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .ic-warning {\n  background-position: -60px 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .ic-error {\n  background-position: -30px 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .ic-off {\n  background-position: -90px 0;\n  width: 58px;\n  margin-top: -4px;\n  cursor: pointer;\n}\n.swagger-section .ic-on {\n  background-position: -160px 0;\n  width: 58px;\n  margin-top: -4px;\n  cursor: pointer;\n}\n.swagger-section #header {\n  background-color: #89bf04;\n  padding: 9px 14px 19px 14px;\n  height: 23px;\n  min-width: 775px;\n}\n.swagger-section #input_baseUrl {\n  width: 400px;\n}\n.swagger-section #api_selector {\n  display: block;\n  clear: none;\n  float: right;\n}\n.swagger-section #api_selector .input {\n  display: inline-block;\n  clear: none;\n  margin: 0 10px 0 0;\n}\n.swagger-section #api_selector input {\n  font-size: 0.9em;\n  padding: 3px;\n  margin: 0;\n}\n.swagger-section #input_apiKey {\n  width: 200px;\n}\n.swagger-section #explore,\n.swagger-section #auth_container .authorize__btn {\n  display: block;\n  text-decoration: none;\n  font-weight: bold;\n  padding: 6px 8px;\n  font-size: 0.9em;\n  color: white;\n  background-color: #547f00;\n  -moz-border-radius: 4px;\n  -webkit-border-radius: 4px;\n  -o-border-radius: 4px;\n  -ms-border-radius: 4px;\n  -khtml-border-radius: 4px;\n  border-radius: 4px;\n}\n.swagger-section #explore:hover,\n.swagger-section #auth_container .authorize__btn:hover {\n  background-color: #547f00;\n}\n.swagger-section #header #logo {\n  font-size: 1.5em;\n  font-weight: bold;\n  text-decoration: none;\n  color: white;\n}\n.swagger-section #header #logo .logo__img {\n  display: block;\n  float: left;\n  margin-top: 2px;\n}\n.swagger-section #header #logo .logo__title {\n  display: inline-block;\n  padding: 5px 0 0 10px;\n}\n.swagger-section #content_message {\n  margin: 10px 15px;\n  font-style: italic;\n  color: #999999;\n}\n.swagger-section #message-bar {\n  min-height: 30px;\n  text-align: center;\n  padding-top: 10px;\n}\n.swagger-section .swagger-collapse:before {\n  content: \"-\";\n}\n.swagger-section .swagger-expand:before {\n  content: \"+\";\n}\n.swagger-section .error {\n  outline-color: #cc0000;\n  background-color: #f2dede;\n}\n</style>\n\n  <!-- <script src='lib/object-assign-pollyfill.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery-1.8.0.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery.slideto.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery.wiggle.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery.ba-bbq.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/handlebars-2.0.0.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/lodash.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/backbone-min.js' type='text/javascript'></script> -->\n  <!-- <script src='swagger-ui.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/highlight.9.1.0.pack.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/highlight.9.1.0.pack_extended.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jsoneditor.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/marked.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/swagger-oauth.js' type='text/javascript'></script> -->\n  <script src='assets.swagger_ui.rollup.js'></script>\n\n  <!-- Some basic translations -->\n  <!-- <script src='lang/translator.js' type='text/javascript'></script> -->\n  <!-- <script src='lang/ru.js' type='text/javascript'></script> -->\n  <!-- <script src='lang/en.js' type='text/javascript'></script> -->\n\n  <script type=\"text/javascript\">\n    $(function () {\n      var url = (/url=([^&]+)/).exec(window.location.search);\n      if (url && url.length > 1) {\n        url = decodeURIComponent(url[1]);\n      } else {\n        url = \"assets.swagger_ui.petstore.json\";\n        if (!(/^(?:\\/|http:|https:)/).test(url)) {\n            url = location.pathname.replace((/[^\\/]*?\\.html$/), '') + url;\n        }\n      }\n\n      hljs.configure({\n        highlightSizeThreshold: 5000\n      });\n\n      // Pre load translate...\n      if(window.SwaggerTranslator) {\n        window.SwaggerTranslator.translate();\n      }\n      window.swaggerUi = new SwaggerUi({\n        url: url,\n        dom_id: \"swagger-ui-container\",\n        supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],\n        onComplete: function(swaggerApi, swaggerUi){\n          if(typeof initOAuth == \"function\") {\n            initOAuth({\n              clientId: \"your-client-id\",\n              clientSecret: \"your-client-secret-if-required\",\n              realm: \"your-realms\",\n              appName: \"your-app-name\",\n              scopeSeparator: \",\",\n              additionalQueryStringParams: {}\n            });\n          }\n\n          if(window.SwaggerTranslator) {\n            window.SwaggerTranslator.translate();\n          }\n        },\n        onFailure: function(data) {\n          log(\"Unable to Load SwaggerUI\");\n        },\n        docExpansion: \"none\",\n        jsonEditor: false,\n        defaultModelRendering: 'schema',\n        showRequestHeaders: false\n      });\n\n      window.swaggerUi.load();\n\n      function log() {\n        if ('console' in window) {\n          console.log.apply(console, arguments);\n        }\n      }\n  });\n  </script>\n</head>\n\n<body class=\"swagger-section\">\n<div id='header'>\n  <div class=\"swagger-ui-wrap\">\n    <a id=\"logo\" href=\"http://swagger.io\"><img class=\"logo__img\" alt=\"swagger\" height=\"30\" width=\"30\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAqRJREFUeNrEVz1s00AUfnGXii5maMXoEUEHVwIpEkPNgkBdMnQoU5ytiKHJwpp2Q2JIO8DCUDOxIJFIVOoWZyJSh3pp1Q2PVVlcCVBH3ufeVZZ9Zye1Ay86nXV+ue/9fO/lheg/Se02X1rvksmbnTiKvuxQMBNgBnN4a/LCbmnUAP6JV58NCUsBC8CuAJxGPF47OgNqBaA93tolUhnx6jC4NxGwyOEwlccyAs+3kwdzKq0HDn2vEBTi8J2XpyMaywNDE157BhXUE3zJhlq8GKq+Zd2zaWHepPA8oN9XkfLmRdOiJV4XUUg/IyWncLjCYY/SHndV2u7zHr3bPKZtdxgboJOnthvrfGj/oMf3G0r7JVmNlLfKklmrt2MvvcNO7LFOhoFHfuAJI5o6ta10jpt5CQLgwXhXG2YIwvu+34qf78ybOjWTnWwkgR36d7JqJOrW0hHmNrKg9xhiS4+1jFmrxymh03B0w+6kURIAu3yHtOD5oaUNojMnGgbcctNvwdAnyxvxRR+/vaJnjzbpzcZX+nN1SdGv85i9eH8w3qPO+mdm/y4dnQ1iI8Fq6Nf4cxL6GWSjiFDSs0VRnxC5g0xSB2cgHpaseTxfqOv5uoHkNQ6Ha/N1Yz9mNMppEkEkYKj79q6uCq4bCHcSX3fJ0Vk/k9siASjCm1N6gZH6Ec9IXt2WkFES2K/ixoIyktJPAu/ptOA1SgO5zqtr6KASJPF0nMV8dgMsRhRPOcMwqQAOoi0VAIMLAEWJ6YYC1c8ibj1GP51RqwzYwZVMHQuvOzMCBUtb2tGHx5NAdLKqp5AX7Ng4d+Zi8AGDI9z1ijx9yaCH04y3GCP2S+QcvaGl+pcxyUBvinFlawoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\" /><span class=\"logo__title\">swagger</span></a>\n    <form id='api_selector'>\n      <div class='input'><input placeholder=\"http://example.com/api\" id=\"input_baseUrl\" name=\"baseUrl\" type=\"text\"/></div>\n      <div id='auth_container'></div>\n      <div class='input'><a id=\"explore\" class=\"header__btn\" href=\"#\" data-sw-translate>Explore</a></div>\n    </form>\n  </div>\n</div>\n\n<div id=\"message-bar\" class=\"swagger-ui-wrap\" data-sw-translate>&nbsp;</div>\n<div id=\"swagger-ui-container\" class=\"swagger-ui-wrap\"></div>\n</body>\n</html>\n\n",
             "/assets.index.template.html": "<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Swagger UI</title>\n  <link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,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\" sizes=\"32x32\" />\n  <link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACTElEQVQ4jY2TT0iTYRzHP8/zvppm1pplsst0SCjm1sVuCY0OUsnGOu1UEFKHohIRFDpEVB48FB5CJNCLFzFyRn8u78EOecwNSWVoOyg03BjGpOn7vk+HzTmdQb/Lw/Pw/X6fH9/v7yc4VLZteRSqB4QfVHP+VcRBGQIxJqW2WooX+0RbV9hPUao/lojoC2vTbP7OY+tqPVxsCtHuDpgIOSwQT6SUZlGgQJ5KZlaCE0aY9fTC4cYAcDl93PZPUu9oiQjETSmlKQAs23qezCwPvp69TDaXOpK8V8ePOXnU/ZV6R8uQJrUBaduWB2X3TxhhsrkUNzpe0BuYLyP2Br7R3fGS7VyacSMMyu6zbcsjFepOLBHR99r2uoOMfr5eJvDm0zW8jUEANtJRoon3uoIeCeLq97XpIrBCq2LH3C4T2DGz6FpV8b6w9g7Ar4NqThXc7my7T3JrhfpT5zlRfZad3SwIQYVWTTaX4lfmB51tD5hbHGFzaxVQzfLgPwKUKmQjQORTFoVTKYXYTx4AHUS8rtZz6WdynrnFEa5ceEwys8y6dTBKTVbScLqV0S95f86c9AAiLgHD1xQqAnetP1TqNWUeVOo1mFauePc1hgAMKWDM6w6YLqcXgFhihrtdH8oE7nV9JJaYAcDlbKe9MWgKGCsZpKXBV7OdbP/HID3snuOco3VIk9pAySirqWRmKThuhNlIR48ku5xebvknaXC0Rigd5RKRZyi7L5qYyS/T1mrRMF9TCK87aCLEsEAeXKbS+vc6Ywh4K6UWL8X/BRbH8zwWREZpAAAAAElFTkSuQmCC\" sizes=\"16x16\" />\n  <!-- <link href='css/typography.css' media='screen' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/reset.css' media='screen' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/screen.css' media='screen' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/reset.css' media='print' rel='stylesheet' type='text/css'/> -->\n  <!-- <link href='css/print.css' media='print' rel='stylesheet' type='text/css'/> -->\n<style>\n/* init style reset */\n/* http://meyerweb.com/eric/tools/css/reset/ v2.0 | 20110126 */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font-size: 100%;\n  font: inherit;\n  vertical-align: baseline;\n}\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block;\n}\nbody {\n  line-height: 1;\n}\nol,\nul {\n  list-style: none;\n}\nblockquote,\nq {\n  quotes: none;\n}\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: '';\n  content: none;\n}\ntable {\n  border-collapse: collapse;\n  border-spacing: 0;\n}\n\n\n\n/* init style screen */\n/* Original style from softwaremaniacs.org (c) Ivan Sagalaev <Maniac@SoftwareManiacs.Org> */\n.swagger-section pre code {\n  display: block;\n  padding: 0.5em;\n  background: #F0F0F0;\n}\n.swagger-section pre code,\n.swagger-section pre .subst,\n.swagger-section pre .tag .title,\n.swagger-section pre .lisp .title,\n.swagger-section pre .clojure .built_in,\n.swagger-section pre .nginx .title {\n  color: black;\n}\n.swagger-section pre .string,\n.swagger-section pre .title,\n.swagger-section pre .constant,\n.swagger-section pre .parent,\n.swagger-section pre .tag .value,\n.swagger-section pre .rules .value,\n.swagger-section pre .rules .value .number,\n.swagger-section pre .preprocessor,\n.swagger-section pre .ruby .symbol,\n.swagger-section pre .ruby .symbol .string,\n.swagger-section pre .aggregate,\n.swagger-section pre .template_tag,\n.swagger-section pre .django .variable,\n.swagger-section pre .smalltalk .class,\n.swagger-section pre .addition,\n.swagger-section pre .flow,\n.swagger-section pre .stream,\n.swagger-section pre .bash .variable,\n.swagger-section pre .apache .tag,\n.swagger-section pre .apache .cbracket,\n.swagger-section pre .tex .command,\n.swagger-section pre .tex .special,\n.swagger-section pre .erlang_repl .function_or_atom,\n.swagger-section pre .markdown .header {\n  color: #800;\n}\n.swagger-section pre .comment,\n.swagger-section pre .annotation,\n.swagger-section pre .template_comment,\n.swagger-section pre .diff .header,\n.swagger-section pre .chunk,\n.swagger-section pre .markdown .blockquote {\n  color: #888;\n}\n.swagger-section pre .number,\n.swagger-section pre .date,\n.swagger-section pre .regexp,\n.swagger-section pre .literal,\n.swagger-section pre .smalltalk .symbol,\n.swagger-section pre .smalltalk .char,\n.swagger-section pre .go .constant,\n.swagger-section pre .change,\n.swagger-section pre .markdown .bullet,\n.swagger-section pre .markdown .link_url {\n  color: #080;\n}\n.swagger-section pre .label,\n.swagger-section pre .javadoc,\n.swagger-section pre .ruby .string,\n.swagger-section pre .decorator,\n.swagger-section pre .filter .argument,\n.swagger-section pre .localvars,\n.swagger-section pre .array,\n.swagger-section pre .attr_selector,\n.swagger-section pre .important,\n.swagger-section pre .pseudo,\n.swagger-section pre .pi,\n.swagger-section pre .doctype,\n.swagger-section pre .deletion,\n.swagger-section pre .envvar,\n.swagger-section pre .shebang,\n.swagger-section pre .apache .sqbracket,\n.swagger-section pre .nginx .built_in,\n.swagger-section pre .tex .formula,\n.swagger-section pre .erlang_repl .reserved,\n.swagger-section pre .prompt,\n.swagger-section pre .markdown .link_label,\n.swagger-section pre .vhdl .attribute,\n.swagger-section pre .clojure .attribute,\n.swagger-section pre .coffeescript .property {\n  color: #88F;\n}\n.swagger-section pre .keyword,\n.swagger-section pre .id,\n.swagger-section pre .phpdoc,\n.swagger-section pre .title,\n.swagger-section pre .built_in,\n.swagger-section pre .aggregate,\n.swagger-section pre .css .tag,\n.swagger-section pre .javadoctag,\n.swagger-section pre .phpdoc,\n.swagger-section pre .yardoctag,\n.swagger-section pre .smalltalk .class,\n.swagger-section pre .winutils,\n.swagger-section pre .bash .variable,\n.swagger-section pre .apache .tag,\n.swagger-section pre .go .typename,\n.swagger-section pre .tex .command,\n.swagger-section pre .markdown .strong,\n.swagger-section pre .request,\n.swagger-section pre .status {\n  font-weight: bold;\n}\n.swagger-section pre .markdown .emphasis {\n  font-style: italic;\n}\n.swagger-section pre .nginx .built_in {\n  font-weight: normal;\n}\n.swagger-section pre .coffeescript .javascript,\n.swagger-section pre .javascript .xml,\n.swagger-section pre .tex .formula,\n.swagger-section pre .xml .javascript,\n.swagger-section pre .xml .vbscript,\n.swagger-section pre .xml .css,\n.swagger-section pre .xml .cdata {\n  opacity: 0.5;\n}\n.swagger-section .hljs {\n  display: block;\n  overflow-x: auto;\n  padding: 0.5em;\n  background: #F0F0F0;\n}\n.swagger-section .hljs,\n.swagger-section .hljs-subst {\n  color: #444;\n}\n.swagger-section .hljs-keyword,\n.swagger-section .hljs-attribute,\n.swagger-section .hljs-selector-tag,\n.swagger-section .hljs-meta-keyword,\n.swagger-section .hljs-doctag,\n.swagger-section .hljs-name {\n  font-weight: bold;\n}\n.swagger-section .hljs-built_in,\n.swagger-section .hljs-literal,\n.swagger-section .hljs-bullet,\n.swagger-section .hljs-code,\n.swagger-section .hljs-addition {\n  color: #1F811F;\n}\n.swagger-section .hljs-regexp,\n.swagger-section .hljs-symbol,\n.swagger-section .hljs-variable,\n.swagger-section .hljs-template-variable,\n.swagger-section .hljs-link,\n.swagger-section .hljs-selector-attr,\n.swagger-section .hljs-selector-pseudo {\n  color: #BC6060;\n}\n.swagger-section .hljs-type,\n.swagger-section .hljs-string,\n.swagger-section .hljs-number,\n.swagger-section .hljs-selector-id,\n.swagger-section .hljs-selector-class,\n.swagger-section .hljs-quote,\n.swagger-section .hljs-template-tag,\n.swagger-section .hljs-deletion {\n  color: #880000;\n}\n.swagger-section .hljs-title,\n.swagger-section .hljs-section {\n  color: #880000;\n  font-weight: bold;\n}\n.swagger-section .hljs-comment {\n  color: #888888;\n}\n.swagger-section .hljs-meta {\n  color: #2B6EA1;\n}\n.swagger-section .hljs-emphasis {\n  font-style: italic;\n}\n.swagger-section .hljs-strong {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap {\n  line-height: 1;\n  font-family: \"Droid Sans\", sans-serif;\n  min-width: 760px;\n  max-width: 960px;\n  margin-left: auto;\n  margin-right: auto;\n  /* JSONEditor specific styling */\n}\n.swagger-section .swagger-ui-wrap b,\n.swagger-section .swagger-ui-wrap strong {\n  font-family: \"Droid Sans\", sans-serif;\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap q,\n.swagger-section .swagger-ui-wrap blockquote {\n  quotes: none;\n}\n.swagger-section .swagger-ui-wrap p {\n  line-height: 1.4em;\n  padding: 0 0 10px;\n  color: #333333;\n}\n.swagger-section .swagger-ui-wrap q:before,\n.swagger-section .swagger-ui-wrap q:after,\n.swagger-section .swagger-ui-wrap blockquote:before,\n.swagger-section .swagger-ui-wrap blockquote:after {\n  content: none;\n}\n.swagger-section .swagger-ui-wrap .heading_with_menu h1,\n.swagger-section .swagger-ui-wrap .heading_with_menu h2,\n.swagger-section .swagger-ui-wrap .heading_with_menu h3,\n.swagger-section .swagger-ui-wrap .heading_with_menu h4,\n.swagger-section .swagger-ui-wrap .heading_with_menu h5,\n.swagger-section .swagger-ui-wrap .heading_with_menu h6 {\n  display: block;\n  clear: none;\n  float: left;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  width: 60%;\n}\n.swagger-section .swagger-ui-wrap table {\n  border-collapse: collapse;\n  border-spacing: 0;\n}\n.swagger-section .swagger-ui-wrap table thead tr th {\n  padding: 5px;\n  font-size: 0.9em;\n  color: #666666;\n  border-bottom: 1px solid #999999;\n}\n.swagger-section .swagger-ui-wrap table tbody tr:last-child td {\n  border-bottom: none;\n}\n.swagger-section .swagger-ui-wrap table tbody tr.offset {\n  background-color: #f0f0f0;\n}\n.swagger-section .swagger-ui-wrap table tbody tr td {\n  padding: 6px;\n  font-size: 0.9em;\n  border-bottom: 1px solid #cccccc;\n  vertical-align: top;\n  line-height: 1.3em;\n}\n.swagger-section .swagger-ui-wrap ol {\n  margin: 0px 0 10px;\n  padding: 0 0 0 18px;\n  list-style-type: decimal;\n}\n.swagger-section .swagger-ui-wrap ol li {\n  padding: 5px 0px;\n  font-size: 0.9em;\n  color: #333333;\n}\n.swagger-section .swagger-ui-wrap ol,\n.swagger-section .swagger-ui-wrap ul {\n  list-style: none;\n}\n.swagger-section .swagger-ui-wrap h1 a,\n.swagger-section .swagger-ui-wrap h2 a,\n.swagger-section .swagger-ui-wrap h3 a,\n.swagger-section .swagger-ui-wrap h4 a,\n.swagger-section .swagger-ui-wrap h5 a,\n.swagger-section .swagger-ui-wrap h6 a {\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap h1 a:hover,\n.swagger-section .swagger-ui-wrap h2 a:hover,\n.swagger-section .swagger-ui-wrap h3 a:hover,\n.swagger-section .swagger-ui-wrap h4 a:hover,\n.swagger-section .swagger-ui-wrap h5 a:hover,\n.swagger-section .swagger-ui-wrap h6 a:hover {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap h1 span.divider,\n.swagger-section .swagger-ui-wrap h2 span.divider,\n.swagger-section .swagger-ui-wrap h3 span.divider,\n.swagger-section .swagger-ui-wrap h4 span.divider,\n.swagger-section .swagger-ui-wrap h5 span.divider,\n.swagger-section .swagger-ui-wrap h6 span.divider {\n  color: #aaaaaa;\n}\n.swagger-section .swagger-ui-wrap a {\n  color: #547f00;\n}\n.swagger-section .swagger-ui-wrap a img {\n  border: none;\n}\n.swagger-section .swagger-ui-wrap article,\n.swagger-section .swagger-ui-wrap aside,\n.swagger-section .swagger-ui-wrap details,\n.swagger-section .swagger-ui-wrap figcaption,\n.swagger-section .swagger-ui-wrap figure,\n.swagger-section .swagger-ui-wrap footer,\n.swagger-section .swagger-ui-wrap header,\n.swagger-section .swagger-ui-wrap hgroup,\n.swagger-section .swagger-ui-wrap menu,\n.swagger-section .swagger-ui-wrap nav,\n.swagger-section .swagger-ui-wrap section,\n.swagger-section .swagger-ui-wrap summary {\n  display: block;\n}\n.swagger-section .swagger-ui-wrap pre {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  background-color: #fcf6db;\n  border: 1px solid #e5e0c6;\n  padding: 10px;\n}\n.swagger-section .swagger-ui-wrap pre code {\n  line-height: 1.6em;\n  background: none;\n}\n.swagger-section .swagger-ui-wrap .content > .content-type > div > label {\n  clear: both;\n  display: block;\n  color: #0F6AB4;\n  font-size: 1.1em;\n  margin: 0;\n  padding: 15px 0 5px;\n}\n.swagger-section .swagger-ui-wrap .content pre {\n  font-size: 12px;\n  margin-top: 5px;\n  padding: 5px;\n}\n.swagger-section .swagger-ui-wrap .icon-btn {\n  cursor: pointer;\n}\n.swagger-section .swagger-ui-wrap .info_title {\n  padding-bottom: 10px;\n  font-weight: bold;\n  font-size: 25px;\n}\n.swagger-section .swagger-ui-wrap .footer {\n  margin-top: 20px;\n}\n.swagger-section .swagger-ui-wrap p.big,\n.swagger-section .swagger-ui-wrap div.big p {\n  font-size: 1em;\n  margin-bottom: 10px;\n}\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.string input,\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.url input,\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.text textarea,\n.swagger-section .swagger-ui-wrap form.fullwidth ol li.numeric input {\n  width: 500px !important;\n}\n.swagger-section .swagger-ui-wrap .info_license {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_tos {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .message-fail {\n  color: #cc0000;\n}\n.swagger-section .swagger-ui-wrap .info_url {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_email {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_name {\n  padding-bottom: 5px;\n}\n.swagger-section .swagger-ui-wrap .info_description {\n  padding-bottom: 10px;\n  font-size: 15px;\n}\n.swagger-section .swagger-ui-wrap .markdown ol li,\n.swagger-section .swagger-ui-wrap .markdown ul li {\n  padding: 3px 0px;\n  line-height: 1.4em;\n  color: #333333;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.string input,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.url input,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.numeric input {\n  display: block;\n  padding: 4px;\n  width: auto;\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.string input.title,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.url input.title,\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.numeric input.title {\n  font-size: 1.3em;\n}\n.swagger-section .swagger-ui-wrap table.fullwidth {\n  width: 100%;\n}\n.swagger-section .swagger-ui-wrap .model-signature {\n  font-family: \"Droid Sans\", sans-serif;\n  font-size: 1em;\n  line-height: 1.5em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-nav a {\n  text-decoration: none;\n  color: #AAA;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-nav a:hover {\n  text-decoration: underline;\n  color: black;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-nav .selected {\n  color: black;\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propType {\n  color: #5555aa;\n}\n.swagger-section .swagger-ui-wrap .model-signature pre:hover {\n  background-color: #ffffdd;\n}\n.swagger-section .swagger-ui-wrap .model-signature pre {\n  font-size: .85em;\n  line-height: 1.2em;\n  overflow: auto;\n  max-height: 200px;\n  cursor: pointer;\n}\n.swagger-section .swagger-ui-wrap .model-signature ul.signature-nav {\n  display: block;\n  min-width: 230px;\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap .model-signature ul.signature-nav li:last-child {\n  padding-right: 0;\n  border-right: none;\n}\n.swagger-section .swagger-ui-wrap .model-signature ul.signature-nav li {\n  float: left;\n  margin: 0 5px 5px 0;\n  padding: 2px 5px 2px 0;\n  border-right: 1px solid #ddd;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propOpt {\n  color: #555;\n}\n.swagger-section .swagger-ui-wrap .model-signature .snippet small {\n  font-size: 0.75em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propOptKey {\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .strong {\n  font-weight: bold;\n  color: #000;\n  font-size: .9em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description div {\n  font-size: 0.9em;\n  line-height: 1.5em;\n  margin-left: 1em;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .stronger {\n  font-weight: bold;\n  color: #000;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper {\n  border-spacing: 0;\n  position: absolute;\n  background-color: #ffffff;\n  border: 1px solid #bbbbbb;\n  display: none;\n  font-size: 11px;\n  max-width: 400px;\n  line-height: 30px;\n  color: black;\n  padding: 5px;\n  margin-left: 10px;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper th {\n  text-align: center;\n  background-color: #eeeeee;\n  border: 1px solid #bbbbbb;\n  font-size: 11px;\n  color: #666666;\n  font-weight: bold;\n  padding: 5px;\n  line-height: 15px;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propWrap .optionsWrapper .optionName {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propDesc.markdown > p:first-child,\n.swagger-section .swagger-ui-wrap .model-signature .description .propDesc.markdown > p:last-child {\n  display: inline;\n}\n.swagger-section .swagger-ui-wrap .model-signature .description .propDesc.markdown > p:not(:first-child):before {\n  display: block;\n  content: '';\n}\n.swagger-section .swagger-ui-wrap .model-signature .description span:last-of-type.propDesc.markdown > p:only-child {\n  margin-right: -3px;\n}\n.swagger-section .swagger-ui-wrap .model-signature .propName {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .model-signature .signature-container {\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap .body-textarea {\n  width: 300px;\n  height: 100px;\n  border: 1px solid #aaa;\n}\n.swagger-section .swagger-ui-wrap .markdown p code,\n.swagger-section .swagger-ui-wrap .markdown li code {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  background-color: #f0f0f0;\n  color: black;\n  padding: 1px 3px;\n}\n.swagger-section .swagger-ui-wrap .required {\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .editor_holder {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap .editor_holder label {\n  font-weight: normal!important;\n  /* JSONEditor uses bold by default for all labels, we revert that back to normal to not give the impression that by default fields are required */\n}\n.swagger-section .swagger-ui-wrap .editor_holder label.required {\n  font-weight: bold!important;\n}\n.swagger-section .swagger-ui-wrap input.parameter {\n  width: 300px;\n  border: 1px solid #aaa;\n}\n.swagger-section .swagger-ui-wrap h1 {\n  color: black;\n  font-size: 1.5em;\n  line-height: 1.3em;\n  padding: 10px 0 10px 0;\n  font-family: \"Droid Sans\", sans-serif;\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap .heading_with_menu {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap .heading_with_menu ul {\n  display: block;\n  clear: none;\n  float: right;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  -ms-box-sizing: border-box;\n  box-sizing: border-box;\n  margin-top: 10px;\n}\n.swagger-section .swagger-ui-wrap h2 {\n  color: black;\n  font-size: 1.3em;\n  padding: 10px 0 10px 0;\n}\n.swagger-section .swagger-ui-wrap h2 a {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap h2 span.sub {\n  font-size: 0.7em;\n  color: #999999;\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap h2 span.sub a {\n  color: #777777;\n}\n.swagger-section .swagger-ui-wrap span.weak {\n  color: #666666;\n}\n.swagger-section .swagger-ui-wrap .message-success {\n  color: #89BF04;\n}\n.swagger-section .swagger-ui-wrap caption,\n.swagger-section .swagger-ui-wrap th,\n.swagger-section .swagger-ui-wrap td {\n  text-align: left;\n  font-weight: normal;\n  vertical-align: middle;\n}\n.swagger-section .swagger-ui-wrap .code {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.text textarea {\n  font-family: \"Droid Sans\", sans-serif;\n  height: 250px;\n  padding: 4px;\n  display: block;\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.select select {\n  display: block;\n  clear: both;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.boolean {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.boolean label {\n  display: block;\n  float: left;\n  clear: none;\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.boolean input {\n  display: block;\n  float: left;\n  clear: none;\n  margin: 0 5px 0 0;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li.required label {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li label {\n  display: block;\n  clear: both;\n  width: auto;\n  padding: 0 0 3px;\n  color: #666666;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li label abbr {\n  padding-left: 3px;\n  color: #888888;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.inputs ol li p.inline-hints {\n  margin-left: 0;\n  font-style: italic;\n  font-size: 0.9em;\n  margin: 0;\n}\n.swagger-section .swagger-ui-wrap form.formtastic fieldset.buttons {\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap span.blank,\n.swagger-section .swagger-ui-wrap span.empty {\n  color: #888888;\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap .markdown h3 {\n  color: #547f00;\n}\n.swagger-section .swagger-ui-wrap .markdown h4 {\n  color: #666666;\n}\n.swagger-section .swagger-ui-wrap .markdown pre {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  background-color: #fcf6db;\n  border: 1px solid #e5e0c6;\n  padding: 10px;\n  margin: 0 0 10px 0;\n}\n.swagger-section .swagger-ui-wrap .markdown pre code {\n  line-height: 1.6em;\n  overflow: auto;\n}\n.swagger-section .swagger-ui-wrap div.gist {\n  margin: 20px 0 25px 0 !important;\n}\n.swagger-section .swagger-ui-wrap ul#resources {\n  font-family: \"Droid Sans\", sans-serif;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource {\n  border-bottom: 1px solid #dddddd;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource:hover div.heading h2 a,\n.swagger-section .swagger-ui-wrap ul#resources li.resource.active div.heading h2 a {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource:hover div.heading ul.options li a,\n.swagger-section .swagger-ui-wrap ul#resources li.resource.active div.heading ul.options li a {\n  color: #555555;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource:last-child {\n  border-bottom: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading {\n  border: 1px solid transparent;\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options {\n  overflow: hidden;\n  padding: 0;\n  display: block;\n  clear: none;\n  float: right;\n  margin: 14px 10px 0 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li {\n  float: left;\n  clear: none;\n  margin: 0;\n  padding: 2px 10px;\n  border-right: 1px solid #dddddd;\n  color: #666666;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a {\n  color: #aaaaaa;\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a:hover {\n  text-decoration: underline;\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a:hover,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a:active,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a.active {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li.last {\n  padding-right: 0;\n  border-right: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading h2 {\n  color: #999999;\n  padding-left: 0;\n  display: block;\n  clear: none;\n  float: left;\n  font-family: \"Droid Sans\", sans-serif;\n  font-weight: bold;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading h2 a {\n  color: #999999;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource div.heading h2 a:hover {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n  margin: 0 0 10px;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 {\n  display: block;\n  clear: none;\n  float: left;\n  width: auto;\n  margin: 0;\n  padding: 0;\n  line-height: 1.1em;\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path {\n  padding-left: 10px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path a {\n  color: black;\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path a.toggleOperation.deprecated {\n  text-decoration: line-through;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path a:hover {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.http_method a {\n  text-transform: uppercase;\n  text-decoration: none;\n  color: white;\n  display: inline-block;\n  width: 50px;\n  font-size: 0.7em;\n  text-align: center;\n  padding: 7px 0 4px;\n  -moz-border-radius: 2px;\n  -webkit-border-radius: 2px;\n  -o-border-radius: 2px;\n  -ms-border-radius: 2px;\n  -khtml-border-radius: 2px;\n  border-radius: 2px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span {\n  margin: 0;\n  padding: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options {\n  overflow: hidden;\n  padding: 0;\n  display: block;\n  clear: none;\n  float: right;\n  margin: 6px 10px 0 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options li {\n  float: left;\n  clear: none;\n  margin: 0;\n  padding: 2px 10px;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options li a {\n  text-decoration: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading ul.options li.access {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content {\n  border-top: none;\n  padding: 10px;\n  -moz-border-radius-bottomleft: 6px;\n  -webkit-border-bottom-left-radius: 6px;\n  -o-border-bottom-left-radius: 6px;\n  -ms-border-bottom-left-radius: 6px;\n  -khtml-border-bottom-left-radius: 6px;\n  border-bottom-left-radius: 6px;\n  -moz-border-radius-bottomright: 6px;\n  -webkit-border-bottom-right-radius: 6px;\n  -o-border-bottom-right-radius: 6px;\n  -ms-border-bottom-right-radius: 6px;\n  -khtml-border-bottom-right-radius: 6px;\n  border-bottom-right-radius: 6px;\n  margin: 0 0 20px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content h4 {\n  font-size: 1.1em;\n  margin: 0;\n  padding: 15px 0 5px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header {\n  float: none;\n  clear: both;\n  overflow: hidden;\n  display: block;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header a {\n  padding: 4px 0 0 10px;\n  display: inline-block;\n  font-size: 0.9em;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header input.submit {\n  display: block;\n  clear: none;\n  float: left;\n  padding: 6px 8px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.sandbox_header span.response_throbber {\n  background-image: url('data:image/gif;base64,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');\n  width: 128px;\n  height: 16px;\n  display: block;\n  clear: none;\n  float: right;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content form input[type='text'].error {\n  outline: 2px solid black;\n  outline-color: #cc0000;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content form select[name='parameterContentType'] {\n  max-width: 300px;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.content div.response div.block pre {\n  font-family: \"Anonymous Pro\", \"Menlo\", \"Consolas\", \"Bitstream Vera Sans Mono\", \"Courier New\", monospace;\n  padding: 10px;\n  font-size: 0.9em;\n  max-height: 400px;\n  overflow-y: auto;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading {\n  background-color: #f9f2e9;\n  border: 1px solid #f0e0ca;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading h3 span.http_method a {\n  background-color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #f0e0ca;\n  color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li a {\n  color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content {\n  background-color: #faf5ee;\n  border: 1px solid #f0e0ca;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content h4 {\n  color: #c5862b;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content div.sandbox_header a {\n  color: #dcb67f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading {\n  background-color: #fcffcd;\n  border: 1px solid black;\n  border-color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading h3 span.http_method a {\n  text-transform: uppercase;\n  background-color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #ffd20f;\n  color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li a {\n  color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content {\n  background-color: #fcffcd;\n  border: 1px solid black;\n  border-color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content h4 {\n  color: #ffd20f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content div.sandbox_header a {\n  color: #6fc992;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading {\n  background-color: #f5e8e8;\n  border: 1px solid #e8c6c7;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading h3 span.http_method a {\n  text-transform: uppercase;\n  background-color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #e8c6c7;\n  color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li a {\n  color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content {\n  background-color: #f7eded;\n  border: 1px solid #e8c6c7;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content h4 {\n  color: #a41e22;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content div.sandbox_header a {\n  color: #c8787a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading {\n  background-color: #e7f6ec;\n  border: 1px solid #c3e8d1;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading h3 span.http_method a {\n  background-color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #c3e8d1;\n  color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li a {\n  color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content {\n  background-color: #ebf7f0;\n  border: 1px solid #c3e8d1;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content h4 {\n  color: #10a54a;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content div.sandbox_header a {\n  color: #6fc992;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading {\n  background-color: #FCE9E3;\n  border: 1px solid #F5D5C3;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading h3 span.http_method a {\n  background-color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #f0cecb;\n  color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li a {\n  color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content {\n  background-color: #faf0ef;\n  border: 1px solid #f0cecb;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content h4 {\n  color: #D38042;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content div.sandbox_header a {\n  color: #dcb67f;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading {\n  background-color: #e7f0f7;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading h3 span.http_method a {\n  background-color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #c3d9ec;\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li a {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content {\n  background-color: #ebf3f9;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content h4 {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content div.sandbox_header a {\n  color: #6fa5d2;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading {\n  background-color: #e7f0f7;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading h3 span.http_method a {\n  background-color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading ul.options li {\n  border-right: 1px solid #dddddd;\n  border-right-color: #c3d9ec;\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading ul.options li a {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content {\n  background-color: #ebf3f9;\n  border: 1px solid #c3d9ec;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content h4 {\n  color: #0f6ab4;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content div.sandbox_header a {\n  color: #6fa5d2;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.content,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.content {\n  border-top: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li:last-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch div.heading ul.options li.last,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete div.heading ul.options li.last {\n  padding-right: 0;\n  border-right: none;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li a:hover,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li a:active,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li a.active {\n  text-decoration: underline;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations ul.options li.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations:first-child,\n.swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations.first {\n  padding-left: 0;\n}\n.swagger-section .swagger-ui-wrap p#colophon {\n  margin: 0 15px 40px 15px;\n  padding: 10px 0;\n  font-size: 0.8em;\n  border-top: 1px solid #dddddd;\n  font-family: \"Droid Sans\", sans-serif;\n  color: #999999;\n  font-style: italic;\n}\n.swagger-section .swagger-ui-wrap p#colophon a {\n  text-decoration: none;\n  color: #547f00;\n}\n.swagger-section .swagger-ui-wrap h3 {\n  color: black;\n  font-size: 1.1em;\n  padding: 10px 0 10px 0;\n}\n.swagger-section .swagger-ui-wrap .markdown ol,\n.swagger-section .swagger-ui-wrap .markdown ul {\n  font-family: \"Droid Sans\", sans-serif;\n  margin: 5px 0 10px;\n  padding: 0 0 0 18px;\n  list-style-type: disc;\n}\n.swagger-section .swagger-ui-wrap form.form_box {\n  background-color: #ebf3f9;\n  border: 1px solid #c3d9ec;\n  padding: 10px;\n}\n.swagger-section .swagger-ui-wrap form.form_box label {\n  color: #0f6ab4 !important;\n}\n.swagger-section .swagger-ui-wrap form.form_box input[type=submit] {\n  display: block;\n  padding: 10px;\n}\n.swagger-section .swagger-ui-wrap form.form_box p.weak {\n  font-size: 0.8em;\n}\n.swagger-section .swagger-ui-wrap form.form_box p {\n  font-size: 0.9em;\n  padding: 0 0 15px;\n  color: #7e7b6d;\n}\n.swagger-section .swagger-ui-wrap form.form_box p a {\n  color: #646257;\n}\n.swagger-section .swagger-ui-wrap form.form_box p strong {\n  color: black;\n}\n.swagger-section .swagger-ui-wrap .operation-status td.markdown > p:last-child {\n  padding-bottom: 0;\n}\n.swagger-section .title {\n  font-style: bold;\n}\n.swagger-section .secondary_form {\n  display: none;\n}\n.swagger-section .main_image {\n  display: block;\n  margin-left: auto;\n  margin-right: auto;\n}\n.swagger-section .oauth_body {\n  margin-left: 100px;\n  margin-right: 100px;\n}\n.swagger-section .oauth_submit {\n  text-align: center;\n  display: inline-block;\n}\n.swagger-section .authorize-wrapper {\n  margin: 15px 0 10px;\n}\n.swagger-section .authorize-wrapper_operation {\n  float: right;\n}\n.swagger-section .authorize__btn:hover {\n  text-decoration: underline;\n  cursor: pointer;\n}\n.swagger-section .authorize__btn_operation:hover .authorize-scopes {\n  display: block;\n}\n.swagger-section .authorize-scopes {\n  position: absolute;\n  margin-top: 20px;\n  background: #FFF;\n  border: 1px solid #ccc;\n  border-radius: 5px;\n  display: none;\n  font-size: 13px;\n  max-width: 300px;\n  line-height: 30px;\n  color: black;\n  padding: 5px;\n}\n.swagger-section .authorize-scopes .authorize__scope {\n  text-decoration: none;\n}\n.swagger-section .authorize__btn_operation {\n  height: 18px;\n  vertical-align: middle;\n  display: inline-block;\n  background: url(data:image/png;base64,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) no-repeat;\n}\n.swagger-section .authorize__btn_operation_login {\n  background-position: 0 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .authorize__btn_operation_logout {\n  background-position: -30px 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section #auth_container {\n  color: #fff;\n  display: inline-block;\n  border: none;\n  padding: 5px;\n  width: 87px;\n  height: 13px;\n}\n.swagger-section #auth_container .authorize__btn {\n  color: #fff;\n}\n.swagger-section .auth_container {\n  padding: 0 0 10px;\n  margin-bottom: 5px;\n  border-bottom: solid 1px #CCC;\n  font-size: 0.9em;\n}\n.swagger-section .auth_container .auth__title {\n  color: #547f00;\n  font-size: 1.2em;\n}\n.swagger-section .auth_container .basic_auth__label {\n  display: inline-block;\n  width: 60px;\n}\n.swagger-section .auth_container .auth__description {\n  color: #999999;\n  margin-bottom: 5px;\n}\n.swagger-section .auth_container .auth__button {\n  margin-top: 10px;\n  height: 30px;\n}\n.swagger-section .auth_container .key_auth__field {\n  margin: 5px 0;\n}\n.swagger-section .auth_container .key_auth__label {\n  display: inline-block;\n  width: 60px;\n}\n.swagger-section .api-popup-dialog {\n  position: absolute;\n  display: none;\n}\n.swagger-section .api-popup-dialog-wrapper {\n  z-index: 1000;\n  width: 500px;\n  background: #FFF;\n  padding: 20px;\n  border: 1px solid #ccc;\n  border-radius: 5px;\n  font-size: 13px;\n  color: #777;\n  position: fixed;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n.swagger-section .api-popup-dialog-shadow {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  opacity: 0.2;\n  background-color: gray;\n  z-index: 900;\n}\n.swagger-section .api-popup-dialog .api-popup-title {\n  font-size: 24px;\n  padding: 10px 0;\n}\n.swagger-section .api-popup-dialog .api-popup-title {\n  font-size: 24px;\n  padding: 10px 0;\n}\n.swagger-section .api-popup-dialog .error-msg {\n  padding-left: 5px;\n  padding-bottom: 5px;\n}\n.swagger-section .api-popup-dialog .api-popup-content {\n  max-height: 500px;\n  overflow-y: auto;\n}\n.swagger-section .api-popup-dialog .api-popup-authbtn {\n  height: 30px;\n}\n.swagger-section .api-popup-dialog .api-popup-cancel {\n  height: 30px;\n}\n.swagger-section .api-popup-scopes {\n  padding: 10px 20px;\n}\n.swagger-section .api-popup-scopes li {\n  padding: 5px 0;\n  line-height: 20px;\n}\n.swagger-section .api-popup-scopes li input {\n  position: relative;\n  top: 2px;\n}\n.swagger-section .api-popup-scopes .api-scope-desc {\n  padding-left: 20px;\n  font-style: italic;\n}\n.swagger-section .api-popup-actions {\n  padding-top: 10px;\n}\n.swagger-section .access {\n  float: right;\n}\n.swagger-section .auth {\n  float: right;\n}\n.swagger-section .api-ic {\n  height: 18px;\n  vertical-align: middle;\n  display: inline-block;\n  background: url(data:image/png;base64,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) no-repeat;\n}\n.swagger-section .api-ic .api_information_panel {\n  position: relative;\n  margin-top: 20px;\n  margin-left: -5px;\n  background: #FFF;\n  border: 1px solid #ccc;\n  border-radius: 5px;\n  display: none;\n  font-size: 13px;\n  max-width: 300px;\n  line-height: 30px;\n  color: black;\n  padding: 5px;\n}\n.swagger-section .api-ic .api_information_panel p .api-msg-enabled {\n  color: green;\n}\n.swagger-section .api-ic .api_information_panel p .api-msg-disabled {\n  color: red;\n}\n.swagger-section .api-ic:hover .api_information_panel {\n  position: absolute;\n  display: block;\n}\n.swagger-section .ic-info {\n  background-position: 0 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .ic-warning {\n  background-position: -60px 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .ic-error {\n  background-position: -30px 0;\n  width: 18px;\n  margin-top: -6px;\n  margin-left: 4px;\n}\n.swagger-section .ic-off {\n  background-position: -90px 0;\n  width: 58px;\n  margin-top: -4px;\n  cursor: pointer;\n}\n.swagger-section .ic-on {\n  background-position: -160px 0;\n  width: 58px;\n  margin-top: -4px;\n  cursor: pointer;\n}\n.swagger-section #header {\n  background-color: #89bf04;\n  padding: 9px 14px 19px 14px;\n  height: 23px;\n  min-width: 775px;\n}\n.swagger-section #input_baseUrl {\n  width: 400px;\n}\n.swagger-section #api_selector {\n  display: block;\n  clear: none;\n  float: right;\n}\n.swagger-section #api_selector .input {\n  display: inline-block;\n  clear: none;\n  margin: 0 10px 0 0;\n}\n.swagger-section #api_selector input {\n  font-size: 0.9em;\n  padding: 3px;\n  margin: 0;\n}\n.swagger-section #input_apiKey {\n  width: 200px;\n}\n.swagger-section #explore,\n.swagger-section #auth_container .authorize__btn {\n  display: block;\n  text-decoration: none;\n  font-weight: bold;\n  padding: 6px 8px;\n  font-size: 0.9em;\n  color: white;\n  background-color: #547f00;\n  -moz-border-radius: 4px;\n  -webkit-border-radius: 4px;\n  -o-border-radius: 4px;\n  -ms-border-radius: 4px;\n  -khtml-border-radius: 4px;\n  border-radius: 4px;\n}\n.swagger-section #explore:hover,\n.swagger-section #auth_container .authorize__btn:hover {\n  background-color: #547f00;\n}\n.swagger-section #header #logo {\n  font-size: 1.5em;\n  font-weight: bold;\n  text-decoration: none;\n  color: white;\n}\n.swagger-section #header #logo .logo__img {\n  display: block;\n  float: left;\n  margin-top: 2px;\n}\n.swagger-section #header #logo .logo__title {\n  display: inline-block;\n  padding: 5px 0 0 10px;\n}\n.swagger-section #content_message {\n  margin: 10px 15px;\n  font-style: italic;\n  color: #999999;\n}\n.swagger-section #message-bar {\n  min-height: 30px;\n  text-align: center;\n  padding-top: 10px;\n}\n.swagger-section .swagger-collapse:before {\n  content: \"-\";\n}\n.swagger-section .swagger-expand:before {\n  content: \"+\";\n}\n.swagger-section .error {\n  outline-color: #cc0000;\n  background-color: #f2dede;\n}\n</style>\n\n  <!-- <script src='lib/object-assign-pollyfill.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery-1.8.0.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery.slideto.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery.wiggle.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jquery.ba-bbq.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/handlebars-2.0.0.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/lodash.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/backbone-min.js' type='text/javascript'></script> -->\n  <!-- <script src='swagger-ui.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/highlight.9.1.0.pack.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/highlight.9.1.0.pack_extended.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/jsoneditor.min.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/marked.js' type='text/javascript'></script> -->\n  <!-- <script src='lib/swagger-oauth.js' type='text/javascript'></script> -->\n  <script src='assets.swagger_ui.rollup.js'></script>\n\n  <!-- Some basic translations -->\n  <!-- <script src='lang/translator.js' type='text/javascript'></script> -->\n  <!-- <script src='lang/ru.js' type='text/javascript'></script> -->\n  <!-- <script src='lang/en.js' type='text/javascript'></script> -->\n\n  <script type=\"text/javascript\">\n    $(function () {\n      var url = (/url=([^&]+)/).exec(window.location.search);\n      if (url && url.length > 1) {\n        url = decodeURIComponent(url[1]);\n      } else {\n        url = \"assets.swagger_ui.petstore.json\";\n        if (!(/^(?:\\/|http:|https:)/).test(url)) {\n            url = location.pathname.replace((/[^\\/]*?\\.html$/), '') + url;\n        }\n      }\n\n      hljs.configure({\n        highlightSizeThreshold: 5000\n      });\n\n      // Pre load translate...\n      if(window.SwaggerTranslator) {\n        window.SwaggerTranslator.translate();\n      }\n      window.swaggerUi = new SwaggerUi({\n        url: url,\n        dom_id: \"swagger-ui-container\",\n        supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],\n        onComplete: function(swaggerApi, swaggerUi){\n          if(typeof initOAuth == \"function\") {\n            initOAuth({\n              clientId: \"your-client-id\",\n              clientSecret: \"your-client-secret-if-required\",\n              realm: \"your-realms\",\n              appName: \"your-app-name\",\n              scopeSeparator: \",\",\n              additionalQueryStringParams: {}\n            });\n          }\n\n          if(window.SwaggerTranslator) {\n            window.SwaggerTranslator.translate();\n          }\n        },\n        onFailure: function(data) {\n          log(\"Unable to Load SwaggerUI\");\n        },\n        docExpansion: \"none\",\n        jsonEditor: false,\n        defaultModelRendering: 'schema',\n        showRequestHeaders: false\n      });\n\n      window.swaggerUi.load();\n\n      function log() {\n        if ('console' in window) {\n          console.log.apply(console, arguments);\n        }\n      }\n  });\n  </script>\n</head>\n\n<body class=\"swagger-section\">\n<div id='header'>\n  <div class=\"swagger-ui-wrap\">\n    <a id=\"logo\" href=\"http://swagger.io\"><img class=\"logo__img\" alt=\"swagger\" height=\"30\" width=\"30\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAqRJREFUeNrEVz1s00AUfnGXii5maMXoEUEHVwIpEkPNgkBdMnQoU5ytiKHJwpp2Q2JIO8DCUDOxIJFIVOoWZyJSh3pp1Q2PVVlcCVBH3ufeVZZ9Zye1Ay86nXV+ue/9fO/lheg/Se02X1rvksmbnTiKvuxQMBNgBnN4a/LCbmnUAP6JV58NCUsBC8CuAJxGPF47OgNqBaA93tolUhnx6jC4NxGwyOEwlccyAs+3kwdzKq0HDn2vEBTi8J2XpyMaywNDE157BhXUE3zJhlq8GKq+Zd2zaWHepPA8oN9XkfLmRdOiJV4XUUg/IyWncLjCYY/SHndV2u7zHr3bPKZtdxgboJOnthvrfGj/oMf3G0r7JVmNlLfKklmrt2MvvcNO7LFOhoFHfuAJI5o6ta10jpt5CQLgwXhXG2YIwvu+34qf78ybOjWTnWwkgR36d7JqJOrW0hHmNrKg9xhiS4+1jFmrxymh03B0w+6kURIAu3yHtOD5oaUNojMnGgbcctNvwdAnyxvxRR+/vaJnjzbpzcZX+nN1SdGv85i9eH8w3qPO+mdm/y4dnQ1iI8Fq6Nf4cxL6GWSjiFDSs0VRnxC5g0xSB2cgHpaseTxfqOv5uoHkNQ6Ha/N1Yz9mNMppEkEkYKj79q6uCq4bCHcSX3fJ0Vk/k9siASjCm1N6gZH6Ec9IXt2WkFES2K/ixoIyktJPAu/ptOA1SgO5zqtr6KASJPF0nMV8dgMsRhRPOcMwqQAOoi0VAIMLAEWJ6YYC1c8ibj1GP51RqwzYwZVMHQuvOzMCBUtb2tGHx5NAdLKqp5AX7Ng4d+Zi8AGDI9z1ijx9yaCH04y3GCP2S+QcvaGl+pcxyUBvinFlawoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\" /><span class=\"logo__title\">swagger</span></a>\n    <form id='api_selector'>\n      <div class='input'><input placeholder=\"http://example.com/api\" id=\"input_baseUrl\" name=\"baseUrl\" type=\"text\"/></div>\n      <div id='auth_container'></div>\n      <div class='input'><a id=\"explore\" class=\"header__btn\" href=\"#\" data-sw-translate>Explore</a></div>\n    </form>\n  </div>\n</div>\n\n<div id=\"message-bar\" class=\"swagger-ui-wrap\" data-sw-translate>&nbsp;</div>\n<div id=\"swagger-ui-container\" class=\"swagger-ui-wrap\"></div>\n</body>\n</html>\n\n",
             "/assets.swagger_ui.petstore.json": "{\n    \"basePath\": \"/v2\",\n    \"definitions\": {\n        \"ApiResponse\": {\n            \"properties\": {\n                \"code\": {\n                    \"format\": \"int32\",\n                    \"type\": \"integer\"\n                },\n                \"message\": {\n                    \"type\": \"string\"\n                },\n                \"type\": {\n                    \"type\": \"string\"\n                }\n            },\n            \"type\": \"object\"\n        },\n        \"Category\": {\n            \"properties\": {\n                \"id\": {\n                    \"format\": \"int64\",\n                    \"type\": \"integer\"\n                },\n                \"name\": {\n                    \"type\": \"string\"\n                }\n            },\n            \"type\": \"object\",\n            \"xml\": {\n                \"name\": \"Category\"\n            }\n        },\n        \"Order\": {\n            \"properties\": {\n                \"complete\": {\n                    \"default\": false,\n                    \"type\": \"boolean\"\n                },\n                \"id\": {\n                    \"format\": \"int64\",\n                    \"type\": \"integer\"\n                },\n                \"petId\": {\n                    \"format\": \"int64\",\n                    \"type\": \"integer\"\n                },\n                \"quantity\": {\n                    \"format\": \"int32\",\n                    \"type\": \"integer\"\n                },\n                \"shipDate\": {\n                    \"format\": \"date-time\",\n                    \"type\": \"string\"\n                },\n                \"status\": {\n                    \"description\": \"Order Status\",\n                    \"enum\": [\n                        \"placed\",\n                        \"approved\",\n                        \"delivered\"\n                    ],\n                    \"type\": \"string\"\n                }\n            },\n            \"type\": \"object\",\n            \"xml\": {\n                \"name\": \"Order\"\n            }\n        },\n        \"Pet\": {\n            \"properties\": {\n                \"category\": {\n                    \"$ref\": \"#/definitions/Category\"\n                },\n                \"id\": {\n                    \"format\": \"int64\",\n                    \"type\": \"integer\"\n                },\n                \"name\": {\n                    \"example\": \"doggie\",\n                    \"type\": \"string\"\n                },\n                \"photoUrls\": {\n                    \"items\": {\n                        \"type\": \"string\"\n                    },\n                    \"type\": \"array\",\n                    \"xml\": {\n                        \"name\": \"photoUrl\",\n                        \"wrapped\": true\n                    }\n                },\n                \"status\": {\n                    \"description\": \"pet status in the store\",\n                    \"enum\": [\n                        \"available\",\n                        \"pending\",\n                        \"sold\"\n                    ],\n                    \"type\": \"string\"\n                },\n                \"tags\": {\n                    \"items\": {\n                        \"$ref\": \"#/definitions/Tag\"\n                    },\n                    \"type\": \"array\",\n                    \"xml\": {\n                        \"name\": \"tag\",\n                        \"wrapped\": true\n                    }\n                }\n            },\n            \"required\": [\n                \"name\",\n                \"photoUrls\"\n            ],\n            \"type\": \"object\",\n            \"xml\": {\n                \"name\": \"Pet\"\n            }\n        },\n        \"Tag\": {\n            \"properties\": {\n                \"id\": {\n                    \"format\": \"int64\",\n                    \"type\": \"integer\"\n                },\n                \"name\": {\n                    \"type\": \"string\"\n                }\n            },\n            \"type\": \"object\",\n            \"xml\": {\n                \"name\": \"Tag\"\n            }\n        },\n        \"User\": {\n            \"properties\": {\n                \"email\": {\n                    \"type\": \"string\"\n                },\n                \"firstName\": {\n                    \"type\": \"string\"\n                },\n                \"id\": {\n                    \"format\": \"int64\",\n                    \"type\": \"integer\"\n                },\n                \"lastName\": {\n                    \"type\": \"string\"\n                },\n                \"password\": {\n                    \"type\": \"string\"\n                },\n                \"phone\": {\n                    \"type\": \"string\"\n                },\n                \"userStatus\": {\n                    \"description\": \"User Status\",\n                    \"format\": \"int32\",\n                    \"type\": \"integer\"\n                },\n                \"username\": {\n                    \"type\": \"string\"\n                }\n            },\n            \"type\": \"object\",\n            \"xml\": {\n                \"name\": \"User\"\n            }\n        }\n    },\n    \"externalDocs\": {\n        \"description\": \"Find out more about Swagger\",\n        \"url\": \"http://swagger.io\"\n    },\n    \"host\": \"petstore.swagger.io\",\n    \"info\": {\n        \"contact\": {\n            \"email\": \"apiteam@swagger.io\"\n        },\n        \"description\": \"This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.\",\n        \"license\": {\n            \"name\": \"Apache 2.0\",\n            \"url\": \"http://www.apache.org/licenses/LICENSE-2.0.html\"\n        },\n        \"termsOfService\": \"http://swagger.io/terms/\",\n        \"title\": \"Swagger Petstore\",\n        \"version\": \"1.0.0\"\n    },\n    \"paths\": {\n        \"/pet\": {\n            \"post\": {\n                \"consumes\": [\n                    \"application/json\",\n                    \"application/xml\"\n                ],\n                \"description\": \"\",\n                \"operationId\": \"addPet\",\n                \"parameters\": [\n                    {\n                        \"description\": \"Pet object that needs to be added to the store\",\n                        \"in\": \"body\",\n                        \"name\": \"body\",\n                        \"required\": true,\n                        \"schema\": {\n                            \"$ref\": \"#/definitions/Pet\"\n                        }\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"405\": {\n                        \"description\": \"Invalid input\"\n                    }\n                },\n                \"security\": [\n                    {\n                        \"petstore_auth\": [\n                            \"write:pets\",\n                            \"read:pets\"\n                        ]\n                    }\n                ],\n                \"summary\": \"Add a new pet to the store\",\n                \"tags\": [\n                    \"pet\"\n                ]\n            },\n            \"put\": {\n                \"consumes\": [\n                    \"application/json\",\n                    \"application/xml\"\n                ],\n                \"description\": \"\",\n                \"operationId\": \"updatePet\",\n                \"parameters\": [\n                    {\n                        \"description\": \"Pet object that needs to be added to the store\",\n                        \"in\": \"body\",\n                        \"name\": \"body\",\n                        \"required\": true,\n                        \"schema\": {\n                            \"$ref\": \"#/definitions/Pet\"\n                        }\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"400\": {\n                        \"description\": \"Invalid ID supplied\"\n                    },\n                    \"404\": {\n                        \"description\": \"Pet not found\"\n                    },\n                    \"405\": {\n                        \"description\": \"Validation exception\"\n                    }\n                },\n                \"security\": [\n                    {\n                        \"petstore_auth\": [\n                            \"write:pets\",\n                            \"read:pets\"\n                        ]\n                    }\n                ],\n                \"summary\": \"Update an existing pet\",\n                \"tags\": [\n                    \"pet\"\n                ]\n            }\n        },\n        \"/pet/findByStatus\": {\n            \"get\": {\n                \"description\": \"Multiple status values can be provided with comma separated strings\",\n                \"operationId\": \"findPetsByStatus\",\n                \"parameters\": [\n                    {\n                        \"collectionFormat\": \"multi\",\n                        \"description\": \"Status values that need to be considered for filter\",\n                        \"in\": \"query\",\n                        \"items\": {\n                            \"default\": \"available\",\n                            \"enum\": [\n                                \"available\",\n                                \"pending\",\n                                \"sold\"\n                            ],\n                            \"type\": \"string\"\n                        },\n                        \"name\": \"status\",\n                        \"required\": true,\n                        \"type\": \"array\"\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"200\": {\n                        \"description\": \"successful operation\",\n                        \"schema\": {\n                            \"items\": {\n                                \"$ref\": \"#/definitions/Pet\"\n                            },\n                            \"type\": \"array\"\n                        }\n                    },\n                    \"400\": {\n                        \"description\": \"Invalid status value\"\n                    }\n                },\n                \"security\": [\n                    {\n                        \"petstore_auth\": [\n                            \"write:pets\",\n                            \"read:pets\"\n                        ]\n                    }\n                ],\n                \"summary\": \"Finds Pets by status\",\n                \"tags\": [\n                    \"pet\"\n                ]\n            }\n        },\n        \"/pet/findByTags\": {\n            \"get\": {\n                \"deprecated\": true,\n                \"description\": \"Muliple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.\",\n                \"operationId\": \"findPetsByTags\",\n                \"parameters\": [\n                    {\n                        \"collectionFormat\": \"multi\",\n                        \"description\": \"Tags to filter by\",\n                        \"in\": \"query\",\n                        \"items\": {\n                            \"type\": \"string\"\n                        },\n                        \"name\": \"tags\",\n                        \"required\": true,\n                        \"type\": \"array\"\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"200\": {\n                        \"description\": \"successful operation\",\n                        \"schema\": {\n                            \"items\": {\n                                \"$ref\": \"#/definitions/Pet\"\n                            },\n                            \"type\": \"array\"\n                        }\n                    },\n                    \"400\": {\n                        \"description\": \"Invalid tag value\"\n                    }\n                },\n                \"security\": [\n                    {\n                        \"petstore_auth\": [\n                            \"write:pets\",\n                            \"read:pets\"\n                        ]\n                    }\n                ],\n                \"summary\": \"Finds Pets by tags\",\n                \"tags\": [\n                    \"pet\"\n                ]\n            }\n        },\n        \"/pet/{petId}\": {\n            \"delete\": {\n                \"description\": \"\",\n                \"operationId\": \"deletePet\",\n                \"parameters\": [\n                    {\n                        \"in\": \"header\",\n                        \"name\": \"api_key\",\n                        \"required\": false,\n                        \"type\": \"string\"\n                    },\n                    {\n                        \"description\": \"Pet id to delete\",\n                        \"format\": \"int64\",\n                        \"in\": \"path\",\n                        \"name\": \"petId\",\n                        \"required\": true,\n                        \"type\": \"integer\"\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"400\": {\n                        \"description\": \"Invalid ID supplied\"\n                    },\n                    \"404\": {\n                        \"description\": \"Pet not found\"\n                    }\n                },\n                \"security\": [\n                    {\n                        \"petstore_auth\": [\n                            \"write:pets\",\n                            \"read:pets\"\n                        ]\n                    }\n                ],\n                \"summary\": \"Deletes a pet\",\n                \"tags\": [\n                    \"pet\"\n                ]\n            },\n            \"get\": {\n                \"description\": \"Returns a single pet\",\n                \"operationId\": \"getPetById\",\n                \"parameters\": [\n                    {\n                        \"description\": \"ID of pet to return\",\n                        \"format\": \"int64\",\n                        \"in\": \"path\",\n                        \"name\": \"petId\",\n                        \"required\": true,\n                        \"type\": \"integer\"\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"200\": {\n                        \"description\": \"successful operation\",\n                        \"schema\": {\n                            \"$ref\": \"#/definitions/Pet\"\n                        }\n                    },\n                    \"400\": {\n                        \"description\": \"Invalid ID supplied\"\n                    },\n                    \"404\": {\n                        \"description\": \"Pet not found\"\n                    }\n                },\n                \"security\": [\n                    {\n                        \"api_key\": []\n                    }\n                ],\n                \"summary\": \"Find pet by ID\",\n                \"tags\": [\n                    \"pet\"\n                ]\n            },\n            \"post\": {\n                \"consumes\": [\n                    \"application/x-www-form-urlencoded\"\n                ],\n                \"description\": \"\",\n                \"operationId\": \"updatePetWithForm\",\n                \"parameters\": [\n                    {\n                        \"description\": \"ID of pet that needs to be updated\",\n                        \"format\": \"int64\",\n                        \"in\": \"path\",\n                        \"name\": \"petId\",\n                        \"required\": true,\n                        \"type\": \"integer\"\n                    },\n                    {\n                        \"description\": \"Updated name of the pet\",\n                        \"in\": \"formData\",\n                        \"name\": \"name\",\n                        \"required\": false,\n                        \"type\": \"string\"\n                    },\n                    {\n                        \"description\": \"Updated status of the pet\",\n                        \"in\": \"formData\",\n                        \"name\": \"status\",\n                        \"required\": false,\n                        \"type\": \"string\"\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"405\": {\n                        \"description\": \"Invalid input\"\n                    }\n                },\n                \"security\": [\n                    {\n                        \"petstore_auth\": [\n                            \"write:pets\",\n                            \"read:pets\"\n                        ]\n                    }\n                ],\n                \"summary\": \"Updates a pet in the store with form data\",\n                \"tags\": [\n                    \"pet\"\n                ]\n            }\n        },\n        \"/pet/{petId}/uploadImage\": {\n            \"post\": {\n                \"consumes\": [\n                    \"multipart/form-data\"\n                ],\n                \"description\": \"\",\n                \"operationId\": \"uploadFile\",\n                \"parameters\": [\n                    {\n                        \"description\": \"ID of pet to update\",\n                        \"format\": \"int64\",\n                        \"in\": \"path\",\n                        \"name\": \"petId\",\n                        \"required\": true,\n                        \"type\": \"integer\"\n                    },\n                    {\n                        \"description\": \"Additional data to pass to server\",\n                        \"in\": \"formData\",\n                        \"name\": \"additionalMetadata\",\n                        \"required\": false,\n                        \"type\": \"string\"\n                    },\n                    {\n                        \"description\": \"file to upload\",\n                        \"in\": \"formData\",\n                        \"name\": \"file\",\n                        \"required\": false,\n                        \"type\": \"file\"\n                    }\n                ],\n                \"produces\": [\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"200\": {\n                        \"description\": \"successful operation\",\n                        \"schema\": {\n                            \"$ref\": \"#/definitions/ApiResponse\"\n                        }\n                    }\n                },\n                \"security\": [\n                    {\n                        \"petstore_auth\": [\n                            \"write:pets\",\n                            \"read:pets\"\n                        ]\n                    }\n                ],\n                \"summary\": \"uploads an image\",\n                \"tags\": [\n                    \"pet\"\n                ]\n            }\n        },\n        \"/store/inventory\": {\n            \"get\": {\n                \"description\": \"Returns a map of status codes to quantities\",\n                \"operationId\": \"getInventory\",\n                \"parameters\": [],\n                \"produces\": [\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"200\": {\n                        \"description\": \"successful operation\",\n                        \"schema\": {\n                            \"additionalProperties\": {\n                                \"format\": \"int32\",\n                                \"type\": \"integer\"\n                            },\n                            \"type\": \"object\"\n                        }\n                    }\n                },\n                \"security\": [\n                    {\n                        \"api_key\": []\n                    }\n                ],\n                \"summary\": \"Returns pet inventories by status\",\n                \"tags\": [\n                    \"store\"\n                ]\n            }\n        },\n        \"/store/order\": {\n            \"post\": {\n                \"description\": \"\",\n                \"operationId\": \"placeOrder\",\n                \"parameters\": [\n                    {\n                        \"description\": \"order placed for purchasing the pet\",\n                        \"in\": \"body\",\n                        \"name\": \"body\",\n                        \"required\": true,\n                        \"schema\": {\n                            \"$ref\": \"#/definitions/Order\"\n                        }\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"200\": {\n                        \"description\": \"successful operation\",\n                        \"schema\": {\n                            \"$ref\": \"#/definitions/Order\"\n                        }\n                    },\n                    \"400\": {\n                        \"description\": \"Invalid Order\"\n                    }\n                },\n                \"summary\": \"Place an order for a pet\",\n                \"tags\": [\n                    \"store\"\n                ]\n            }\n        },\n        \"/store/order/{orderId}\": {\n            \"delete\": {\n                \"description\": \"For valid response try integer IDs with positive integer value. Negative or non-integer values will generate API errors\",\n                \"operationId\": \"deleteOrder\",\n                \"parameters\": [\n                    {\n                        \"description\": \"ID of the order that needs to be deleted\",\n                        \"format\": \"int64\",\n                        \"in\": \"path\",\n                        \"minimum\": 1,\n                        \"name\": \"orderId\",\n                        \"required\": true,\n                        \"type\": \"integer\"\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"400\": {\n                        \"description\": \"Invalid ID supplied\"\n                    },\n                    \"404\": {\n                        \"description\": \"Order not found\"\n                    }\n                },\n                \"summary\": \"Delete purchase order by ID\",\n                \"tags\": [\n                    \"store\"\n                ]\n            },\n            \"get\": {\n                \"description\": \"For valid response try integer IDs with value >= 1 and <= 10. Other values will generated exceptions\",\n                \"operationId\": \"getOrderById\",\n                \"parameters\": [\n                    {\n                        \"description\": \"ID of pet that needs to be fetched\",\n                        \"format\": \"int64\",\n                        \"in\": \"path\",\n                        \"maximum\": 10,\n                        \"minimum\": 1,\n                        \"name\": \"orderId\",\n                        \"required\": true,\n                        \"type\": \"integer\"\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"200\": {\n                        \"description\": \"successful operation\",\n                        \"schema\": {\n                            \"$ref\": \"#/definitions/Order\"\n                        }\n                    },\n                    \"400\": {\n                        \"description\": \"Invalid ID supplied\"\n                    },\n                    \"404\": {\n                        \"description\": \"Order not found\"\n                    }\n                },\n                \"summary\": \"Find purchase order by ID\",\n                \"tags\": [\n                    \"store\"\n                ]\n            }\n        },\n        \"/user\": {\n            \"post\": {\n                \"description\": \"This can only be done by the logged in user.\",\n                \"operationId\": \"createUser\",\n                \"parameters\": [\n                    {\n                        \"description\": \"Created user object\",\n                        \"in\": \"body\",\n                        \"name\": \"body\",\n                        \"required\": true,\n                        \"schema\": {\n                            \"$ref\": \"#/definitions/User\"\n                        }\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"default\": {\n                        \"description\": \"successful operation\"\n                    }\n                },\n                \"summary\": \"Create user\",\n                \"tags\": [\n                    \"user\"\n                ]\n            }\n        },\n        \"/user/createWithArray\": {\n            \"post\": {\n                \"description\": \"\",\n                \"operationId\": \"createUsersWithArrayInput\",\n                \"parameters\": [\n                    {\n                        \"description\": \"List of user object\",\n                        \"in\": \"body\",\n                        \"name\": \"body\",\n                        \"required\": true,\n                        \"schema\": {\n                            \"items\": {\n                                \"$ref\": \"#/definitions/User\"\n                            },\n                            \"type\": \"array\"\n                        }\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"default\": {\n                        \"description\": \"successful operation\"\n                    }\n                },\n                \"summary\": \"Creates list of users with given input array\",\n                \"tags\": [\n                    \"user\"\n                ]\n            }\n        },\n        \"/user/createWithList\": {\n            \"post\": {\n                \"description\": \"\",\n                \"operationId\": \"createUsersWithListInput\",\n                \"parameters\": [\n                    {\n                        \"description\": \"List of user object\",\n                        \"in\": \"body\",\n                        \"name\": \"body\",\n                        \"required\": true,\n                        \"schema\": {\n                            \"items\": {\n                                \"$ref\": \"#/definitions/User\"\n                            },\n                            \"type\": \"array\"\n                        }\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"default\": {\n                        \"description\": \"successful operation\"\n                    }\n                },\n                \"summary\": \"Creates list of users with given input array\",\n                \"tags\": [\n                    \"user\"\n                ]\n            }\n        },\n        \"/user/login\": {\n            \"get\": {\n                \"description\": \"\",\n                \"operationId\": \"loginUser\",\n                \"parameters\": [\n                    {\n                        \"description\": \"The user name for login\",\n                        \"in\": \"query\",\n                        \"name\": \"username\",\n                        \"required\": true,\n                        \"type\": \"string\"\n                    },\n                    {\n                        \"description\": \"The password for login in clear text\",\n                        \"in\": \"query\",\n                        \"name\": \"password\",\n                        \"required\": true,\n                        \"type\": \"string\"\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"200\": {\n                        \"description\": \"successful operation\",\n                        \"headers\": {\n                            \"X-Expires-After\": {\n                                \"description\": \"date in UTC when token expires\",\n                                \"format\": \"date-time\",\n                                \"type\": \"string\"\n                            },\n                            \"X-Rate-Limit\": {\n                                \"description\": \"calls per hour allowed by the user\",\n                                \"format\": \"int32\",\n                                \"type\": \"integer\"\n                            }\n                        },\n                        \"schema\": {\n                            \"type\": \"string\"\n                        }\n                    },\n                    \"400\": {\n                        \"description\": \"Invalid username/password supplied\"\n                    }\n                },\n                \"summary\": \"Logs user into the system\",\n                \"tags\": [\n                    \"user\"\n                ]\n            }\n        },\n        \"/user/logout\": {\n            \"get\": {\n                \"description\": \"\",\n                \"operationId\": \"logoutUser\",\n                \"parameters\": [],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"default\": {\n                        \"description\": \"successful operation\"\n                    }\n                },\n                \"summary\": \"Logs out current logged in user session\",\n                \"tags\": [\n                    \"user\"\n                ]\n            }\n        },\n        \"/user/{username}\": {\n            \"delete\": {\n                \"description\": \"This can only be done by the logged in user.\",\n                \"operationId\": \"deleteUser\",\n                \"parameters\": [\n                    {\n                        \"description\": \"The name that needs to be deleted\",\n                        \"in\": \"path\",\n                        \"name\": \"username\",\n                        \"required\": true,\n                        \"type\": \"string\"\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"400\": {\n                        \"description\": \"Invalid username supplied\"\n                    },\n                    \"404\": {\n                        \"description\": \"User not found\"\n                    }\n                },\n                \"summary\": \"Delete user\",\n                \"tags\": [\n                    \"user\"\n                ]\n            },\n            \"get\": {\n                \"description\": \"\",\n                \"operationId\": \"getUserByName\",\n                \"parameters\": [\n                    {\n                        \"description\": \"The name that needs to be fetched. Use user1 for testing. \",\n                        \"in\": \"path\",\n                        \"name\": \"username\",\n                        \"required\": true,\n                        \"type\": \"string\"\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"200\": {\n                        \"description\": \"successful operation\",\n                        \"schema\": {\n                            \"$ref\": \"#/definitions/User\"\n                        }\n                    },\n                    \"400\": {\n                        \"description\": \"Invalid username supplied\"\n                    },\n                    \"404\": {\n                        \"description\": \"User not found\"\n                    }\n                },\n                \"summary\": \"Get user by user name\",\n                \"tags\": [\n                    \"user\"\n                ]\n            },\n            \"put\": {\n                \"description\": \"This can only be done by the logged in user.\",\n                \"operationId\": \"updateUser\",\n                \"parameters\": [\n                    {\n                        \"description\": \"name that need to be updated\",\n                        \"in\": \"path\",\n                        \"name\": \"username\",\n                        \"required\": true,\n                        \"type\": \"string\"\n                    },\n                    {\n                        \"description\": \"Updated user object\",\n                        \"in\": \"body\",\n                        \"name\": \"body\",\n                        \"required\": true,\n                        \"schema\": {\n                            \"$ref\": \"#/definitions/User\"\n                        }\n                    }\n                ],\n                \"produces\": [\n                    \"application/xml\",\n                    \"application/json\"\n                ],\n                \"responses\": {\n                    \"400\": {\n                        \"description\": \"Invalid user supplied\"\n                    },\n                    \"404\": {\n                        \"description\": \"User not found\"\n                    }\n                },\n                \"summary\": \"Updated user\",\n                \"tags\": [\n                    \"user\"\n                ]\n            }\n        }\n    },\n    \"schemes\": [\n        \"http\"\n    ],\n    \"securityDefinitions\": {\n        \"api_key\": {\n            \"in\": \"header\",\n            \"name\": \"api_key\",\n            \"type\": \"apiKey\"\n        },\n        \"petstore_auth\": {\n            \"authorizationUrl\": \"http://petstore.swagger.io/oauth/dialog\",\n            \"flow\": \"implicit\",\n            \"scopes\": {\n                \"read:pets\": \"read your pets\",\n                \"write:pets\": \"modify pets in your account\"\n            },\n            \"type\": \"oauth2\"\n        }\n    },\n    \"swagger\": \"2.0\",\n    \"tags\": [\n        {\n            \"description\": \"Everything about your Pets\",\n            \"externalDocs\": {\n                \"description\": \"Find out more\",\n                \"url\": \"http://swagger.io\"\n            },\n            \"name\": \"pet\"\n        },\n        {\n            \"description\": \"Access to Petstore orders\",\n            \"name\": \"store\"\n        },\n        {\n            \"description\": \"Operations about user\",\n            \"externalDocs\": {\n                \"description\": \"Find out more about our store\",\n                \"url\": \"http://swagger.io\"\n            },\n            \"name\": \"user\"\n        }\n    ]\n}",
@@ -33443,24 +33235,18 @@ local.assetsDict["/assets.swagger_ui.js"] = "/* istanbul instrument in package s
         // init debug_inline\n\
         (function () {\n\
             var consoleError, context, key;\n\
-            context = (typeof window === \"object\" && window) || global;\n\
-            key = \"debug_inline\".replace(\"_i\", \"I\");\n\
-            if (context[key]) {\n\
-                return;\n\
-            }\n\
             consoleError = console.error;\n\
-            context[key] = function (arg0) {\n\
+            context = (typeof window === 'object' && window) || global;\n\
+            key = 'debug_inline'.replace('_i', 'I');\n\
+            context[key] = context[key] || function (arg0) {\n\
             /*\n\
              * this function will both print arg0 to stderr and return it\n\
              */\n\
                 // debug arguments\n\
-                context[\"_\" + key + \"Arguments\"] = arguments;\n\
-                consoleError(\"\\n\
-\\n\
-\" + key);\n\
+                context['_' + key + 'Arguments'] = arguments;\n\
+                consoleError('\\n\\n' + key);\n\
                 consoleError.apply(console, arguments);\n\
-                consoleError(\"\\n\
-\");\n\
+                consoleError(new Error().stack + '\\n');\n\
                 // return arg0 for inspection\n\
                 return arg0;\n\
             };\n\
@@ -33468,10 +33254,10 @@ local.assetsDict["/assets.swagger_ui.js"] = "/* istanbul instrument in package s
         // init local\n\
         local = {};\n\
         // init isBrowser\n\
-        local.isBrowser = typeof window === \"object\" &&\n\
-            typeof window.XMLHttpRequest === \"function\" &&\n\
+        local.isBrowser = typeof window === 'object' &&\n\
+            typeof window.XMLHttpRequest === 'function' &&\n\
             window.document &&\n\
-            typeof window.document.querySelectorAll === \"function\";\n\
+            typeof window.document.querySelectorAll === 'function';\n\
         // init global\n\
         local.global = local.isBrowser\n\
             ? window\n\
@@ -33480,13 +33266,6 @@ local.assetsDict["/assets.swagger_ui.js"] = "/* istanbul instrument in package s
         local = local.global.utility2_rollup ||\n\
             // local.global.utility2_rollup_old || require('./assets.utility2.rollup.js') ||\n\
             local;\n\
-        // init nop\n\
-        local.nop = function () {\n\
-        /*\n\
-         * this function will do nothing\n\
-         */\n\
-            return;\n\
-        };\n\
         // init exports\n\
         if (local.isBrowser) {\n\
             local.global.utility2_swagger_ui = local;\n\
@@ -33517,7 +33296,6 @@ local.assetsDict["/assets.swagger_ui.js"] = "/* istanbul instrument in package s
             local.tty = require('tty');\n\
             local.url = require('url');\n\
             local.util = require('util');\n\
-            local.v8 = require('v8');\n\
             local.vm = require('vm');\n\
             local.zlib = require('zlib');\n\
             module.exports = local;\n\
@@ -33581,21 +33359,18 @@ local.assetsDict["/assets.swagger_ui.js"] = "/* istanbul instrument in package s
         // init debug_inline
         (function () {
             var consoleError, context, key;
-            context = (typeof window === "object" && window) || global;
-            key = "debug_inline".replace("_i", "I");
-            if (context[key]) {
-                return;
-            }
             consoleError = console.error;
-            context[key] = function (arg0) {
+            context = (typeof window === 'object' && window) || global;
+            key = 'debug_inline'.replace('_i', 'I');
+            context[key] = context[key] || function (arg0) {
             /*
              * this function will both print arg0 to stderr and return it
              */
                 // debug arguments
-                context["_" + key + "Arguments"] = arguments;
-                consoleError("\n\n" + key);
+                context['_' + key + 'Arguments'] = arguments;
+                consoleError('\n\n' + key);
                 consoleError.apply(console, arguments);
-                consoleError("\n");
+                consoleError(new Error().stack + '\n');
                 // return arg0 for inspection
                 return arg0;
             };
@@ -33603,10 +33378,10 @@ local.assetsDict["/assets.swagger_ui.js"] = "/* istanbul instrument in package s
         // init local
         local = {};
         // init isBrowser
-        local.isBrowser = typeof window === "object" &&
-            typeof window.XMLHttpRequest === "function" &&
+        local.isBrowser = typeof window === 'object' &&
+            typeof window.XMLHttpRequest === 'function' &&
             window.document &&
-            typeof window.document.querySelectorAll === "function";
+            typeof window.document.querySelectorAll === 'function';
         // init global
         local.global = local.isBrowser
             ? window
@@ -33615,13 +33390,6 @@ local.assetsDict["/assets.swagger_ui.js"] = "/* istanbul instrument in package s
         local = local.global.utility2_rollup ||
             // local.global.utility2_rollup_old || require('./assets.utility2.rollup.js') ||
             local;
-        // init nop
-        local.nop = function () {
-        /*
-         * this function will do nothing
-         */
-            return;
-        };
         // init exports
         if (local.isBrowser) {
             local.global.utility2_swagger_ui = local;
@@ -33652,7 +33420,6 @@ local.assetsDict["/assets.swagger_ui.js"] = "/* istanbul instrument in package s
             local.tty = require('tty');
             local.url = require('url');
             local.util = require('util');
-            local.v8 = require('v8');
             local.vm = require('vm');
             local.zlib = require('zlib');
             module.exports = local;
@@ -33793,7 +33560,6 @@ instruction
         local.tty = require('tty');
         local.url = require('url');
         local.util = require('util');
-        local.v8 = require('v8');
         local.vm = require('vm');
         local.zlib = require('zlib');
         /* validateLineSortedReset */
@@ -33910,7 +33676,7 @@ instruction
         local = local.global.local = (local.global.utility2 ||
             require('utility2')).requireReadme();
         // init test
-        local.testRunInit(local);
+        local.testRunDefault(local);
     }());
 
 
