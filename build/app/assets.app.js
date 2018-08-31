@@ -15894,7 +15894,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
         local.cliDict._default = function () {
         /*
          * <file>
-         * # uglify <file> and print result to stdout
+         * will uglify <file> and print result to stdout
          */
             if ((/^(?:http|https):\/\//).test(process.argv[2])) {
                 // uglify url
@@ -19329,8 +19329,6 @@ local.assetsDict['/favicon.ico'] = '';
             });
             // search-and-replace - customize dataTo
             [
-                // customize body before istanbul instrument in package
-                (/[\S\s]*?^\/\* istanbul instrument in package /m),
                 // customize body after /* validateLineSortedReset */
                 (/\n {8}\/\* validateLineSortedReset \*\/\n[\S\s]*?$/)
             ].forEach(function (rgx) {
@@ -33211,7 +33209,8 @@ local.stateInit({
         global.utility2_rollup;
     local.local = local;
 /* jslint-ignore-begin */
-local.assetsDict["/assets.swagger_ui.js"] = "/* istanbul instrument in package swagger_ui */\n\
+local.assetsDict["/assets.swagger_ui.js"] = "// usr/bin/env node\n\
+/* istanbul instrument in package swagger_ui */\n\
 /* jslint-utility2 */\n\
 /*jslint\n\
     bitwise: true,\n\
@@ -33335,6 +33334,7 @@ local.assetsDict["/assets.swagger_ui.js"] = "/* istanbul instrument in package s
 /* jslint-ignore-end */
 }());
 
+// usr/bin/env node
 /* istanbul instrument in package swagger_ui */
 /* jslint-utility2 */
 /*jslint

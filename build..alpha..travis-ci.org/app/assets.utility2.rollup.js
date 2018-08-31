@@ -15845,7 +15845,7 @@ split_lines=split_lines,exports.MAP=MAP,exports.ast_squeeze_more=require("./sque
         local.cliDict._default = function () {
         /*
          * <file>
-         * # uglify <file> and print result to stdout
+         * will uglify <file> and print result to stdout
          */
             if ((/^(?:http|https):\/\//).test(process.argv[2])) {
                 // uglify url
@@ -19280,8 +19280,6 @@ local.assetsDict['/favicon.ico'] = '';
             });
             // search-and-replace - customize dataTo
             [
-                // customize body before istanbul instrument in package
-                (/[\S\s]*?^\/\* istanbul instrument in package /m),
                 // customize body after /* validateLineSortedReset */
                 (/\n {8}\/\* validateLineSortedReset \*\/\n[\S\s]*?$/)
             ].forEach(function (rgx) {
