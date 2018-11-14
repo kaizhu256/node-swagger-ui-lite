@@ -4,19 +4,19 @@
     <title>Code coverage report for node-swagger-ui-lite/test.js</title>
     <meta charset="utf-8">
 <style>
-/* jslint-utility2 */
+/* jslint utility2:true */
 /*csslint
     box-model: false,
     important: false,
     qualified-headings: false,
 */
-/* jslint-ignore-begin */
+/* csslint ignore:start */
 *,
 *:after,
 *:before {
     box-sizing: border-box;
 }
-/* jslint-ignore-end */
+/* csslint ignore:end */
 .x-istanbul {
     font-family: Helvetica Neue, Helvetica,Arial;
     font-size: 10pt;
@@ -247,7 +247,8 @@
         return;
     }
     window.domOnEventSelectAllWithinPre = function (event) {
-        var range, selection;
+        var range;
+        var selection;
         if (event &&
                 event.key === "a" &&
                 (event.ctrlKey || event.metaKey) &&
@@ -279,11 +280,11 @@
     </tr>
     </thead>
     <tbody>
-        <td><span class="ignore-none">none</span></td>
-        <td>100%<br>(49 / 49)</td>
-        <td>100%<br>(16 / 16)</td>
-        <td>100%<br>(10 / 10)</td>
-        <td>100%<br>(49 / 49)</td>
+        <td>branches: 12<br>statements: 17<br>functions: 5</td>
+        <td>100%<br>(83 / 83)</td>
+        <td>100%<br>(28 / 28)</td>
+        <td>100%<br>(17 / 17)</td>
+        <td>100%<br>(83 / 83)</td>
     </tbody>
     </table>
     <div class="path"><a href="../index.html">All files</a> &#187; <a href="index.html">node-swagger-ui-lite/</a> &#187; test.js</div>
@@ -444,12 +445,115 @@
 152
 153
 154
-155</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -462,22 +566,82 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -500,7 +664,15 @@
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
@@ -547,24 +719,30 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">12</span>
 <span class="cline-any cline-yes">11</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">42</span>
+<span class="cline-any cline-yes">26</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">40</span>
-<span class="cline-any cline-yes">24</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -593,93 +771,181 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js" tabIndex="0">/* istanbul instrument in package swagger_ui */
-/* jslint-utility2 */
-/*jslint
-    bitwise: true,
-    browser: true,
-    maxerr: 4,
-    maxlen: 100,
-    node: true,
-    nomen: true,
-    regexp: true,
-    stupid: true
-*/
-(function () {
-    'use strict';
+/* istanbul ignore next */
+/* jslint utility2:true */
+(function (globalThis) {
+    "use strict";
+    var consoleError;
     var local;
-&nbsp;
-&nbsp;
-&nbsp;
-    // run shared js-env code - init-before
+    // init globalThis
     (function () {
-        // init local
-        local = {};
-        // init isBrowser
-        local.isBrowser = typeof window === "object" &amp;&amp;
-            typeof window.XMLHttpRequest === "function" &amp;&amp;
-            window.document &amp;&amp;
-            typeof window.document.querySelectorAll === "function";
-        // init global
-        local.global = local.isBrowser
-            ? window
-            : global;
-        // re-init local
-        local = local.global.local = (local.global.utility2 ||
-            require('utility2')).requireReadme();
-        // init test
-        local.testRunDefault(local);
+        try {
+            globalThis = Function("return this")(); // jslint ignore:line
+        } catch (ignore) {}
     }());
-&nbsp;
-&nbsp;
-&nbsp;
-    // run shared js-env code - function
-    (function () {
-        local.testCase_buildApidoc_default = function (options, onError) {
+    globalThis.globalThis = globalThis;
+    // init local
+    local = {};
+    // init isBrowser
+    local.isBrowser = (
+        typeof window === "object"
+        &amp;&amp; window === globalThis
+        &amp;&amp; typeof window.XMLHttpRequest === "function"
+        &amp;&amp; window.document
+        &amp;&amp; typeof window.document.querySelectorAll === "function"
+    );
+    globalThis.globalLocal = local;
+    // init function
+    local.assertThrow = <span class="fstat-skip" title="function not covered" >function (passed, message) {</span>
+    /*
+     * this function will throw the error &lt;message&gt; if &lt;passed&gt; is falsy
+     */
+<span class="cstat-skip" title="statement not covered" >        var error;</span>
+<span class="cstat-skip" title="statement not covered" >        if (passed) {</span>
+<span class="cstat-skip" title="statement not covered" >            return;</span>
+        }
+<span class="cstat-skip" title="statement not covered" >        error = (</span>
+            // ternary-operator
+            (
+                message
+                &amp;&amp; typeof message.message === "string"
+                &amp;&amp; typeof message.stack === "string"
+            )
+            // if message is an error-object, then leave it as is
+            ? message
+            : new Error(
+                typeof message === "string"
+                // if message is a string, then leave it as is
+                ? message
+                // else JSON.stringify message
+                : JSON.stringify(message, null, 4)
+            )
+        );
+<span class="cstat-skip" title="statement not covered" >        throw error;</span>
+    };
+    local.functionOrNop = <span class="fstat-skip" title="function not covered" >function (fnc) {</span>
+    /*
+     * this function will if &lt;fnc&gt; exists,
+     * them return &lt;fnc&gt;,
+     * else return &lt;nop&gt;
+     */
+<span class="cstat-skip" title="statement not covered" >        return fnc || local.nop;</span>
+    };
+    local.identity = <span class="fstat-skip" title="function not covered" >function (value) {</span>
+    /*
+     * this function will return &lt;value&gt;
+     */
+<span class="cstat-skip" title="statement not covered" >        return value;</span>
+    };
+    local.nop = <span class="fstat-skip" title="function not covered" >function () {</span>
+    /*
+     * this function will do nothing
+     */
+<span class="cstat-skip" title="statement not covered" >        return;</span>
+    };
+    // init debug_inline
+    <span class="skip-if-branch" title="if path not taken" >I</span>if (!globalThis["debug\u0049nline"]) {
+<span class="cstat-skip" title="statement not covered" >        consoleError = console.error;</span>
+<span class="cstat-skip" title="statement not covered" >        globalThis["debug\u0049nline"] = <span class="fstat-skip" title="function not covered" >function () {</span></span>
         /*
-         * this function will test buildApidoc's default handling-behavior-behavior
+         * this function will both print &lt;arguments&gt; to stderr
+         * and return &lt;arguments&gt;[0]
          */
-            if (local.isBrowser) {
-                onError(null, options);
-                return;
-            }
-            options = {};
-            options.global = local.objectSetDefault({}, local.global);
-            options.polyfill = function () {
-                var $, Backbone, Handlebars, window;
-                $ = Backbone = Handlebars = function (arg0) {
-                    return arg0;
-                };
-                // jslint-hack
-                $(Backbone, Handlebars, window);
-                [
-                    'Collection',
-                    'Model',
-                    'Router',
-                    'View',
-                    'extend',
-                    'registerHelper',
-                    'template'
-                ].forEach(function (key) {
-                    $[key] = $;
-                });
-                window = global;
+<span class="cstat-skip" title="statement not covered" >            var argList;</span>
+<span class="cstat-skip" title="statement not covered" >            argList = Array.from(arguments); </span>// jslint ignore:line
+            // debug arguments
+<span class="cstat-skip" title="statement not covered" >            globalThis["debug\u0049nlineArguments"] = argList;</span>
+<span class="cstat-skip" title="statement not covered" >            consoleError("\n\ndebug\u0049nline");</span>
+<span class="cstat-skip" title="statement not covered" >            consoleError.apply(console, argList);</span>
+<span class="cstat-skip" title="statement not covered" >            consoleError("\n");</span>
+            // return arg0 for inspection
+<span class="cstat-skip" title="statement not covered" >            return argList[0];</span>
+        };
+    }
+}(this));
+&nbsp;
+&nbsp;
+&nbsp;
+(function (local) {
+"use strict";
+&nbsp;
+&nbsp;
+&nbsp;
+// run shared js-env code - init-before
+(function () {
+// init local
+local = (globalThis.utility2 || require("utility2")).requireReadme();
+globalThis.local = local;
+// init test
+local.testRunDefault(local);
+}());
+&nbsp;
+&nbsp;
+&nbsp;
+// run shared js-env code - function
+(function () {
+    local.testCase_buildApidoc_default = function (options, onError) {
+    /*
+     * this function will test buildApidoc's default handling-behavior-behavior
+     */
+        if (local.isBrowser) {
+            onError(null, options);
+            return;
+        }
+        options = {};
+        options.global = local.objectSetDefault({}, globalThis);
+        options.polyfill = function () {
+            var $;
+            var Backbone;
+            var Handlebars;
+            var window;
+            $ = function (value) {
+            /*
+             * this function will return &lt;value&gt;
+             */
+                return value;
             };
-            // coverage-hack
-            options.polyfill();
-            local.vm.runInThisContext(local.jslintAndPrint(
-/* jslint-ignore-begin */
+            Backbone = $;
+            Handlebars = $;
+            // jslint-hack
+            $(Backbone, Handlebars, window);
+            [
+                "Collection",
+                "Model",
+                "Router",
+                "View",
+                "extend",
+                "registerHelper",
+                "template"
+            ].forEach(function (key) {
+                $[key] = $;
+            });
+            window = globalThis;
+        };
+        // coverage-hack
+        options.polyfill();
+        local.vm.runInThisContext(local.jslintAndPrint(
+/* jslint ignore:start */
 '\
 /*jslint\n\
     node: true\n\
 */\n\
 "use strict";\n\
-var $, Backbone, Handlebars, window;\n\
+var $;\n\
+var Backbone;\n\
+var Handlebars;\n\
+var window;\n\
 $ = Backbone = Handlebars = function (arg0) {\n\
     return arg0;\n\
 };\n\
@@ -698,65 +964,73 @@ $(Backbone, Handlebars, window);\n\
 });\n\
 window = global;\n\
 ', 'polyfill.js'
-/* jslint-ignore-end */
-            ) + local.fs.readFileSync('assets.swagger_ui.rollup.js', 'utf8')
-                    .replace((/^\/\/ init lib [\S\s]*?\n\n\n\n/gm), function (match0) {
-                    if (match0.indexOf('init lib swagger') &lt; 0) {
-                        return '';
-                    }
-                    return match0;
-                })
-                );
-            options.exports = local.objectSetDefault({}, local.global);
-            Object.keys(options.exports).forEach(function (key) {
-                if (options.exports[key] === options.global[key]) {
-                    delete options.exports[key];
-                }
-            });
-            delete options.exports.$.Backbone;
-            delete options.exports.$.Handlebars;
-            delete options.exports.Backbone;
-            delete options.exports.Handlebars;
-            delete options.exports.$;
-            options.moduleDict = {
-                exampleFileList: ['assets.swagger_ui.rollup.js'],
-                swagger_ui: { exports: options.exports }
-            };
-            local.buildApidoc(options, onError);
-        };
-&nbsp;
-        local.testCase_buildApp_default = function (options, onError) {
-        /*
-         * this function will test buildApp's default handling-behavior-behavior
-         */
-            if (local.isBrowser) {
-                onError(null, options);
-                return;
+/* jslint ignore:end */
+        ) + local.fs.readFileSync("assets.swagger_ui.rollup.js", "utf8")
+        .replace((
+            /^\/\/\u0020init\u0020lib\u0020[\S\s]*?\n\n\n\n/gm
+        ), function (match0) {
+            if (match0.indexOf("init lib swagger") &lt; 0) {
+                return "";
             }
-            local.testCase_buildReadme_default(options, local.onErrorThrow);
-            local.testCase_buildLib_default(options, local.onErrorThrow);
-            local.testCase_buildTest_default(options, local.onErrorThrow);
-            local.testCase_buildCustomOrg_default(options, local.onErrorThrow);
-            options = { assetsList: [{
-                file: '/assets.swagger_ui.html',
-                url: '/assets.swagger_ui.html'
-            }, {
-                file: '/assets.swagger_ui.petstore.json',
-                url: '/assets.swagger_ui.petstore.json'
-            }, {
-                file: '/assets.swagger_ui.rollup.js',
-                url: '/assets.swagger_ui.rollup.js'
-            }] };
-            local.buildApp(options, onError);
+            return match0;
+        }));
+        options.exports = local.objectSetDefault({}, globalThis);
+        Object.keys(options.exports).forEach(function (key) {
+            if (options.exports[key] === options.global[key]) {
+                delete options.exports[key];
+            }
+        });
+        delete options.exports.$.Backbone;
+        delete options.exports.$.Handlebars;
+        delete options.exports.Backbone;
+        delete options.exports.Handlebars;
+        delete options.exports.$;
+        options.moduleDict = {
+            exampleFileList: ["assets.swagger_ui.rollup.js"],
+            swagger_ui: {
+                exports: options.exports
+            }
         };
-    }());
+        local.buildApidoc(options, onError);
+    };
+&nbsp;
+    local.testCase_buildApp_default = function (options, onError) {
+    /*
+     * this function will test buildApp's default handling-behavior-behavior
+     */
+        if (local.isBrowser) {
+            onError(null, options);
+            return;
+        }
+        local.testCase_buildReadme_default(options, local.onErrorThrow);
+        local.testCase_buildLib_default(options, local.onErrorThrow);
+        local.testCase_buildTest_default(options, local.onErrorThrow);
+        local.testCase_buildCustomOrg_default(options, local.onErrorThrow);
+        options = {
+            assetsList: [{
+                file: "/assets.swagger_ui.html",
+                url: "/assets.swagger_ui.html"
+            }, {
+                file: "/assets.swagger_ui.petstore.json",
+                url: "/assets.swagger_ui.petstore.json"
+            }, {
+                file: "/assets.swagger_ui.rollup.js",
+                url: "/assets.swagger_ui.rollup.js"
+            }]
+        };
+        local.buildApp(options, onError);
+    };
+}());
+&nbsp;
+&nbsp;
+&nbsp;
 }());
 &nbsp;
 &nbsp;</pre></td></tr>
 </table></pre>
 </div>
 <div class="footer">
-    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Fri, 31 Aug 2018 07:39:40 GMT</div>
+    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Wed, 14 Nov 2018 17:07:54 GMT</div>
 </div>
 </body>
 </html>

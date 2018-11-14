@@ -6,16 +6,16 @@
 <!-- "assets.utility2.template.html" -->
 <title>utility2 (0.0.1)</title>
 <style>
-/* jslint-utility2 */
+/* jslint utility2:true */
 /*csslint
 */
-/* jslint-ignore-begin */
+/* csslint ignore:start */
 *,
 *:after,
 *:before {
     box-sizing: border-box;
 }
-/* jslint-ignore-end */
+/* csslint ignore:end */
 @keyframes uiAnimateShake {
     0%, 50% {
         transform: translateX(10px);
@@ -132,17 +132,7 @@ textarea {
 <a class="zeroPixel" download="db.persistence.json" href="" id="dbExportA1"></a>
 <input class="zeroPixel" id="dbImportInput1" type="file">
 <script>
-/* jslint-utility2 */
-/*jslint
-    bitwise: true,
-    browser: true,
-    maxerr: 4,
-    maxlen: 100,
-    node: true,
-    nomen: true,
-    regexp: true,
-    stupid: true
-*/
+/* jslint utility2:true */
 // init domOnEventWindowOnloadTimeElapsed
 (function () {
 /*
@@ -155,23 +145,34 @@ textarea {
     window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;
     window.addEventListener("load", function () {
         setTimeout(function () {
-            window.domOnEventWindowOnloadTimeElapsed = Date.now() -
-                window.domOnEventWindowOnloadTimeElapsed;
-            console.error("domOnEventWindowOnloadTimeElapsed = " +
-                window.domOnEventWindowOnloadTimeElapsed);
+            window.domOnEventWindowOnloadTimeElapsed = (
+                Date.now()
+                - window.domOnEventWindowOnloadTimeElapsed
+            );
+            console.error(
+                "domOnEventWindowOnloadTimeElapsed = "
+                + window.domOnEventWindowOnloadTimeElapsed
+            );
         }, 100);
     });
 }());
+
+
+
 // init timerIntervalAjaxProgressUpdate
 (function () {
 /*
- * this function will increment the ajax-progress-bar until the webpage has loaded
+ * this function will increment the ajax-progress-bar
+ * until the webpage has loaded
  */
     "use strict";
-    var ajaxProgressDiv1,
-        ajaxProgressState,
-        ajaxProgressUpdate;
-    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector("#ajaxProgressDiv1")) {
+    var ajaxProgressDiv1;
+    var ajaxProgressState;
+    var ajaxProgressUpdate;
+    if (
+        window.timerIntervalAjaxProgressUpdate
+        || !document.querySelector("#ajaxProgressDiv1")
+    ) {
         return;
     }
     ajaxProgressDiv1 = document.querySelector("#ajaxProgressDiv1");
@@ -179,15 +180,17 @@ textarea {
         ajaxProgressDiv1.style.width = "25%";
     });
     ajaxProgressState = 0;
-    ajaxProgressUpdate = (window.local &&
-        window.local.ajaxProgressUpdate) || function () {
+    ajaxProgressUpdate = (
+        window.local
+        && window.local.ajaxProgressUpdate
+    ) || function () {
         ajaxProgressDiv1.style.width = "100%";
         setTimeout(function () {
             ajaxProgressDiv1.style.background = "transparent";
             setTimeout(function () {
                 ajaxProgressDiv1.style.width = "0%";
             }, 500);
-        }, 1500);
+        }, 1000);
     };
     window.timerIntervalAjaxProgressUpdate = setInterval(function () {
         ajaxProgressState += 1;
@@ -201,6 +204,9 @@ textarea {
         ajaxProgressUpdate();
     });
 }());
+
+
+
 // init domOnEventSelectAllWithinPre
 (function () {
 /*
@@ -212,11 +218,14 @@ textarea {
         return;
     }
     window.domOnEventSelectAllWithinPre = function (event) {
-        var range, selection;
-        if (event &&
-                event.key === "a" &&
-                (event.ctrlKey || event.metaKey) &&
-                event.target.closest("pre")) {
+        var range;
+        var selection;
+        if (
+            event
+            && event.key === "a"
+            && (event.ctrlKey || event.metaKey)
+            && event.target.closest("pre")
+        ) {
             range = document.createRange();
             range.selectNodeContents(event.target.closest("pre"));
             selection = window.getSelection();
@@ -225,7 +234,10 @@ textarea {
             event.preventDefault();
         }
     };
-    document.addEventListener("keydown", window.domOnEventSelectAllWithinPre);
+    document.addEventListener(
+        "keydown",
+        window.domOnEventSelectAllWithinPre
+    );
 }());
 </script>
 <h1>
@@ -245,19 +257,16 @@ textarea {
 <h3>the zero-dependency, swiss-army-knife utility for building, testing, and deploying webapps</h3>
 
 <a class="button" download href="assets.app.js">download standalone app</a><br>
-<button class="zeroPixel" id="testRunButton1"></button>
-<button class="button onclick onreset" id="testRunButton2">run internal test</button><br>
+<button id="testRunButton1" style="display: none;"></button>
+<button class="button eventDelegateClick onreset" data-event="testRunBrowser" id="testRunButton2">run internal test</button><br>
 
 
 
 
 <label>edit or paste script below to cover and test</label>
-<textarea class="oneval onkeyup onreset" id="inputTextareaEval1">
+<textarea class="eventDelegateKeyup onreset" data-event="testRunBrowser" id="inputTextareaEval1">
 // remove comment below to disable jslint
-/*jslint
-    browser: true,
-    es6: true
-*/
+/*jslint browser, devel*/
 /*global window*/
 (function () {
     "use strict";
@@ -265,15 +274,14 @@ textarea {
     testCaseDict = {};
     testCaseDict.modeTest = 1;
 
-    // comment this testCase to disable the failed assertion demo
-    testCaseDict.testCase_failed_assertion_demo = function (options, onError) {
+    // comment this testCase to disable the failed error demo
+    testCaseDict.testCase_failed_error_demo = function (options, onError) {
     /*
-     * this function will demo a failed assertion test
+     * this function will demo a failed error test
      */
         // jslint-hack
         window.utility2.nop(options);
-        window.utility2.assert(false, "this is a failed assertion demo");
-        onError();
+        onError(new Error("this is a failed error demo"));
     };
 
     testCaseDict.testCase_passed_ajax_demo = function (options, onError) {
@@ -286,12 +294,12 @@ textarea {
         window.utility2.ajax(options, function (error, xhr) {
             try {
                 // validate no error occurred
-                window.utility2.assert(!error, error);
+                console.assert(!error, error);
                 // validate "200 ok" status
-                window.utility2.assert(xhr.statusCode === 200, xhr.statusCode);
+                console.assert(xhr.statusCode === 200, xhr.statusCode);
                 // validate non-empty data
                 data = xhr.responseText;
-                window.utility2.assert(data && data.length > 0, data);
+                console.assert(data && data.length > 0, data);
                 onError();
             } catch (errorCaught) {
                 onError(errorCaught);
@@ -302,7 +310,7 @@ textarea {
     window.utility2.testRunDefault(testCaseDict);
 }());
 </textarea>
-<pre id="outputJsonStringifyPre1" tabindex="0"></pre>
+<button class="button eventDelegateClick onreset" data-event="testRunBrowser" id="jslintAutofixButton1">jslint autofix</button><br>
 <pre class= "colorError" id="outputJslintPre1" tabindex="0"></pre>
 <label>instrumented-code</label>
 <textarea class="resettable" id="outputTextarea1" readonly></textarea>

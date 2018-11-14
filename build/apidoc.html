@@ -74,6 +74,42 @@
 
         <li>
 
+            <a class="apidocElementLiA" href="#apidoc.element.swagger-ui-lite.assertThrow">
+            function <span class="apidocSignatureSpan">swagger-ui-lite.</span>assertThrow
+            <span class="apidocSignatureSpan">(passed, message)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.swagger-ui-lite.functionOrNop">
+            function <span class="apidocSignatureSpan">swagger-ui-lite.</span>functionOrNop
+            <span class="apidocSignatureSpan">(fnc)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.swagger-ui-lite.identity">
+            function <span class="apidocSignatureSpan">swagger-ui-lite.</span>identity
+            <span class="apidocSignatureSpan">(value)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.swagger-ui-lite.nop">
+            function <span class="apidocSignatureSpan">swagger-ui-lite.</span>nop
+            <span class="apidocSignatureSpan">()</span>
+            </a>
+
+        </li>
+
+        <li>
+
             <span class="apidocSignatureSpan">number <span class="apidocSignatureSpan">swagger-ui-lite.</span>timeExit</span>
 
         </li>
@@ -87,6 +123,12 @@
         <li>
 
             <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">swagger-ui-lite.</span>swagger_ui</span>
+
+        </li>
+
+        <li>
+
+            <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">swagger-ui-lite.</span>timerTimeoutAjaxProgressHide</span>
 
         </li>
 
@@ -713,6 +755,103 @@
 
 <div class="apidocSectionDiv">
 <h1><a href="#apidoc.module.swagger-ui-lite" id="apidoc.module.swagger-ui-lite">module swagger-ui-lite</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.swagger-ui-lite.assertThrow" id="apidoc.element.swagger-ui-lite.assertThrow">
+        function <span class="apidocSignatureSpan">swagger-ui-lite.</span>assertThrow
+        <span class="apidocSignatureSpan">(passed, message)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">assertThrow = function (passed, message) {
+<span class="apidocCodeCommentSpan">/*
+ * this function will throw the error &lt;message&gt; if &lt;passed&gt; is falsy
+ */
+</span>    var error;
+    if (passed) {
+        return;
+    }
+    error = (
+        // ternary-operator
+        (
+            message
+            &amp;&amp; typeof message.message === &quot;string&quot;
+            &amp;&amp; typeof message.stack === &quot;string&quot;
+        )
+        // if message is an error-object, then leave it as is
+        ? message
+        : new Error(
+            typeof message === &quot;string&quot;
+            // if message is a string, then leave it as is
+            ? message
+            // else JSON.stringify message
+            : JSON.stringify(message, null, 4)
+        )
+    );
+    throw error;
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.swagger-ui-lite.functionOrNop" id="apidoc.element.swagger-ui-lite.functionOrNop">
+        function <span class="apidocSignatureSpan">swagger-ui-lite.</span>functionOrNop
+        <span class="apidocSignatureSpan">(fnc)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">functionOrNop = function (fnc) {
+<span class="apidocCodeCommentSpan">/*
+ * this function will if &lt;fnc&gt; exists,
+ * them return &lt;fnc&gt;,
+ * else return &lt;nop&gt;
+ */
+</span>    return fnc || local.nop;
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.swagger-ui-lite.identity" id="apidoc.element.swagger-ui-lite.identity">
+        function <span class="apidocSignatureSpan">swagger-ui-lite.</span>identity
+        <span class="apidocSignatureSpan">(value)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">identity = function (value) {
+<span class="apidocCodeCommentSpan">/*
+ * this function will return &lt;value&gt;
+ */
+</span>    return value;
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.swagger-ui-lite.nop" id="apidoc.element.swagger-ui-lite.nop">
+        function <span class="apidocSignatureSpan">swagger-ui-lite.</span>nop
+        <span class="apidocSignatureSpan">()</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">nop = function () {
+<span class="apidocCodeCommentSpan">/*
+ * this function will do nothing
+ */
+</span>    return;
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
 
 
 
