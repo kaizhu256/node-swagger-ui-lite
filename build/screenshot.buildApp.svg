@@ -1,9 +1,9 @@
-<svg height="734" width="720" xmlns="http://www.w3.org/2000/svg">
-<rect height="734" fill="#555" width="720"></rect>
+<svg height="638" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="638" fill="#555" width="720"></rect>
 <text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
 <tspan x="10" y="26"></tspan>
 
-<tspan x="10" y="42">[MODE_BUILD=buildApp] - 2018-08-31T07:39:56.390Z - npm-testing /home/travis/build/kaizhu256/node\</tspan>
+<tspan x="10" y="42">[MODE_BUILD=buildApp] - 2018-11-14T17:08:15.137Z - npm-testing /home/travis/build/kaizhu256/node\</tspan>
 <tspan x="10" y="58">-swagger-ui-lite</tspan>
 
 <tspan x="10" y="74"></tspan>
@@ -13,73 +13,63 @@
 <tspan x="10" y="106">buildApp - merged test-report from file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/bu\</tspan>
 <tspan x="10" y="122">ild/test-report.json</tspan>
 
-<tspan x="10" y="138">&gt; server listening on http-port 61544</tspan>
+<tspan x="10" y="138">&gt; server listening on http-port 64320</tspan>
 
 <tspan x="10" y="154">db - dropping database ...</tspan>
 
-<tspan x="10" y="170">&gt; server listening on http-port 46077</tspan>
+<tspan x="10" y="170">testRunDefault - 20650 ms - testCase pending - testCase_buildApp_default ...</tspan>
 
-<tspan x="10" y="186">[node test-case 1 of 1 passed] - testCase_buildApp_default</tspan>
+<tspan x="10" y="186">&gt; server listening on http-port 59718</tspan>
 
-<tspan x="10" y="202"></tspan>
+<tspan x="10" y="202">testRunDefault - 25659 ms - testCase pending - testCase_buildApp_default ...</tspan>
 
-<tspan x="10" y="218">buildApp - merged test-report from file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/bu\</tspan>
-<tspan x="10" y="234">ild/test-report.json</tspan>
+<tspan x="10" y="218">testRunDefault - 25873 ms - [node test-case 1 of 1 passed] - testCase_buildApp_default</tspan>
 
-<tspan x="10" y="250"></tspan>
+<tspan x="10" y="234"></tspan>
 
-<tspan x="10" y="266">-------------------------------------------------------</tspan>
+<tspan x="10" y="250">buildApp - merged test-report from file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/bu\</tspan>
+<tspan x="10" y="266">ild/test-report.json</tspan>
 
-<tspan x="10" y="282">| test-report - buildApidoc - node - linux v10.9.0 - 2018-08-31T07:39:42.437Z</tspan>
+<tspan x="10" y="282"></tspan>
 
-<tspan x="10" y="298">|   19745 ms            0 failed        1 passed      |</tspan>
+<tspan x="10" y="298">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="314">-------------------------------------------------------</tspan>
+<tspan x="10" y="314">| test-report - buildApidoc - node - linux v11.1.0 - 2018-11-14T17:07:56.292Z</tspan>
 
-<tspan x="10" y="330">| test-report - npmTest - browser - /assets.utility2.base.html - Mozilla/5.0 (X11; Linux x86_64)\</tspan>
-<tspan x="10" y="346"> AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.16 Safari/537.36 - 201\</tspan>
-<tspan x="10" y="362">8-08-31T07:39:34.537Z</tspan>
+<tspan x="10" y="330">|   25874 ms            0 failed        1 passed      |</tspan>
 
-<tspan x="10" y="378">|       8 ms            0 failed        3 passed      |</tspan>
+<tspan x="10" y="346">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="394">-------------------------------------------------------</tspan>
+<tspan x="10" y="362">| test-report - npmTest - browser - /assets.utility2.base.html - Mozilla/5.0 (X11; Linux x86_64)\</tspan>
+<tspan x="10" y="378"> AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Electron/2.0.13 Safari/537.36 - 201\</tspan>
+<tspan x="10" y="394">8-11-14T17:07:47.982Z</tspan>
 
-<tspan x="10" y="410">| test-report - npmTest - node - linux v10.9.0 - 2018-08-31T07:39:33.030Z</tspan>
+<tspan x="10" y="410">|    1011 ms            0 failed        3 passed      |</tspan>
 
-<tspan x="10" y="426">|    6768 ms            0 failed        8 passed      |</tspan>
+<tspan x="10" y="426">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="442">-------------------------------------------------------</tspan>
+<tspan x="10" y="442">| test-report - npmTest - node - linux v11.1.0 - 2018-11-14T17:07:46.221Z</tspan>
 
-<tspan x="10" y="458">| test-report - npmTestPublished - browser - /assets.utility2.base.html - Mozilla/5.0 (X11; Linu\</tspan>
-<tspan x="10" y="474">x x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.16 Safari/537\</tspan>
-<tspan x="10" y="490">.36 - 2018-08-31T07:38:36.914Z</tspan>
+<tspan x="10" y="458">|    7287 ms            0 failed        8 passed      |</tspan>
 
-<tspan x="10" y="506">|       9 ms            0 failed        3 passed      |</tspan>
+<tspan x="10" y="474">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="522">-------------------------------------------------------</tspan>
+<tspan x="10" y="490"></tspan>
 
-<tspan x="10" y="538">| test-report - npmTestPublished - node - linux v10.9.0 - 2018-08-31T07:38:34.795Z</tspan>
+<tspan x="10" y="506">created test-report file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/test-report\</tspan>
+<tspan x="10" y="522">.html</tspan>
 
-<tspan x="10" y="554">|    7388 ms            0 failed        8 passed      |</tspan>
+<tspan x="10" y="538"></tspan>
 
-<tspan x="10" y="570">-------------------------------------------------------</tspan>
+<tspan x="10" y="554"></tspan>
+
+<tspan x="10" y="570">buildApp - 0 failed tests</tspan>
 
 <tspan x="10" y="586"></tspan>
 
-<tspan x="10" y="602">created test-report file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/test-report\</tspan>
-<tspan x="10" y="618">.html</tspan>
+<tspan x="10" y="602"></tspan>
 
-<tspan x="10" y="634"></tspan>
-
-<tspan x="10" y="650"></tspan>
-
-<tspan x="10" y="666">buildApp - 0 failed tests</tspan>
-
-<tspan x="10" y="682"></tspan>
-
-<tspan x="10" y="698"></tspan>
-
-<tspan x="10" y="714">[MODE_BUILD=buildApp] - 2018-08-31T07:40:03.557Z - EXIT_CODE - 0</tspan>
+<tspan x="10" y="618">[MODE_BUILD=buildApp] - 2018-11-14T17:08:23.530Z - EXIT_CODE - 0</tspan>
 
 </text>
 </svg>

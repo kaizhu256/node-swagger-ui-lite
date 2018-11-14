@@ -1,9 +1,9 @@
-<svg height="1486" width="720" xmlns="http://www.w3.org/2000/svg">
-<rect height="1486" fill="#555" width="720"></rect>
+<svg height="990" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="990" fill="#555" width="720"></rect>
 <text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
 <tspan x="10" y="26"></tspan>
 
-<tspan x="10" y="42">[MODE_BUILD=buildApidoc] - 2018-08-31T07:39:42.264Z - npm-testing /home/travis/build/kaizhu256/n\</tspan>
+<tspan x="10" y="42">[MODE_BUILD=buildApidoc] - 2018-11-14T17:07:56.114Z - npm-testing /home/travis/build/kaizhu256/n\</tspan>
 <tspan x="10" y="58">ode-swagger-ui-lite</tspan>
 
 <tspan x="10" y="74"></tspan>
@@ -13,151 +13,105 @@
 <tspan x="10" y="106">buildApidoc - merged test-report from file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp\</tspan>
 <tspan x="10" y="122">/build/test-report.json</tspan>
 
-<tspan x="10" y="138">&gt; server listening on http-port 56357</tspan>
+<tspan x="10" y="138">&gt; server listening on http-port 37822</tspan>
 
 <tspan x="10" y="154">db - dropping database ...</tspan>
 
-<tspan x="10" y="170">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/package.json</tspan>
+<tspan x="10" y="170">jslint polyfill.js</tspan>
 
-<tspan x="10" y="186">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/assets.index.templa\</tspan>
-<tspan x="10" y="202">te.html</tspan>
+<tspan x="10" y="186">  1 Unexpected '='. // line 9, col 14</tspan>
 
-<tspan x="10" y="218">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/assets.swagger_ui.p\</tspan>
-<tspan x="10" y="234">etstore.json</tspan>
+<tspan x="10" y="202">    $ = Backbone = Handlebars = function (arg0) {</tspan>
 
-<tspan x="10" y="250">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/.gitignore</tspan>
+<tspan x="10" y="218">  2 Unexpected '='. // line 9, col 27</tspan>
 
-<tspan x="10" y="266">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/lib.swagger_ui.js</tspan>
+<tspan x="10" y="234">    $ = Backbone = Handlebars = function (arg0) {</tspan>
 
-<tspan x="10" y="282">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/LICENSE</tspan>
+<tspan x="10" y="250">  3 Undeclared 'global'. // line 25, col 10</tspan>
 
-<tspan x="10" y="298">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/npm_scripts.sh</tspan>
+<tspan x="10" y="266">    window = global;</tspan>
 
-<tspan x="10" y="314">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/package.json</tspan>
+<tspan x="10" y="282">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/package.json</tspan>
 
-<tspan x="10" y="330">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/package-lock.json</tspan>
+<tspan x="10" y="298">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/assets.index.templa\</tspan>
+<tspan x="10" y="314">te.html</tspan>
 
-<tspan x="10" y="346">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/README.md</tspan>
+<tspan x="10" y="330">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/assets.swagger_ui.p\</tspan>
+<tspan x="10" y="346">etstore.json</tspan>
 
-<tspan x="10" y="362">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/test.js</tspan>
+<tspan x="10" y="362">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/.gitignore</tspan>
 
-<tspan x="10" y="378">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/.travis.yml</tspan>
+<tspan x="10" y="378">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/lib.swagger_ui.js</tspan>
 
-<tspan x="10" y="394">apidocCreate - requiring /home/travis/build/kaizhu256/node-swagger-ui-lite ...</tspan>
+<tspan x="10" y="394">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/LICENSE</tspan>
 
-<tspan x="10" y="410">apidocCreate - ... required /home/travis/build/kaizhu256/node-swagger-ui-lite</tspan>
+<tspan x="10" y="410">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/npm_scripts.sh</tspan>
 
-<tspan x="10" y="426">created apidoc file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/apidoc.html</tspan>
+<tspan x="10" y="426">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/package.json</tspan>
 
-<tspan x="10" y="442"></tspan>
+<tspan x="10" y="442">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/package-lock.json</tspan>
 
-<tspan x="10" y="458">[node test-case 1 of 1 passed] - testCase_buildApidoc_default</tspan>
+<tspan x="10" y="458">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/README.md</tspan>
 
-<tspan x="10" y="474">(node:5993) ExperimentalWarning: The http2 module is an experimental API.</tspan>
+<tspan x="10" y="474">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/test.js</tspan>
 
-<tspan x="10" y="490">(node:5993) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.</tspan>
+<tspan x="10" y="490">apidocCreate - readExample /home/travis/build/kaizhu256/node-swagger-ui-lite/.travis.yml</tspan>
 
-<tspan x="10" y="506">(node:5993) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/splaytree' module \</tspan>
-<tspan x="10" y="522">is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="506">apidocCreate - requiring /home/travis/build/kaizhu256/node-swagger-ui-lite ...</tspan>
 
-<tspan x="10" y="538">(node:5993) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/codemap' module is\</tspan>
-<tspan x="10" y="554"> deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="522">apidocCreate - ... required /home/travis/build/kaizhu256/node-swagger-ui-lite</tspan>
 
-<tspan x="10" y="570">(node:5993) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/consarray' module \</tspan>
-<tspan x="10" y="586">is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="538">created apidoc file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/apidoc.html</tspan>
 
-<tspan x="10" y="602">(node:5993) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/csvparser' module \</tspan>
-<tspan x="10" y="618">is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="554"></tspan>
 
-<tspan x="10" y="634">(node:5993) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/profile' module is\</tspan>
-<tspan x="10" y="650"> deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="570">testRunDefault - 317 ms - [node test-case 1 of 1 passed] - testCase_buildApidoc_default</tspan>
 
-<tspan x="10" y="666">(node:5993) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/profile_view' modu\</tspan>
-<tspan x="10" y="682">le is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="586"></tspan>
 
-<tspan x="10" y="698">(node:5993) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/logreader' module \</tspan>
-<tspan x="10" y="714">is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="602">buildApidoc - merged test-report from file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp\</tspan>
+<tspan x="10" y="618">/build/test-report.json</tspan>
 
-<tspan x="10" y="730">(node:5993) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/arguments' module \</tspan>
-<tspan x="10" y="746">is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="634"></tspan>
 
-<tspan x="10" y="762">(node:5993) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/tickprocessor' mod\</tspan>
-<tspan x="10" y="778">ule is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="650">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="794">(node:5993) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/SourceMap' module \</tspan>
-<tspan x="10" y="810">is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="666">| test-report - buildApidoc - node - linux v11.1.0 - 2018-11-14T17:07:56.292Z</tspan>
 
-<tspan x="10" y="826">(node:5993) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/tickprocessor-driv\</tspan>
-<tspan x="10" y="842">er' module is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="682">|     318 ms            0 failed        1 passed      |</tspan>
 
-<tspan x="10" y="858">(node:5993) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'node-inspect/lib/_inspect' \</tspan>
-<tspan x="10" y="874">module is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="698">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="890">(node:5993) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'node-inspect/lib/internal/i\</tspan>
-<tspan x="10" y="906">nspect_client' module is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="714">| test-report - npmTest - browser - /assets.utility2.base.html - Mozilla/5.0 (X11; Linux x86_64)\</tspan>
+<tspan x="10" y="730"> AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Electron/2.0.13 Safari/537.36 - 201\</tspan>
+<tspan x="10" y="746">8-11-14T17:07:47.982Z</tspan>
 
-<tspan x="10" y="922">(node:5993) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'node-inspect/lib/internal/i\</tspan>
-<tspan x="10" y="938">nspect_repl' module is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="762">|    1011 ms            0 failed        3 passed      |</tspan>
+
+<tspan x="10" y="778">-------------------------------------------------------</tspan>
+
+<tspan x="10" y="794">| test-report - npmTest - node - linux v11.1.0 - 2018-11-14T17:07:46.221Z</tspan>
+
+<tspan x="10" y="810">|    7287 ms            0 failed        8 passed      |</tspan>
+
+<tspan x="10" y="826">-------------------------------------------------------</tspan>
+
+<tspan x="10" y="842"></tspan>
+
+<tspan x="10" y="858">created test-report file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/test-report\</tspan>
+<tspan x="10" y="874">.html</tspan>
+
+<tspan x="10" y="890"></tspan>
+
+<tspan x="10" y="906"></tspan>
+
+<tspan x="10" y="922">buildApidoc - 0 failed tests</tspan>
+
+<tspan x="10" y="938"></tspan>
 
 <tspan x="10" y="954"></tspan>
 
-<tspan x="10" y="970">buildApidoc - merged test-report from file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp\</tspan>
-<tspan x="10" y="986">/build/test-report.json</tspan>
-
-<tspan x="10" y="1002"></tspan>
-
-<tspan x="10" y="1018">-------------------------------------------------------</tspan>
-
-<tspan x="10" y="1034">| test-report - buildApidoc - node - linux v10.9.0 - 2018-08-31T07:39:42.437Z</tspan>
-
-<tspan x="10" y="1050">|     335 ms            0 failed        1 passed      |</tspan>
-
-<tspan x="10" y="1066">-------------------------------------------------------</tspan>
-
-<tspan x="10" y="1082">| test-report - npmTest - browser - /assets.utility2.base.html - Mozilla/5.0 (X11; Linux x86_64)\</tspan>
-<tspan x="10" y="1098"> AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.16 Safari/537.36 - 201\</tspan>
-<tspan x="10" y="1114">8-08-31T07:39:34.537Z</tspan>
-
-<tspan x="10" y="1130">|       8 ms            0 failed        3 passed      |</tspan>
-
-<tspan x="10" y="1146">-------------------------------------------------------</tspan>
-
-<tspan x="10" y="1162">| test-report - npmTest - node - linux v10.9.0 - 2018-08-31T07:39:33.030Z</tspan>
-
-<tspan x="10" y="1178">|    6768 ms            0 failed        8 passed      |</tspan>
-
-<tspan x="10" y="1194">-------------------------------------------------------</tspan>
-
-<tspan x="10" y="1210">| test-report - npmTestPublished - browser - /assets.utility2.base.html - Mozilla/5.0 (X11; Linu\</tspan>
-<tspan x="10" y="1226">x x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.16 Safari/537\</tspan>
-<tspan x="10" y="1242">.36 - 2018-08-31T07:38:36.914Z</tspan>
-
-<tspan x="10" y="1258">|       9 ms            0 failed        3 passed      |</tspan>
-
-<tspan x="10" y="1274">-------------------------------------------------------</tspan>
-
-<tspan x="10" y="1290">| test-report - npmTestPublished - node - linux v10.9.0 - 2018-08-31T07:38:34.795Z</tspan>
-
-<tspan x="10" y="1306">|    7388 ms            0 failed        8 passed      |</tspan>
-
-<tspan x="10" y="1322">-------------------------------------------------------</tspan>
-
-<tspan x="10" y="1338"></tspan>
-
-<tspan x="10" y="1354">created test-report file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/test-report\</tspan>
-<tspan x="10" y="1370">.html</tspan>
-
-<tspan x="10" y="1386"></tspan>
-
-<tspan x="10" y="1402"></tspan>
-
-<tspan x="10" y="1418">buildApidoc - 0 failed tests</tspan>
-
-<tspan x="10" y="1434"></tspan>
-
-<tspan x="10" y="1450"></tspan>
-
-<tspan x="10" y="1466">[MODE_BUILD=buildApidoc] - 2018-08-31T07:39:44.150Z - EXIT_CODE - 0</tspan>
+<tspan x="10" y="970">[MODE_BUILD=buildApidoc] - 2018-11-14T17:07:57.979Z - EXIT_CODE - 0</tspan>
 
 </text>
 </svg>

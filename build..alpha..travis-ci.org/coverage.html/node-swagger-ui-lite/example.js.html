@@ -4,19 +4,19 @@
     <title>Code coverage report for node-swagger-ui-lite/example.js</title>
     <meta charset="utf-8">
 <style>
-/* jslint-utility2 */
+/* jslint utility2:true */
 /*csslint
     box-model: false,
     important: false,
     qualified-headings: false,
 */
-/* jslint-ignore-begin */
+/* csslint ignore:start */
 *,
 *:after,
 *:before {
     box-sizing: border-box;
 }
-/* jslint-ignore-end */
+/* csslint ignore:end */
 .x-istanbul {
     font-family: Helvetica Neue, Helvetica,Arial;
     font-size: 10pt;
@@ -247,7 +247,8 @@
         return;
     }
     window.domOnEventSelectAllWithinPre = function (event) {
-        var range, selection;
+        var range;
+        var selection;
         if (event &&
                 event.key === "a" &&
                 (event.ctrlKey || event.metaKey) &&
@@ -279,11 +280,11 @@
     </tr>
     </thead>
     <tbody>
-        <td>branches: 20<br>statements: 21<br>functions: 2</td>
-        <td>100%<br>(72 / 72)</td>
-        <td>100%<br>(43 / 43)</td>
-        <td>100%<br>(7 / 7)</td>
-        <td>100%<br>(72 / 72)</td>
+        <td>branches: 34<br>statements: 39<br>functions: 7</td>
+        <td>100%<br>(103 / 103)</td>
+        <td>100%<br>(54 / 54)</td>
+        <td>100%<br>(14 / 14)</td>
+        <td>100%<br>(103 / 103)</td>
     </tbody>
     </table>
     <div class="path"><a href="../index.html">All files</a> &#187; <a href="index.html">node-swagger-ui-lite/</a> &#187; example.js</div>
@@ -572,20 +573,82 @@
 280
 281
 282
-283</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -708,8 +771,11 @@
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
@@ -721,11 +787,91 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -746,14 +892,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
@@ -799,7 +945,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -809,9 +954,6 @@
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -823,18 +965,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -843,6 +973,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
@@ -851,14 +999,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js" tabIndex="0">&nbsp;
-&nbsp;
-&nbsp;
-&nbsp;
-&nbsp;
 &nbsp;
 &nbsp;
 &nbsp;
@@ -967,8 +1114,8 @@ this script will run a web-demo of swagger-ui-lite
 &nbsp;
 instruction
     1. save this script as example.js
-    2. run the shell command:
-        $ npm install swagger-ui-lite &amp;&amp; PORT=8081 node example.js
+    2. run the shell-command:
+        $ npm install kaizhu256/node-swagger-ui-lite#alpha &amp;&amp; PORT=8081 node example.js
     3. open a browser to http://127.0.0.1:8081 and play with the web-demo
     4. edit this script to suit your needs
 */
@@ -976,171 +1123,250 @@ instruction
 &nbsp;
 &nbsp;
 /* istanbul instrument in package swagger_ui */
-/* jslint-utility2 */
-/*jslint
-    bitwise: true,
-    browser: true,
-    maxerr: 4,
-    maxlen: 100,
-    node: true,
-    nomen: true,
-    regexp: true,
-    stupid: true
-*/
-(function () {
-    'use strict';
+/* istanbul ignore next */
+/* jslint utility2:true */
+(function (globalThis) {
+    "use strict";
+    var consoleError;
     var local;
-&nbsp;
-&nbsp;
-&nbsp;
-    // run shared js-env code - init-before
+    // init globalThis
     (function () {
-        // init local
-        local = {};
-        // init isBrowser
-        local.isBrowser = typeof window === "object" &amp;&amp;
-            typeof window.XMLHttpRequest === "function" &amp;&amp;
-            window.document &amp;&amp;
-            typeof window.document.querySelectorAll === "function";
-        // init global
-        local.global = local.isBrowser
-            ? window
-            : global;
-        // re-init local
-        local = local.global.utility2_rollup || (local.isBrowser
-            ? local.global.utility2_swagger_ui
-            : global.utility2_moduleExports);
-        // init exports
-        local.global.local = local;
+        try {
+            globalThis = Function("return this")(); // jslint ignore:line
+        } catch (ignore) {}
     }());
-&nbsp;
-&nbsp;
-&nbsp;
-    // run browser js-env code - init-test
-    /* istanbul ignore next */
-    (function () {
-        if (!local.isBrowser) {
-            return;
-        }
-    }());
-&nbsp;
-&nbsp;
-&nbsp;
-    // run node js-env code - init-test
-    /* istanbul ignore next */
-    (function () {
-        if (local.isBrowser) {
-            return;
-        }
-        // init exports
-        module.exports = local;
-        // require builtins
-        // local.assert = require('assert');
-        local.buffer = require('buffer');
-        local.child_process = require('child_process');
-        local.cluster = require('cluster');
-        local.crypto = require('crypto');
-        local.dgram = require('dgram');
-        local.dns = require('dns');
-        local.domain = require('domain');
-        local.events = require('events');
-        local.fs = require('fs');
-        local.http = require('http');
-        local.https = require('https');
-        local.net = require('net');
-        local.os = require('os');
-        local.path = require('path');
-        local.querystring = require('querystring');
-        local.readline = require('readline');
-        local.repl = require('repl');
-        local.stream = require('stream');
-        local.string_decoder = require('string_decoder');
-        local.timers = require('timers');
-        local.tls = require('tls');
-        local.tty = require('tty');
-        local.url = require('url');
-        local.util = require('util');
-        local.vm = require('vm');
-        local.zlib = require('zlib');
-        /* validateLineSortedReset */
-        // init assets
-        local.assetsDict = local.assetsDict || <span class="branch-1 cbranch-skip" title="branch not covered" >{};</span>
-        [
-            'assets.index.template.html',
-            'assets.swgg.swagger.json',
-            'assets.swgg.swagger.server.json'
-        ].forEach(function (file) {
-            file = '/' + file;
-            local.assetsDict[file] = local.assetsDict[file] || '';
-            if (local.fs.existsSync(local.__dirname + file)) {
-                local.assetsDict[file] = local.fs.readFileSync(
-                    local.__dirname + file,
-                    'utf8'
-                );
-            }
-        });
-        /* validateLineSortedReset */
-        /* jslint-ignore-begin */
-        // bug-workaround - long $npm_package_buildCustomOrg
-        local.assetsDict['/assets.swagger_ui.js'] =
-            local.assetsDict['/assets.swagger_ui.js'] ||
-            local.fs.readFileSync(local.__dirname + '/lib.swagger_ui.js', 'utf8'
-        ).replace((/^#!\//), '// ');
-        /* jslint-ignore-end */
-        /* validateLineSortedReset */
-        local.assetsDict['/'] =
-            local.assetsDict['/assets.example.html'] =
-            local.assetsDict['/index.html'] =
-            local.assetsDict['/assets.index.template.html']
-            .replace((/\{\{env\.(\w+?)\}\}/g), <span class="fstat-skip" title="function not covered" >function (match0, match1) {</span>
-<span class="cstat-skip" title="statement not covered" >                switch (match1) {</span>
-                case 'npm_package_description':
-<span class="cstat-skip" title="statement not covered" >                    return 'the greatest app in the world!';</span>
-                case 'npm_package_name':
-<span class="cstat-skip" title="statement not covered" >                    return 'swagger-ui-lite';</span>
-                case 'npm_package_nameLib':
-<span class="cstat-skip" title="statement not covered" >                    return 'swagger_ui';</span>
-                case 'npm_package_version':
-<span class="cstat-skip" title="statement not covered" >                    return '0.0.1';</span>
-                default:
-<span class="cstat-skip" title="statement not covered" >                    return match0;</span>
-                }
-            });
-        // init cli
-        <span class="skip-if-branch" title="else path not taken" >E</span>if (module !== require.main || <span class="branch-1 cbranch-skip" title="branch not covered" >local.global.utility2_rollup)</span> {
-            return;
-        }
-<span class="cstat-skip" title="statement not covered" >        local.assetsDict['/assets.example.js'] =</span>
-            local.assetsDict['/assets.example.js'] ||
-            local.fs.readFileSync(__filename, 'utf8');
-<span class="cstat-skip" title="statement not covered" >        local.assetsDict['/favicon.ico'] = local.assetsDict['/favicon.ico'] || '';</span>
-        // if $npm_config_timeout_exit exists,
-        // then exit this process after $npm_config_timeout_exit ms
-<span class="cstat-skip" title="statement not covered" >        if (Number(process.env.npm_config_timeout_exit)) {</span>
-<span class="cstat-skip" title="statement not covered" >            setTimeout(process.exit, Number(process.env.npm_config_timeout_exit));</span>
-        }
-        // start server
-<span class="cstat-skip" title="statement not covered" >        if (local.global.utility2_serverHttp1) {</span>
+    globalThis.globalThis = globalThis;
+    // init local
+    local = {};
+    // init isBrowser
+    local.isBrowser = (
+        typeof window === "object"
+        &amp;&amp; window === globalThis
+        &amp;&amp; typeof window.XMLHttpRequest === "function"
+        &amp;&amp; window.document
+        &amp;&amp; typeof window.document.querySelectorAll === "function"
+    );
+    globalThis.globalLocal = local;
+    // init function
+    local.assertThrow = <span class="fstat-skip" title="function not covered" >function (passed, message) {</span>
+    /*
+     * this function will throw the error &lt;message&gt; if &lt;passed&gt; is falsy
+     */
+<span class="cstat-skip" title="statement not covered" >        var error;</span>
+<span class="cstat-skip" title="statement not covered" >        if (passed) {</span>
 <span class="cstat-skip" title="statement not covered" >            return;</span>
         }
-<span class="cstat-skip" title="statement not covered" >        process.env.PORT = process.env.PORT || '8081';</span>
-<span class="cstat-skip" title="statement not covered" >        console.error('server starting on port ' + process.env.PORT);</span>
-<span class="cstat-skip" title="statement not covered" >        local.http.createServer(<span class="fstat-skip" title="function not covered" >function (request, response) {</span></span>
-<span class="cstat-skip" title="statement not covered" >            request.urlParsed = local.url.parse(request.url);</span>
-<span class="cstat-skip" title="statement not covered" >            if (local.assetsDict[request.urlParsed.pathname] !== undefined) {</span>
-<span class="cstat-skip" title="statement not covered" >                response.end(local.assetsDict[request.urlParsed.pathname]);</span>
-<span class="cstat-skip" title="statement not covered" >                return;</span>
-            }
-<span class="cstat-skip" title="statement not covered" >            response.statusCode = 404;</span>
-<span class="cstat-skip" title="statement not covered" >            response.end();</span>
-        }).listen(process.env.PORT);
-    }());
+<span class="cstat-skip" title="statement not covered" >        error = (</span>
+            // ternary-operator
+            (
+                message
+                &amp;&amp; typeof message.message === "string"
+                &amp;&amp; typeof message.stack === "string"
+            )
+            // if message is an error-object, then leave it as is
+            ? message
+            : new Error(
+                typeof message === "string"
+                // if message is a string, then leave it as is
+                ? message
+                // else JSON.stringify message
+                : JSON.stringify(message, null, 4)
+            )
+        );
+<span class="cstat-skip" title="statement not covered" >        throw error;</span>
+    };
+    local.functionOrNop = <span class="fstat-skip" title="function not covered" >function (fnc) {</span>
+    /*
+     * this function will if &lt;fnc&gt; exists,
+     * them return &lt;fnc&gt;,
+     * else return &lt;nop&gt;
+     */
+<span class="cstat-skip" title="statement not covered" >        return fnc || local.nop;</span>
+    };
+    local.identity = <span class="fstat-skip" title="function not covered" >function (value) {</span>
+    /*
+     * this function will return &lt;value&gt;
+     */
+<span class="cstat-skip" title="statement not covered" >        return value;</span>
+    };
+    local.nop = <span class="fstat-skip" title="function not covered" >function () {</span>
+    /*
+     * this function will do nothing
+     */
+<span class="cstat-skip" title="statement not covered" >        return;</span>
+    };
+    // init debug_inline
+    <span class="skip-if-branch" title="if path not taken" >I</span>if (!globalThis["debug\u0049nline"]) {
+<span class="cstat-skip" title="statement not covered" >        consoleError = console.error;</span>
+<span class="cstat-skip" title="statement not covered" >        globalThis["debug\u0049nline"] = <span class="fstat-skip" title="function not covered" >function () {</span></span>
+        /*
+         * this function will both print &lt;arguments&gt; to stderr
+         * and return &lt;arguments&gt;[0]
+         */
+<span class="cstat-skip" title="statement not covered" >            var argList;</span>
+<span class="cstat-skip" title="statement not covered" >            argList = Array.from(arguments); </span>// jslint ignore:line
+            // debug arguments
+<span class="cstat-skip" title="statement not covered" >            globalThis["debug\u0049nlineArguments"] = argList;</span>
+<span class="cstat-skip" title="statement not covered" >            consoleError("\n\ndebug\u0049nline");</span>
+<span class="cstat-skip" title="statement not covered" >            consoleError.apply(console, argList);</span>
+<span class="cstat-skip" title="statement not covered" >            consoleError("\n");</span>
+            // return arg0 for inspection
+<span class="cstat-skip" title="statement not covered" >            return argList[0];</span>
+        };
+    }
+}(this));
+&nbsp;
+&nbsp;
+&nbsp;
+(function (local) {
+"use strict";
+&nbsp;
+&nbsp;
+&nbsp;
+// run shared js-env code - init-before
+(function () {
+// init local
+local = (
+    globalThis.utility2_rollup
+    || globalThis.utility2_swagger_ui
+    || globalThis.utility2_moduleExports
+);
+// init exports
+globalThis.local = local;
+}());
+&nbsp;
+&nbsp;
+&nbsp;
+/* istanbul ignore next */
+// run browser js-env code - init-test
+(function () {
+<span class="skip-if-branch" title="else path not taken" >E</span>if (!local.isBrowser) {
+    return;
+}
+}());
+&nbsp;
+&nbsp;
+&nbsp;
+/* istanbul ignore next */
+// run node js-env code - init-test
+(function () {
+<span class="skip-if-branch" title="if path not taken" >I</span>if (local.isBrowser) {
+<span class="cstat-skip" title="statement not covered" >    return;</span>
+}
+// init exports
+module.exports = local;
+// require builtins
+local.assert = require("assert");
+local.buffer = require("buffer");
+local.child_process = require("child_process");
+local.cluster = require("cluster");
+local.crypto = require("crypto");
+local.dgram = require("dgram");
+local.dns = require("dns");
+local.domain = require("domain");
+local.events = require("events");
+local.fs = require("fs");
+local.http = require("http");
+local.https = require("https");
+local.net = require("net");
+local.os = require("os");
+local.path = require("path");
+local.querystring = require("querystring");
+local.readline = require("readline");
+local.repl = require("repl");
+local.stream = require("stream");
+local.string_decoder = require("string_decoder");
+local.timers = require("timers");
+local.tls = require("tls");
+local.tty = require("tty");
+local.url = require("url");
+local.util = require("util");
+local.vm = require("vm");
+local.zlib = require("zlib");
+/* validateLineSortedReset */
+// init assets
+local.assetsDict = local.assetsDict || <span class="branch-1 cbranch-skip" title="branch not covered" >{};</span>
+[
+    "assets.index.template.html",
+    "assets.swgg.swagger.json",
+    "assets.swgg.swagger.server.json"
+].forEach(function (file) {
+    file = "/" + file;
+    local.assetsDict[file] = local.assetsDict[file] || "";
+    if (local.fs.existsSync(local.__dirname + file)) {
+        local.assetsDict[file] = local.fs.readFileSync(
+            local.__dirname + file,
+            "utf8"
+        );
+    }
+});
+/* validateLineSortedReset */
+/* jslint ignore:start */
+local.assetsDict["/assets.swagger_ui.js"] =
+    local.assetsDict["/assets.swagger_ui.js"] ||
+    local.fs.readFileSync(local.__dirname + "/lib.swagger_ui.js", "utf8"
+).replace((/^#!\//), "// ");
+/* jslint ignore:end */
+/* validateLineSortedReset */
+local.assetsDict["/"] = local.assetsDict["/assets.index.template.html"]
+.replace((
+    /\{\{env\.(\w+?)\}\}/g
+), <span class="fstat-skip" title="function not covered" >function (match0, match1) {</span>
+<span class="cstat-skip" title="statement not covered" >    switch (match1) {</span>
+    case "npm_package_description":
+<span class="cstat-skip" title="statement not covered" >        return "the greatest app in the world!";</span>
+    case "npm_package_name":
+<span class="cstat-skip" title="statement not covered" >        return "swagger-ui-lite";</span>
+    case "npm_package_nameLib":
+<span class="cstat-skip" title="statement not covered" >        return "swagger_ui";</span>
+    case "npm_package_version":
+<span class="cstat-skip" title="statement not covered" >        return "0.0.1";</span>
+    default:
+<span class="cstat-skip" title="statement not covered" >        return match0;</span>
+    }
+});
+local.assetsDict["/assets.example.html"] = local.assetsDict["/"];
+local.assetsDict["/index.html"] = local.assetsDict["/"];
+// init cli
+<span class="skip-if-branch" title="else path not taken" >E</span>if (module !== require.main || <span class="branch-1 cbranch-skip" title="branch not covered" >globalThis.utility2_rollup)</span> {
+    return;
+}
+/* validateLineSortedReset */
+<span class="cstat-skip" title="statement not covered" >local.assetsDict["/assets.example.js"] = (</span>
+    local.assetsDict["/assets.example.js"]
+    || local.fs.readFileSync(__filename, "utf8")
+);
+<span class="cstat-skip" title="statement not covered" >local.assetsDict["/favicon.ico"] = local.assetsDict["/favicon.ico"] || "";</span>
+// if $npm_config_timeout_exit exists,
+// then exit this process after $npm_config_timeout_exit ms
+<span class="cstat-skip" title="statement not covered" >if (Number(process.env.npm_config_timeout_exit)) {</span>
+<span class="cstat-skip" title="statement not covered" >    setTimeout(process.exit, Number(process.env.npm_config_timeout_exit));</span>
+}
+// start server
+<span class="cstat-skip" title="statement not covered" >if (globalThis.utility2_serverHttp1) {</span>
+<span class="cstat-skip" title="statement not covered" >    return;</span>
+}
+<span class="cstat-skip" title="statement not covered" >process.env.PORT = process.env.PORT || "8081";</span>
+<span class="cstat-skip" title="statement not covered" >console.error("server starting on port " + process.env.PORT);</span>
+<span class="cstat-skip" title="statement not covered" >local.http.createServer(<span class="fstat-skip" title="function not covered" >function (request, response) {</span></span>
+<span class="cstat-skip" title="statement not covered" >    request.urlParsed = local.url.parse(request.url);</span>
+<span class="cstat-skip" title="statement not covered" >    if (local.assetsDict[request.urlParsed.pathname] !== undefined) {</span>
+<span class="cstat-skip" title="statement not covered" >        response.end(local.assetsDict[request.urlParsed.pathname]);</span>
+<span class="cstat-skip" title="statement not covered" >        return;</span>
+    }
+<span class="cstat-skip" title="statement not covered" >    response.statusCode = 404;</span>
+<span class="cstat-skip" title="statement not covered" >    response.end();</span>
+}).listen(process.env.PORT);
+}());
+&nbsp;
+&nbsp;
+&nbsp;
 }());
 &nbsp;</pre></td></tr>
 </table></pre>
 </div>
 <div class="footer">
-    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Fri, 31 Aug 2018 07:39:40 GMT</div>
+    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Wed, 14 Nov 2018 17:07:54 GMT</div>
 </div>
 </body>
 </html>
