@@ -4,16 +4,16 @@
 <!-- "" -->
 <title>swgg</title>
 <style>
-/* jslint-utility2 */
+/* jslint utility2:true */
 /*csslint
 */
-/* jslint-ignore-begin */
+/* csslint ignore:start */
 *,
 *:after,
 *:before {
     box-sizing: border-box;
 }
-/* jslint-ignore-end */
+/* csslint ignore:end */
 @keyframes uiAnimateShake {
     0%, 50% {
         transform: translateX(10px);
@@ -124,10 +124,10 @@ textarea {
 }
 </style>
 <style>
-/* jslint-utility2 */
+/* jslint utility2:true */
 /*csslint
 */
-/* jslint-ignore-begin */
+/* csslint ignore:start */
 .swggUiContainer,
 .swggUiContainer * {
     border: 0;
@@ -147,7 +147,7 @@ textarea {
 .swggUiContainer .description > *:first-child {
     margin-top: 0;
 }
-/* jslint-ignore-end */
+/* csslint ignore:end */
 /* validateLineSortedReset */
 /* general */
 .swggUiContainer code,
@@ -382,7 +382,7 @@ textarea {
 .swggUiContainer > .info > div,
 .swggUiContainer > .info > ul,
 .swggUiContainer > .info > .button,
-.swggUiContainer > .info > .hx {
+.swggUiContainer > .info > .hXxx {
     margin-top: 20px;
 }
 .swggUiContainer .label {
@@ -492,17 +492,7 @@ textarea {
 <a class="zeroPixel" download="db.persistence.json" href="" id="dbExportA1"></a>
 <input class="zeroPixel" id="dbImportInput1" type="file">
 <script>
-/* jslint-utility2 */
-/*jslint
-    bitwise: true,
-    browser: true,
-    maxerr: 4,
-    maxlen: 100,
-    node: true,
-    nomen: true,
-    regexp: true,
-    stupid: true
-*/
+/* jslint utility2:true */
 // init domOnEventWindowOnloadTimeElapsed
 (function () {
 /*
@@ -515,23 +505,34 @@ textarea {
     window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;
     window.addEventListener("load", function () {
         setTimeout(function () {
-            window.domOnEventWindowOnloadTimeElapsed = Date.now() -
-                window.domOnEventWindowOnloadTimeElapsed;
-            console.error("domOnEventWindowOnloadTimeElapsed = " +
-                window.domOnEventWindowOnloadTimeElapsed);
+            window.domOnEventWindowOnloadTimeElapsed = (
+                Date.now()
+                - window.domOnEventWindowOnloadTimeElapsed
+            );
+            console.error(
+                "domOnEventWindowOnloadTimeElapsed = "
+                + window.domOnEventWindowOnloadTimeElapsed
+            );
         }, 100);
     });
 }());
+
+
+
 // init timerIntervalAjaxProgressUpdate
 (function () {
 /*
- * this function will increment the ajax-progress-bar until the webpage has loaded
+ * this function will increment the ajax-progress-bar
+ * until the webpage has loaded
  */
     "use strict";
-    var ajaxProgressDiv1,
-        ajaxProgressState,
-        ajaxProgressUpdate;
-    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector("#ajaxProgressDiv1")) {
+    var ajaxProgressDiv1;
+    var ajaxProgressState;
+    var ajaxProgressUpdate;
+    if (
+        window.timerIntervalAjaxProgressUpdate
+        || !document.querySelector("#ajaxProgressDiv1")
+    ) {
         return;
     }
     ajaxProgressDiv1 = document.querySelector("#ajaxProgressDiv1");
@@ -539,15 +540,17 @@ textarea {
         ajaxProgressDiv1.style.width = "25%";
     });
     ajaxProgressState = 0;
-    ajaxProgressUpdate = (window.local &&
-        window.local.ajaxProgressUpdate) || function () {
+    ajaxProgressUpdate = (
+        window.local
+        && window.local.ajaxProgressUpdate
+    ) || function () {
         ajaxProgressDiv1.style.width = "100%";
         setTimeout(function () {
             ajaxProgressDiv1.style.background = "transparent";
             setTimeout(function () {
                 ajaxProgressDiv1.style.width = "0%";
             }, 500);
-        }, 1500);
+        }, 1000);
     };
     window.timerIntervalAjaxProgressUpdate = setInterval(function () {
         ajaxProgressState += 1;
@@ -561,6 +564,9 @@ textarea {
         ajaxProgressUpdate();
     });
 }());
+
+
+
 // init domOnEventSelectAllWithinPre
 (function () {
 /*
@@ -572,11 +578,14 @@ textarea {
         return;
     }
     window.domOnEventSelectAllWithinPre = function (event) {
-        var range, selection;
-        if (event &&
-                event.key === "a" &&
-                (event.ctrlKey || event.metaKey) &&
-                event.target.closest("pre")) {
+        var range;
+        var selection;
+        if (
+            event
+            && event.key === "a"
+            && (event.ctrlKey || event.metaKey)
+            && event.target.closest("pre")
+        ) {
             range = document.createRange();
             range.selectNodeContents(event.target.closest("pre"));
             selection = window.getSelection();
@@ -585,17 +594,20 @@ textarea {
             event.preventDefault();
         }
     };
-    document.addEventListener("keydown", window.domOnEventSelectAllWithinPre);
+    document.addEventListener(
+        "keydown",
+        window.domOnEventSelectAllWithinPre
+    );
 }());
 </script>
 <div class="swggUiContainer" style="margin: 0 auto; max-width: 1200px;">
 <!-- <div class="swggUiContainer"> -->
-<h2 class="eventDelegateSubmit hx onEvent onEventUiReload thead">
+<h2 class="eventDelegateSubmit hXxx thead" data-event="onEventUiReload">
     <a class="td td1" href="https://github.com/kaizhu256/node-swgg" target="_blank">swgg</a>
     <input class="td td2" placeholder="http://petstore.swagger.io/v2/swagger.json" type="text" value="">
     <input class="td td3" id="swggApiKeyInput1" placeholder="api-key" type="text" value="">
-    <button class="button eventDelegateClick onEvent onEventUiReload td td4">explore</button>
-    <button class="button eventDelegateClick onEvent onEventUiReload td td5" id="swggApiKeyClearButton1">
+    <button class="button eventDelegateClick td td4" data-event="onEventUiReload">explore</button>
+    <button class="button eventDelegateClick td td5" data-event="onEventUiReload" id="swggApiKeyClearButton1">
         clear api-keys
     </button>
 </h2>
@@ -615,27 +627,26 @@ textarea {
 <!-- </div> -->
 </div>
 <script>
-/*jslint
-    bitwise: true,
-    browser: true,
-    maxerr: 4,
-    maxlen: 100,
-    node: true,
-    nomen: true,
-    regexp: true,
-    stupid: true
-*/
+/* jslint utility2:true */
 // init domOnEventMediaHotkeys
 (function () {
 /*
  * this function will add media-hotkeys to elements with class=".domOnEventMediaHotkeysInit"
  */
     "use strict";
-    var input, onEvent;
+    var identity;
+    var input;
+    var onEvent;
     if (window.domOnEventMediaHotkeys) {
         return;
     }
-    onEvent = window.domOnEventMediaHotkeys = function (event) {
+    identity = function (value) {
+    /*
+     * this function will return <value>
+     */
+        return value;
+    };
+    window.domOnEventMediaHotkeys = function (event) {
         var media;
         if (event === "init") {
             Array.from(document.querySelectorAll(
@@ -659,23 +670,23 @@ textarea {
             switch (event.key || event.type) {
             case ",":
             case ".":
-                media.currentTime += (event.key === "," && -0.03125) || 0.03125;
+                media.currentTime += (event.key === "," && identity(-0.03125)) || 0.03125;
                 break;
             case "<":
             case ">":
-                media.playbackRate *= (event.key === "<" && 0.5) || 2;
+                media.playbackRate *= (event.key === "<" && identity(0.5)) || 2;
                 break;
             case "ArrowDown":
             case "ArrowUp":
-                media.volume += (event.key === "ArrowDown" && -0.05) || 0.05;
+                media.volume += (event.key === "ArrowDown" && identity(-0.05)) || 0.05;
                 break;
             case "ArrowLeft":
             case "ArrowRight":
-                media.currentTime += (event.key === "ArrowLeft" && -5) || 5;
+                media.currentTime += (event.key === "ArrowLeft" && identity(-5)) || 5;
                 break;
             case "j":
             case "l":
-                media.currentTime += (event.key === "j" && -10) || 10;
+                media.currentTime += (event.key === "j" && identity(-10)) || 10;
                 break;
             case "k":
             case " ":
@@ -695,26 +706,30 @@ textarea {
                 }
                 return;
             }
-        } catch (ignore) {
-        }
+        } catch (ignore) {}
         event.preventDefault();
     };
-    input = window.domOnEventMediaHotkeysInput = document.createElement("button");
+    onEvent = window.domOnEventMediaHotkeys;
+    input = document.createElement("button");
+    window.domOnEventMediaHotkeysInput = input;
     input.style = "border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;";
     input.addEventListener("click", onEvent);
     input.addEventListener("keydown", onEvent);
     document.body.appendChild(input);
     onEvent("init");
 }());
-document.querySelector(".swggUiContainer > .thead > .td2").value =
-    ((/\bmodeSwaggerJsonUrl=([^&]+)/g).exec(location.search) || {})[1] ||
-    "assets.swgg.swagger.json";
+
+
+
+document.querySelector(".swggUiContainer > .thead > .td2").value = ((
+    /\bmodeSwaggerJsonUrl=([^&]+)|$/gm
+).exec(location.search)[1] || "assets.swgg.swagger.json");
 </script><button style="border: 0px; height: 0px; margin: 0px; padding: 0px; position: fixed; width: 0px; z-index: -1;"></button>
 <script src="assets.utility2.rollup.js"></script>
 <script>
 /*jslint browser: true*/
 window.local = window.local || window.swgg;
-window.swgg.uiEventListenerDict[".onEventUiReload"]({ swggInit: true });
+window.swgg.uiEventListenerDict.onEventUiReload({swggInit: true});
 </script>
 <!-- swgg-script-extra-begin -->
 <!-- swgg-script-extra-end -->
