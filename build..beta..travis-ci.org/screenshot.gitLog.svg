@@ -1,0 +1,277 @@
+<svg height="2222" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="2222" fill="#555" width="720"></rect>
+<text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
+<tspan x="10" y="26">2018-08-11 20:42:15 +0700u000a[npm publish] - npm publish 2018.8.11</tspan>
+
+<tspan x="10" y="42">- migrate from modeJs -&gt; isBrowser</tspan>
+
+<tspan x="10" y="58">- update build</tspan>
+
+<tspan x="10" y="74"></tspan>
+
+<tspan x="10" y="90">2018-05-25 21:12:57 +0800u000a[npm publish] - npm publish 2018.5.25</tspan>
+
+<tspan x="10" y="106">- update build</tspan>
+
+<tspan x="10" y="122"></tspan>
+
+<tspan x="10" y="138">2018-04-08 19:19:19 +0800u000a[npm publish] - npm publish v2018.4.7</tspan>
+
+<tspan x="10" y="154">- fix ci for nodejs v9.x</tspan>
+
+<tspan x="10" y="170"></tspan>
+
+<tspan x="10" y="186">2018-01-15 11:44:52 +0700u000a[npm publish] - npm publish 2018.1.14</tspan>
+
+<tspan x="10" y="202">- remove unused browser-code from example.js</tspan>
+
+<tspan x="10" y="218"></tspan>
+
+<tspan x="10" y="234">2017-10-29 04:34:10 +0800u000a[npm publish] - npm publish 2017.10.28</tspan>
+
+<tspan x="10" y="250">- update build</tspan>
+
+<tspan x="10" y="266"></tspan>
+
+<tspan x="10" y="282">2017-09-14 06:27:22 +0700u000a[npm publish] - npm publish 2017.9.14</tspan>
+
+<tspan x="10" y="298">- fix shNpmTestPublished</tspan>
+
+<tspan x="10" y="314"></tspan>
+
+<tspan x="10" y="330">2017-09-14 05:18:31 +0700u000a[npm publish] - npm publish 2017.9.13</tspan>
+
+<tspan x="10" y="346">- move live-demo to top of README.md</tspan>
+
+<tspan x="10" y="362">- improve test-coverage</tspan>
+
+<tspan x="10" y="378"></tspan>
+
+<tspan x="10" y="394">2017-05-31 19:08:33 +0800u000a[npm publish] - npm publish 2017.5.30</tspan>
+
+<tspan x="10" y="410">- revamp README.md with updated quickstart and 'table of contents'</tspan>
+
+<tspan x="10" y="426"></tspan>
+
+<tspan x="10" y="442">2017-05-02 11:33:49 +0800u000a[npm publish] - npm publish 2017.5.1</tspan>
+
+<tspan x="10" y="458">- update build</tspan>
+
+<tspan x="10" y="474"></tspan>
+
+<tspan x="10" y="490">2017-03-20 02:34:15 +0800u000a[npm publish] - npm publish 2017.3.19</tspan>
+
+<tspan x="10" y="506">- rename dom-element #outputTextareaStdout -&gt; #outputTextareaStdout1</tspan>
+
+<tspan x="10" y="522">- rename file assets.swagger_ui.json -&gt; assets.swagger_ui.petstore.json</tspan>
+
+<tspan x="10" y="538"></tspan>
+
+<tspan x="10" y="554">2017-02-17 04:08:27 +0800u000a- npm publish 2017.2.2</tspan>
+
+<tspan x="10" y="570">- fix cdn-download</tspan>
+
+<tspan x="10" y="586"></tspan>
+
+<tspan x="10" y="602">2017-02-17 02:32:22 +0800u000a- npm publish 2017.2.1</tspan>
+
+<tspan x="10" y="618">- add api-doc</tspan>
+
+<tspan x="10" y="634">- add heroku test-server</tspan>
+
+<tspan x="10" y="650">- merge css/html/images into file assets.swagger_ui.html</tspan>
+
+<tspan x="10" y="666">- rename file swagger.json -&gt; assets.swagger_ui.json</tspan>
+
+<tspan x="10" y="682">- rename file swagger-ui.rollup.js -&gt; assets.swagger_ui.rollup.js</tspan>
+
+<tspan x="10" y="698"></tspan>
+
+<tspan x="10" y="714">2015-12-14 22:31:57 +0800u000a- npm publish 2015.11.7</tspan>
+
+<tspan x="10" y="730">- update to nedb @ 1.4.2 and inspected it to work standalone in both nodejs and browser</tspan>
+
+<tspan x="10" y="746"></tspan>
+
+<tspan x="10" y="762">2015-12-13 07:02:25 +0800u000a- npm publish 2015.11.6</tspan>
+
+<tspan x="10" y="778">- split swagger-ui into swagger-client and swagger-ui</tspan>
+
+<tspan x="10" y="794">- uglify swagger-ui.rollup.js</tspan>
+
+<tspan x="10" y="810"></tspan>
+
+<tspan x="10" y="826">2015-12-11 21:03:09 +0800u000a- npm publish 2015.11.5</tspan>
+
+<tspan x="10" y="842">- full revert to swagger-ui 2.1.2</tspan>
+
+<tspan x="10" y="858"></tspan>
+
+<tspan x="10" y="874">2015-11-25 15:22:32 +0800u000a- npm publish 2015.11.4</tspan>
+
+<tspan x="10" y="890">- revert to swagger-ui 2.1.2</tspan>
+
+<tspan x="10" y="906"></tspan>
+
+<tspan x="10" y="922">2015-11-24 22:46:52 +0800u000a- npm publish 2015.11.2</tspan>
+
+<tspan x="10" y="938">- deploy assets to gh-pages</tspan>
+
+<tspan x="10" y="954"></tspan>
+
+<tspan x="10" y="970">2015-11-16 01:42:05 +0800u000a- npm publish 2015.11.1</tspan>
+
+<tspan x="10" y="986">- add nedb.min.js @ 0b564ba6</tspan>
+
+<tspan x="10" y="1002">- update to swagger-tools @ 0.9.9</tspan>
+
+<tspan x="10" y="1018">- update to swagger-ui @ 2.1.4</tspan>
+
+<tspan x="10" y="1034"></tspan>
+
+<tspan x="10" y="1050">2015-08-20 17:50:02 +0800u000a- npm publish 2015.8.1</tspan>
+
+<tspan x="10" y="1066">- update swagger-ui@2.1.2</tspan>
+
+<tspan x="10" y="1082">- update swagger-tools@0.9.4</tspan>
+
+<tspan x="10" y="1098"></tspan>
+
+<tspan x="10" y="1114">2015-07-31 17:43:36 +0800u000a- npm publish 2015.6.2</tspan>
+
+<tspan x="10" y="1130">- update swagger-tools</tspan>
+
+<tspan x="10" y="1146"></tspan>
+
+<tspan x="10" y="1162">2015-06-24 23:46:19 +0800u000a- npm publish 2015.6.1</tspan>
+
+<tspan x="10" y="1178">- fix version breakage with latest npm install</tspan>
+
+<tspan x="10" y="1194"></tspan>
+
+<tspan x="10" y="1210">2015-06-19 23:33:35 +0800u000a- npm publish 2.1.0-20150619a</tspan>
+
+<tspan x="10" y="1226">- update to swagger@v2.1.0</tspan>
+
+<tspan x="10" y="1242"></tspan>
+
+<tspan x="10" y="1258">2015-05-28 12:34:12 +0800u000a- npm publish 2.1.5-M2-2015.5.28-b</tspan>
+
+<tspan x="10" y="1274">- add http://petstore.swagger.io/lib/swagger-oauth.js to swagger-ui.rollup.js</tspan>
+
+<tspan x="10" y="1290">- update to swagger@v2.1.5-M2</tspan>
+
+<tspan x="10" y="1306">- add swagger.json</tspan>
+
+<tspan x="10" y="1322"></tspan>
+
+<tspan x="10" y="1338">2015-05-06 20:57:35 +0800u000a- npm publish 2.1.0-M2-2015.5.6-a</tspan>
+
+<tspan x="10" y="1354"></tspan>
+
+<tspan x="10" y="1370">2015-05-06 20:53:38 +0800u000aupdate README.md</tspan>
+
+<tspan x="10" y="1386"></tspan>
+
+<tspan x="10" y="1402">2015-05-06 20:34:16 +0800u000aupdate README.md</tspan>
+
+<tspan x="10" y="1418"></tspan>
+
+<tspan x="10" y="1434">2015-05-05 21:52:02 +0800u000a- add Function.prototype.bind polyfill to swagger-ui.rollup.js</tspan>
+
+<tspan x="10" y="1450"></tspan>
+
+<tspan x="10" y="1466">2015-05-02 01:08:42 +0800u000a'update comments'</tspan>
+
+<tspan x="10" y="1482"></tspan>
+
+<tspan x="10" y="1498">2015-04-23 14:00:42 +0800u000anpm publish 2015.4.23-b</tspan>
+
+<tspan x="10" y="1514"></tspan>
+
+<tspan x="10" y="1530">2015-04-20 10:32:34 +0800u000are-arrange rolled-up files in swagger-ui.rollup.js to make it easi\</tspan>
+<tspan x="10" y="1546">er to integrate into node env</tspan>
+
+<tspan x="10" y="1562"></tspan>
+
+<tspan x="10" y="1578">2015-04-19 14:49:54 +0800u000anpm publish 2.1.0-M2-2015-04-19-a</tspan>
+
+<tspan x="10" y="1594"></tspan>
+
+<tspan x="10" y="1610">2015-04-19 14:15:07 +0800u000aupdate to swagger 2.1.0-M2</tspan>
+
+<tspan x="10" y="1626"></tspan>
+
+<tspan x="10" y="1642">2015-04-19 13:18:07 +0800u000aupdate dependencies</tspan>
+
+<tspan x="10" y="1658"></tspan>
+
+<tspan x="10" y="1674">2015-03-29 00:57:57 +0800u000anpm publish 2.1.8-M1-2015-03-29-a</tspan>
+
+<tspan x="10" y="1690"></tspan>
+
+<tspan x="10" y="1706">2015-03-29 00:41:28 +0800u000afix screen-capture</tspan>
+
+<tspan x="10" y="1722"></tspan>
+
+<tspan x="10" y="1738">2015-03-29 00:06:11 +0800u000afix build</tspan>
+
+<tspan x="10" y="1754"></tspan>
+
+<tspan x="10" y="1770">2015-03-28 23:25:16 +0800u000aupdate build</tspan>
+
+<tspan x="10" y="1786"></tspan>
+
+<tspan x="10" y="1802">2015-03-28 22:40:49 +0800u000atesting build</tspan>
+
+<tspan x="10" y="1818"></tspan>
+
+<tspan x="10" y="1834">2015-03-26 03:37:40 +0800u000aadd swagger-tools-standalone.js</tspan>
+
+<tspan x="10" y="1850"></tspan>
+
+<tspan x="10" y="1866">2015-03-26 03:07:17 +0800u000aupdate README.md</tspan>
+
+<tspan x="10" y="1882"></tspan>
+
+<tspan x="10" y="1898">2015-03-26 02:56:51 +0800u000aadd .travis.yml</tspan>
+
+<tspan x="10" y="1914"></tspan>
+
+<tspan x="10" y="1930">2015-03-26 02:37:53 +0800u000aadd swagger-tools-standalone-min.js</tspan>
+
+<tspan x="10" y="1946"></tspan>
+
+<tspan x="10" y="1962">2015-03-12 12:39:48 +0800u000anpm publish 2.1.8-M1-2015-03-12-c - fix screen-capture bug on npmj\</tspan>
+<tspan x="10" y="1978">s.com</tspan>
+
+<tspan x="10" y="1994"></tspan>
+
+<tspan x="10" y="2010">2015-03-12 12:34:09 +0800u000anpm publish 2.1.8-M1-2015-03-12-b - add screen-capture</tspan>
+
+<tspan x="10" y="2026"></tspan>
+
+<tspan x="10" y="2042">2015-03-12 10:34:36 +0800u000anpm publish 2.1.8-M1-2015-03-12-a</tspan>
+
+<tspan x="10" y="2058"></tspan>
+
+<tspan x="10" y="2074">2015-03-12 09:54:51 +0800u000aadd "swagger-ui." prefix to all assets</tspan>
+
+<tspan x="10" y="2090"></tspan>
+
+<tspan x="10" y="2106">2015-03-11 17:02:22 +0800u000anpm publish 2.1.8-M1-2015-03-11-b</tspan>
+
+<tspan x="10" y="2122"></tspan>
+
+<tspan x="10" y="2138">2015-03-11 16:32:47 +0800u000aUpdate README.md</tspan>
+
+<tspan x="10" y="2154">2015-03-11 16:14:06 +0800u000a- npm publish 2.1.8-M1-2015-03-11-a</tspan>
+
+<tspan x="10" y="2170">- update to swagger-ui v2.1.8-M1</tspan>
+
+<tspan x="10" y="2186"></tspan>
+
+<tspan x="10" y="2202">2015-03-11 15:14:33 +0800u000arollup files after http://petstore.swagger.io/</tspan>
+
+</text>
+</svg>
