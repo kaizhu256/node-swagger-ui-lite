@@ -1,21 +1,21 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- "assets.utility2.template.html" -->
-<title>swagger-ui-lite (2018.8.11)</title>
+<title>swagger-ui-lite (2018.12.8)</title>
 <style>
-/* jslint-utility2 */
+/* jslint utility2:true */
 /*csslint
 */
-/* jslint-ignore-begin */
+/* csslint ignore:start */
 *,
 *:after,
 *:before {
     box-sizing: border-box;
 }
-/* jslint-ignore-end */
+/* csslint ignore:end */
 @keyframes uiAnimateShake {
     0%, 50% {
         transform: translateX(10px);
@@ -127,18 +127,12 @@ textarea {
 </style>
 </head>
 <body>
+<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>
+<div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>
+<a class="zeroPixel" download="db.persistence.json" href="" id="dbExportA1"></a>
+<input class="zeroPixel" id="dbImportInput1" type="file">
 <script>
-/* jslint-utility2 */
-/*jslint
-    bitwise: true,
-    browser: true,
-    maxerr: 4,
-    maxlen: 100,
-    node: true,
-    nomen: true,
-    regexp: true,
-    stupid: true
-*/
+/* jslint utility2:true */
 // init domOnEventWindowOnloadTimeElapsed
 (function () {
 /*
@@ -151,38 +145,34 @@ textarea {
     window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;
     window.addEventListener("load", function () {
         setTimeout(function () {
-            window.domOnEventWindowOnloadTimeElapsed = Date.now() -
-                window.domOnEventWindowOnloadTimeElapsed;
-            console.error("domOnEventWindowOnloadTimeElapsed = " +
-                window.domOnEventWindowOnloadTimeElapsed);
+            window.domOnEventWindowOnloadTimeElapsed = (
+                Date.now()
+                - window.domOnEventWindowOnloadTimeElapsed
+            );
+            console.error(
+                "domOnEventWindowOnloadTimeElapsed = "
+                + window.domOnEventWindowOnloadTimeElapsed
+            );
         }, 100);
     });
 }());
-</script>
-<div id="ajaxProgressDiv1" style="background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;"></div>
-<div class="uiAnimateSpin" style="animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;"></div>
-<script>
-/* jslint-utility2 */
-/*jslint
-    bitwise: true,
-    browser: true,
-    maxerr: 4,
-    maxlen: 100,
-    node: true,
-    nomen: true,
-    regexp: true,
-    stupid: true
-*/
+
+
+
 // init timerIntervalAjaxProgressUpdate
 (function () {
 /*
- * this function will increment the ajax-progress-bar until the webpage has loaded
+ * this function will increment the ajax-progress-bar
+ * until the webpage has loaded
  */
     "use strict";
-    var ajaxProgressDiv1,
-        ajaxProgressState,
-        ajaxProgressUpdate;
-    if (window.timerIntervalAjaxProgressUpdate || !document.querySelector("#ajaxProgressDiv1")) {
+    var ajaxProgressDiv1;
+    var ajaxProgressState;
+    var ajaxProgressUpdate;
+    if (
+        window.timerIntervalAjaxProgressUpdate
+        || !document.querySelector("#ajaxProgressDiv1")
+    ) {
         return;
     }
     ajaxProgressDiv1 = document.querySelector("#ajaxProgressDiv1");
@@ -190,15 +180,17 @@ textarea {
         ajaxProgressDiv1.style.width = "25%";
     });
     ajaxProgressState = 0;
-    ajaxProgressUpdate = (window.local &&
-        window.local.ajaxProgressUpdate) || function () {
+    ajaxProgressUpdate = (
+        window.local
+        && window.local.ajaxProgressUpdate
+    ) || function () {
         ajaxProgressDiv1.style.width = "100%";
         setTimeout(function () {
             ajaxProgressDiv1.style.background = "transparent";
             setTimeout(function () {
                 ajaxProgressDiv1.style.width = "0%";
             }, 500);
-        }, 1500);
+        }, 1000);
     };
     window.timerIntervalAjaxProgressUpdate = setInterval(function () {
         ajaxProgressState += 1;
@@ -212,87 +204,9 @@ textarea {
         ajaxProgressUpdate();
     });
 }());
-// init domOnEventMediaHotkeys
-(function () {
-/*
- * this function will add media-hotkeys to elements with class=".domOnEventMediaHotkeysInit"
- */
-    "use strict";
-    var input, onEvent;
-    if (window.domOnEventMediaHotkeys) {
-        return;
-    }
-    onEvent = window.domOnEventMediaHotkeys = function (event) {
-        var media;
-        if (event === "init") {
-            Array.from(
-                document.querySelectorAll(".domOnEventMediaHotkeysInit")
-            ).forEach(function (media) {
-                media.classList.remove("domOnEventMediaHotkeysInit");
-                media.classList.add("domOnEventMediaHotkeys");
-                ["play", "pause", "seeking"].forEach(function (event) {
-                    media.addEventListener(event, onEvent);
-                });
-            });
-            return;
-        }
-        if (event.currentTarget.classList.contains("domOnEventMediaHotkeys")) {
-            window.domOnEventMediaHotkeysMedia1 = event.currentTarget;
-            window.domOnEventMediaHotkeysInput.focus();
-            return;
-        }
-        media = window.domOnEventMediaHotkeysMedia1;
-        try {
-            switch (event.key || event.type) {
-            case ",":
-            case ".":
-                media.currentTime += (event.key === "," && -0.03125) || 0.03125;
-                break;
-            case "<":
-            case ">":
-                media.playbackRate *= (event.key === "<" && 0.5) || 2;
-                break;
-            case "ArrowDown":
-            case "ArrowUp":
-                media.volume += (event.key === "ArrowDown" && -0.05) || 0.05;
-                break;
-            case "ArrowLeft":
-            case "ArrowRight":
-                media.currentTime += (event.key === "ArrowLeft" && -5) || 5;
-                break;
-            case "j":
-            case "l":
-                media.currentTime += (event.key === "j" && -10) || 10;
-                break;
-            case "k":
-            case " ":
-                if (media.paused) {
-                    media.play();
-                } else {
-                    media.pause();
-                }
-                break;
-            case "m":
-                media.muted = !media.muted;
-                break;
-            default:
-                if (event.key >= 0) {
-                    media.currentTime = 0.1 * event.key * media.duration;
-                    break;
-                }
-                return;
-            }
-        } catch (ignore) {
-        }
-        event.preventDefault();
-    };
-    input = window.domOnEventMediaHotkeysInput = document.createElement("button");
-    input.style = "border:0;height:0;margin:0;padding:0;position:fixed;width:0;z-index:-1;";
-    input.addEventListener("click", onEvent);
-    input.addEventListener("keydown", onEvent);
-    document.body.appendChild(input);
-    onEvent("init");
-}());
+
+
+
 // init domOnEventSelectAllWithinPre
 (function () {
 /*
@@ -304,11 +218,14 @@ textarea {
         return;
     }
     window.domOnEventSelectAllWithinPre = function (event) {
-        var range, selection;
-        if (event &&
-                event.key === "a" &&
-                (event.ctrlKey || event.metaKey) &&
-                event.target.closest("pre")) {
+        var range;
+        var selection;
+        if (
+            event
+            && event.key === "a"
+            && (event.ctrlKey || event.metaKey)
+            && event.target.closest("pre")
+        ) {
             range = document.createRange();
             range.selectNodeContents(event.target.closest("pre"));
             selection = window.getSelection();
@@ -317,7 +234,10 @@ textarea {
             event.preventDefault();
         }
     };
-    document.addEventListener("keydown", window.domOnEventSelectAllWithinPre);
+    document.addEventListener(
+        "keydown",
+        window.domOnEventSelectAllWithinPre
+    );
 }());
 </script>
 <h1>
@@ -329,7 +249,7 @@ textarea {
         target="_blank"
     >
 
-        swagger-ui-lite (2018.8.11)
+        swagger-ui-lite (2018.12.8)
 
     </a>
 
@@ -337,7 +257,7 @@ textarea {
 <h3>this zero-dependency package will provide a rollup, single-script version of the swagger-ui client (v2.1.5), with a working web-demo</h3>
 
 <a class="button" download href="assets.app.js">download standalone app</a><br>
-<button class="button onclick onreset" id="testRunButton1">run internal test</button><br>
+<button class="button eventDelegateClick onreset" data-event="testRunBrowser" id="testRunButton1">run internal test</button><br>
 <div class="uiAnimateSlide" id="testReportDiv1" style="border-bottom: 0; border-top: 0; margin-bottom: 0; margin-top: 0; max-height: 0; padding-bottom: 0; padding-top: 0;"></div>
 
 
@@ -349,12 +269,12 @@ textarea {
 
 
 <script src="assets.utility2.rollup.js"></script>
-<script>window.utility2.onResetBefore.counter += 1;</script>
+<script>window.utility2_onReadyBefore.counter += 1;</script>
 <script src="jsonp.utility2.stateInit?callback=window.utility2.stateInit"></script>
-<script src="assets.swagger_ui.js"></script>
+<script src="assets.{{packageJson.nameLib}}.js"></script>
 <script src="assets.example.js"></script>
 <script src="assets.test.js"></script>
-<script>window.utility2.onResetBefore();</script>
+<script>window.utility2_onReadyBefore();</script>
 
 
 

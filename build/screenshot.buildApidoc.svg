@@ -1,9 +1,9 @@
-<svg height="990" width="720" xmlns="http://www.w3.org/2000/svg">
-<rect height="990" fill="#555" width="720"></rect>
+<svg height="1118" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="1118" fill="#555" width="720"></rect>
 <text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
 <tspan x="10" y="26"></tspan>
 
-<tspan x="10" y="42">[MODE_BUILD=buildApidoc] - 2018-12-08T09:33:37.171Z - npm-testing /home/travis/build/kaizhu256/n\</tspan>
+<tspan x="10" y="42">[MODE_BUILD=buildApidoc] - 2018-12-08T09:40:34.791Z - npm-testing /home/travis/build/kaizhu256/n\</tspan>
 <tspan x="10" y="58">ode-swagger-ui-lite</tspan>
 
 <tspan x="10" y="74"></tspan>
@@ -13,7 +13,7 @@
 <tspan x="10" y="106">buildApidoc - merged test-report from file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp\</tspan>
 <tspan x="10" y="122">/build/test-report.json</tspan>
 
-<tspan x="10" y="138">&gt; server listening on http-port 47176</tspan>
+<tspan x="10" y="138">&gt; server listening on http-port 40620</tspan>
 
 <tspan x="10" y="154">db - dropping database ...</tspan>
 
@@ -65,7 +65,7 @@
 
 <tspan x="10" y="554"></tspan>
 
-<tspan x="10" y="570">testRunDefault - 310 ms - [node test-case 1 of 1 passed] - testCase_buildApidoc_default</tspan>
+<tspan x="10" y="570">testRunDefault - 334 ms - [node test-case 1 of 1 passed] - testCase_buildApidoc_default</tspan>
 
 <tspan x="10" y="586"></tspan>
 
@@ -76,42 +76,56 @@
 
 <tspan x="10" y="650">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="666">| test-report - buildApidoc - node - linux v11.4.0 - 2018-12-08T09:33:37.351Z</tspan>
+<tspan x="10" y="666">| test-report - buildApidoc - node - linux v11.4.0 - 2018-12-08T09:40:34.964Z</tspan>
 
-<tspan x="10" y="682">|     311 ms            0 failed        1 passed      |</tspan>
+<tspan x="10" y="682">|     335 ms            0 failed        1 passed      |</tspan>
 
 <tspan x="10" y="698">-------------------------------------------------------</tspan>
 
 <tspan x="10" y="714">| test-report - npmTest - browser - /assets.utility2.base.html - Mozilla/5.0 (X11; Linux x86_64)\</tspan>
 <tspan x="10" y="730"> AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Electron/2.0.14 Safari/537.36 - 201\</tspan>
-<tspan x="10" y="746">8-12-08T09:33:28.907Z</tspan>
+<tspan x="10" y="746">8-12-08T09:40:26.705Z</tspan>
 
 <tspan x="10" y="762">|    1005 ms            0 failed        3 passed      |</tspan>
 
 <tspan x="10" y="778">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="794">| test-report - npmTest - node - linux v11.4.0 - 2018-12-08T09:33:26.991Z</tspan>
+<tspan x="10" y="794">| test-report - npmTest - node - linux v11.4.0 - 2018-12-08T09:40:24.833Z</tspan>
 
-<tspan x="10" y="810">|    7426 ms            0 failed        7 passed      |</tspan>
+<tspan x="10" y="810">|    7410 ms            0 failed        7 passed      |</tspan>
 
 <tspan x="10" y="826">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="842"></tspan>
+<tspan x="10" y="842">| test-report - npmTestPublished - browser - /assets.utility2.base.html - Mozilla/5.0 (X11; Linu\</tspan>
+<tspan x="10" y="858">x x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Electron/2.0.14 Safari/537\</tspan>
+<tspan x="10" y="874">.36 - 2018-12-08T09:39:28.171Z</tspan>
 
-<tspan x="10" y="858">created test-report file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/test-report\</tspan>
-<tspan x="10" y="874">.html</tspan>
+<tspan x="10" y="890">|    1005 ms            0 failed        3 passed      |</tspan>
 
-<tspan x="10" y="890"></tspan>
+<tspan x="10" y="906">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="906"></tspan>
+<tspan x="10" y="922">| test-report - npmTestPublished - node - linux v11.4.0 - 2018-12-08T09:39:25.962Z</tspan>
 
-<tspan x="10" y="922">buildApidoc - 0 failed tests</tspan>
+<tspan x="10" y="938">|    7753 ms            0 failed        7 passed      |</tspan>
 
-<tspan x="10" y="938"></tspan>
+<tspan x="10" y="954">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="954"></tspan>
+<tspan x="10" y="970"></tspan>
 
-<tspan x="10" y="970">[MODE_BUILD=buildApidoc] - 2018-12-08T09:33:39.033Z - EXIT_CODE - 0</tspan>
+<tspan x="10" y="986">created test-report file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/test-report\</tspan>
+<tspan x="10" y="1002">.html</tspan>
+
+<tspan x="10" y="1018"></tspan>
+
+<tspan x="10" y="1034"></tspan>
+
+<tspan x="10" y="1050">buildApidoc - 0 failed tests</tspan>
+
+<tspan x="10" y="1066"></tspan>
+
+<tspan x="10" y="1082"></tspan>
+
+<tspan x="10" y="1098">[MODE_BUILD=buildApidoc] - 2018-12-08T09:40:36.659Z - EXIT_CODE - 0</tspan>
 
 </text>
 </svg>

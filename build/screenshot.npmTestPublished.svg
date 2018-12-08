@@ -1,244 +1,236 @@
-<svg height="2238" width="720" xmlns="http://www.w3.org/2000/svg">
-<rect height="2238" fill="#555" width="720"></rect>
+<svg height="2270" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="2270" fill="#555" width="720"></rect>
 <text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
 <tspan x="10" y="26"></tspan>
 
-<tspan x="10" y="42">[MODE_BUILD=npmTestPublished] - 2018-08-31T07:38:34.582Z - npm-testing /tmp/npmTestPublished/nod\</tspan>
+<tspan x="10" y="42">[MODE_BUILD=npmTestPublished] - 2018-12-08T09:39:25.738Z - npm-testing /tmp/npmTestPublished/nod\</tspan>
 <tspan x="10" y="58">e_modules/swagger-ui-lite</tspan>
 
 <tspan x="10" y="74"></tspan>
 
 <tspan x="10" y="90"></tspan>
 
-<tspan x="10" y="106">covering $ /home/travis/.nvm/versions/node/v10.9.0/bin/node /tmp/npmTestPublished/node_modules/s\</tspan>
+<tspan x="10" y="106">covering $ /home/travis/.nvm/versions/node/v11.4.0/bin/node /tmp/npmTestPublished/node_modules/s\</tspan>
 <tspan x="10" y="122">wagger-ui-lite/test.js</tspan>
 
-<tspan x="10" y="138">&gt; server listening on http-port 46898</tspan>
+<tspan x="10" y="138">&gt; server listening on http-port 48058</tspan>
 
 <tspan x="10" y="154">db - dropping database ...</tspan>
 
-<tspan x="10" y="170">apidocCreate - readExample /tmp/npmTestPublished/node_modules/swagger-ui-lite/package.json</tspan>
+<tspan x="10" y="170">testRunDefault - 298 ms - [node test-case 1 of 7 passed] - testCase_buildApidoc_default</tspan>
 
-<tspan x="10" y="186">apidocCreate - readExample /tmp/npmTestPublished/node_modules/swagger-ui-lite/assets.index.templ\</tspan>
-<tspan x="10" y="202">ate.html</tspan>
+<tspan x="10" y="186">testRunDefault - 321 ms - [node test-case 2 of 7 passed] - testCase_buildLib_default</tspan>
 
-<tspan x="10" y="218">apidocCreate - readExample /tmp/npmTestPublished/node_modules/swagger-ui-lite/assets.swagger_ui.\</tspan>
-<tspan x="10" y="234">petstore.json</tspan>
+<tspan x="10" y="202">testRunDefault - 325 ms - [node test-case 3 of 7 passed] - testCase_buildReadme_default</tspan>
 
-<tspan x="10" y="250">apidocCreate - readExample /tmp/npmTestPublished/node_modules/swagger-ui-lite/lib.swagger_ui.js</tspan>
+<tspan x="10" y="218">testRunDefault - 325 ms - [node test-case 4 of 7 passed] - testCase_buildTest_default</tspan>
 
-<tspan x="10" y="266">apidocCreate - readExample /tmp/npmTestPublished/node_modules/swagger-ui-lite/LICENSE</tspan>
+<tspan x="10" y="234">testRunDefault - 326 ms - [node test-case 5 of 7 passed] - testCase_nop_default</tspan>
 
-<tspan x="10" y="282">apidocCreate - readExample /tmp/npmTestPublished/node_modules/swagger-ui-lite/npm_scripts.sh</tspan>
+<tspan x="10" y="250">&gt; server listening on http-port 49410</tspan>
 
-<tspan x="10" y="298">apidocCreate - readExample /tmp/npmTestPublished/node_modules/swagger-ui-lite/package.json</tspan>
+<tspan x="10" y="266">Xlib:  extension "RANDR" missing on display ":99.0".</tspan>
 
-<tspan x="10" y="314">apidocCreate - readExample /tmp/npmTestPublished/node_modules/swagger-ui-lite/package-lock.json</tspan>
+<tspan x="10" y="282">[5149:1208/093927.518819:ERROR:bus.cc(395)] Failed to connect to the bus: Could not parse server\</tspan>
+<tspan x="10" y="298"> address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")</tspan>
 
-<tspan x="10" y="330">apidocCreate - readExample /tmp/npmTestPublished/node_modules/swagger-ui-lite/README.md</tspan>
+<tspan x="10" y="314">[5149:1208/093927.529794:ERROR:bus.cc(395)] Failed to connect to the bus: Could not parse server\</tspan>
+<tspan x="10" y="330"> address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")</tspan>
 
-<tspan x="10" y="346">apidocCreate - readExample /tmp/npmTestPublished/node_modules/swagger-ui-lite/test.js</tspan>
+<tspan x="10" y="346">[5200:1208/093927.674921:ERROR:sandbox_linux.cc(344)] InitializeSandbox() called with multiple t\</tspan>
+<tspan x="10" y="362">hreads in process gpu-process.</tspan>
 
-<tspan x="10" y="362">apidocCreate - requiring /tmp/npmTestPublished/node_modules/swagger-ui-lite ...</tspan>
+<tspan x="10" y="378">[5149:1208/093927.895979:INFO:CONSOLE(188)] "%cElectron Security Warning (Insecure Content-Secur\</tspan>
+<tspan x="10" y="394">ity-Policy)", source: /tmp/npmTestPublished/node_modules/swagger-ui-lite/node_modules/electron-l\</tspan>
+<tspan x="10" y="410">ite/external/resources/electron.asar/renderer/security-warnings.js (188)</tspan>
 
-<tspan x="10" y="378">apidocCreate - ... required /tmp/npmTestPublished/node_modules/swagger-ui-lite</tspan>
+<tspan x="10" y="426">[5149:1208/093927.926656:INFO:CONSOLE(188)] "%cElectron Security Warning (Insecure Content-Secur\</tspan>
+<tspan x="10" y="442">ity-Policy)", source: /tmp/npmTestPublished/node_modules/swagger-ui-lite/node_modules/electron-l\</tspan>
+<tspan x="10" y="458">ite/external/resources/electron.asar/renderer/security-warnings.js (188)</tspan>
 
-<tspan x="10" y="394">created apidoc file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/apidoc.html</tspan>
+<tspan x="10" y="474">[5149:1208/093928.635546:INFO:CONSOLE(8)] "Uncaught TypeError: Cannot read property 'isBrowser' \</tspan>
+<tspan x="10" y="490">of undefined", source: http://127.0.0.1:48058/assets.example.js (8)</tspan>
 
-<tspan x="10" y="410"></tspan>
+<tspan x="10" y="506">[5149:1208/093928.657071:INFO:CONSOLE(3112)] "db - dropping database ...", source: http://127.0.\</tspan>
+<tspan x="10" y="522">0.1:48058/assets.utility2.rollup.js (3112)</tspan>
 
-<tspan x="10" y="426">[node test-case 1 of 8 passed] - testCase_buildApidoc_default</tspan>
+<tspan x="10" y="538">[5149:1208/093928.675450:WARNING:quota_manager.cc(1629)] No storage quota provided in QuotaSetti\</tspan>
+<tspan x="10" y="554">ngs.</tspan>
 
-<tspan x="10" y="442">[node test-case 2 of 8 passed] - testCase_buildCustomOrg_default</tspan>
+<tspan x="10" y="570">[5149:1208/093928.681488:INFO:CONSOLE(128)] "%cElectron Security Warning (Insecure Resources)", \</tspan>
+<tspan x="10" y="586">source: /tmp/npmTestPublished/node_modules/swagger-ui-lite/node_modules/electron-lite/external/r\</tspan>
+<tspan x="10" y="602">esources/electron.asar/renderer/security-warnings.js (128)</tspan>
 
-<tspan x="10" y="458">[node test-case 3 of 8 passed] - testCase_buildLib_default</tspan>
+<tspan x="10" y="618">[5149:1208/093928.682761:INFO:CONSOLE(188)] "%cElectron Security Warning (Insecure Content-Secur\</tspan>
+<tspan x="10" y="634">ity-Policy)", source: /tmp/npmTestPublished/node_modules/swagger-ui-lite/node_modules/electron-l\</tspan>
+<tspan x="10" y="650">ite/external/resources/electron.asar/renderer/security-warnings.js (188)</tspan>
 
-<tspan x="10" y="474">[node test-case 4 of 8 passed] - testCase_buildReadme_default</tspan>
+<tspan x="10" y="666">[5149:1208/093928.711530:INFO:CONSOLE(26224)] "testRunDefault - 7 ms - [browser test-case 1 of 3\</tspan>
+<tspan x="10" y="682"> passed] - testCase_buildApidoc_default", source: http://127.0.0.1:48058/assets.utility2.rollup.\</tspan>
+<tspan x="10" y="698">js (26224)</tspan>
 
-<tspan x="10" y="490">[node test-case 5 of 8 passed] - testCase_buildTest_default</tspan>
+<tspan x="10" y="714">[5149:1208/093928.714959:INFO:CONSOLE(26224)] "testRunDefault - 10 ms - [browser test-case 2 of \</tspan>
+<tspan x="10" y="730">3 passed] - testCase_buildApp_default", source: http://127.0.0.1:48058/assets.utility2.rollup.js\</tspan>
+<tspan x="10" y="746"> (26224)</tspan>
 
-<tspan x="10" y="506">[node test-case 6 of 8 passed] - testCase_nop_default</tspan>
+<tspan x="10" y="762">[5149:1208/093928.717872:INFO:CONSOLE(26224)] "testRunDefault - 13 ms - [browser test-case 3 of \</tspan>
+<tspan x="10" y="778">3 passed] - testCase_nop_default", source: http://127.0.0.1:48058/assets.utility2.rollup.js (262\</tspan>
+<tspan x="10" y="794">24)</tspan>
 
-<tspan x="10" y="522"></tspan>
+<tspan x="10" y="810">[5149:1208/093928.743370:INFO:CONSOLE(8)] "Uncaught TypeError: Cannot read property 'isBrowser' \</tspan>
+<tspan x="10" y="826">of undefined", source: http://127.0.0.1:48058/assets.example.js (8)</tspan>
 
-<tspan x="10" y="538">browserTest - created fileElectronHtml /tmp/npmTestPublished/node_modules/swagger-ui-lite/tmp/el\</tspan>
-<tspan x="10" y="554">ectron.1658eeb61db0.548abb128c22a.html</tspan>
+<tspan x="10" y="842">[5149:1208/093928.749295:INFO:CONSOLE(3112)] "db - dropping database ...", source: http://127.0.\</tspan>
+<tspan x="10" y="858">0.1:48058/assets.utility2.rollup.js (3112)</tspan>
 
-<tspan x="10" y="570"></tspan>
+<tspan x="10" y="874">[5149:1208/093928.764513:INFO:CONSOLE(128)] "%cElectron Security Warning (Insecure Resources)", \</tspan>
+<tspan x="10" y="890">source: /tmp/npmTestPublished/node_modules/swagger-ui-lite/node_modules/electron-lite/external/r\</tspan>
+<tspan x="10" y="906">esources/electron.asar/renderer/security-warnings.js (128)</tspan>
 
-<tspan x="10" y="586">(node:4971) ExperimentalWarning: The http2 module is an experimental API.</tspan>
+<tspan x="10" y="922">[5149:1208/093928.765596:INFO:CONSOLE(188)] "%cElectron Security Warning (Insecure Content-Secur\</tspan>
+<tspan x="10" y="938">ity-Policy)", source: /tmp/npmTestPublished/node_modules/swagger-ui-lite/node_modules/electron-l\</tspan>
+<tspan x="10" y="954">ite/external/resources/electron.asar/renderer/security-warnings.js (188)</tspan>
 
-<tspan x="10" y="602">(node:4971) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.</tspan>
+<tspan x="10" y="970">[5149:1208/093928.785619:INFO:CONSOLE(26224)] "testRunDefault - 5 ms - [browser test-case 1 of 3\</tspan>
+<tspan x="10" y="986"> passed] - testCase_buildApidoc_default", source: http://127.0.0.1:48058/assets.utility2.rollup.\</tspan>
+<tspan x="10" y="1002">js (26224)</tspan>
 
-<tspan x="10" y="618">(node:4971) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/splaytree' module \</tspan>
-<tspan x="10" y="634">is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="1018">[5149:1208/093928.787014:INFO:CONSOLE(26224)] "testRunDefault - 6 ms - [browser test-case 2 of 3\</tspan>
+<tspan x="10" y="1034"> passed] - testCase_buildApp_default", source: http://127.0.0.1:48058/assets.utility2.rollup.js \</tspan>
+<tspan x="10" y="1050">(26224)</tspan>
 
-<tspan x="10" y="650">(node:4971) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/codemap' module is\</tspan>
-<tspan x="10" y="666"> deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="1066">[5149:1208/093928.787732:INFO:CONSOLE(26224)] "testRunDefault - 7 ms - [browser test-case 3 of 3\</tspan>
+<tspan x="10" y="1082"> passed] - testCase_nop_default", source: http://127.0.0.1:48058/assets.utility2.rollup.js (2622\</tspan>
+<tspan x="10" y="1098">4)</tspan>
 
-<tspan x="10" y="682">(node:4971) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/consarray' module \</tspan>
-<tspan x="10" y="698">is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="1114">[5149:1208/093929.721838:INFO:CONSOLE(8151)] "----------|-----------|-----------|-----------|---\</tspan>
+<tspan x="10" y="1130">--------|</tspan>
 
-<tspan x="10" y="714">(node:4971) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/csvparser' module \</tspan>
-<tspan x="10" y="730">is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="1146">File      |   % Stmts |% Branches |   % Funcs |   % Lines |</tspan>
 
-<tspan x="10" y="746">(node:4971) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/profile' module is\</tspan>
-<tspan x="10" y="762"> deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="1162">----------|-----------|-----------|-----------|-----------|</tspan>
 
-<tspan x="10" y="778">(node:4971) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/profile_view' modu\</tspan>
-<tspan x="10" y="794">le is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="1178">----------|-----------|-----------|-----------|-----------|</tspan>
 
-<tspan x="10" y="810">(node:4971) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/logreader' module \</tspan>
-<tspan x="10" y="826">is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="1194">All files |       100 |       100 |       100 |       100 |</tspan>
 
-<tspan x="10" y="842">(node:4971) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/arguments' module \</tspan>
-<tspan x="10" y="858">is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="1210">----------|-----------|-----------|-----------|-----------|</tspan>
 
-<tspan x="10" y="874">(node:4971) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/tickprocessor' mod\</tspan>
-<tspan x="10" y="890">ule is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="1226">", source: http://127.0.0.1:48058/assets.utility2.rollup.js (8151)</tspan>
 
-<tspan x="10" y="906">(node:4971) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/SourceMap' module \</tspan>
-<tspan x="10" y="922">is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="1242">[5149:1208/093929.726231:INFO:CONSOLE(5782)] "created coverage file /tmp/build/coverage.html/ind\</tspan>
+<tspan x="10" y="1258">ex.html", source: http://127.0.0.1:48058/assets.utility2.rollup.js (5782)</tspan>
 
-<tspan x="10" y="938">(node:4971) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'v8/tools/tickprocessor-driv\</tspan>
-<tspan x="10" y="954">er' module is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="1274">[5149:1208/093929.792835:INFO:CONSOLE(8151)] "----------|-----------|-----------|-----------|---\</tspan>
+<tspan x="10" y="1290">--------|</tspan>
 
-<tspan x="10" y="970">(node:4971) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'node-inspect/lib/_inspect' \</tspan>
-<tspan x="10" y="986">module is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="1306">File      |   % Stmts |% Branches |   % Funcs |   % Lines |</tspan>
 
-<tspan x="10" y="1002">(node:4971) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'node-inspect/lib/internal/i\</tspan>
-<tspan x="10" y="1018">nspect_client' module is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="1322">----------|-----------|-----------|-----------|-----------|</tspan>
 
-<tspan x="10" y="1034">(node:4971) [DEP0084] DeprecationWarning: Requiring Node.js-bundled 'node-inspect/lib/internal/i\</tspan>
-<tspan x="10" y="1050">nspect_repl' module is deprecated. Please install the necessary module locally.</tspan>
+<tspan x="10" y="1338">----------|-----------|-----------|-----------|-----------|</tspan>
 
-<tspan x="10" y="1066">Xlib:  extension "RANDR" missing on display ":99.0".</tspan>
+<tspan x="10" y="1354">All files |       100 |       100 |       100 |       100 |</tspan>
 
-<tspan x="10" y="1082">&gt; server listening on http-port 60946</tspan>
+<tspan x="10" y="1370">----------|-----------|-----------|-----------|-----------|</tspan>
 
-<tspan x="10" y="1098">Xlib:  extension "RANDR" missing on display ":99.0".</tspan>
+<tspan x="10" y="1386">", source: http://127.0.0.1:48058/assets.utility2.rollup.js (8151)</tspan>
 
-<tspan x="10" y="1114">[5042:0831/073836.474821:WARNING:audio_manager.cc(295)] Multiple instances of AudioManager detec\</tspan>
-<tspan x="10" y="1130">ted</tspan>
+<tspan x="10" y="1402">[5149:1208/093929.804345:INFO:CONSOLE(5782)] "created coverage file /tmp/build/coverage.html/ind\</tspan>
+<tspan x="10" y="1418">ex.html", source: http://127.0.0.1:48058/assets.utility2.rollup.js (5782)</tspan>
 
-<tspan x="10" y="1146">[5042:0831/073836.474914:WARNING:audio_manager.cc(254)] Multiple instances of AudioManager detec\</tspan>
-<tspan x="10" y="1162">ted</tspan>
+<tspan x="10" y="1434">testRunDefault - 5031 ms - testCase pending - testCase_buildApp_default, testCase_webpage_defaul\</tspan>
+<tspan x="10" y="1450">t ...</tspan>
 
-<tspan x="10" y="1178">[5081:0831/073836.512336:ERROR:sandbox_linux.cc(343)] InitializeSandbox() called with multiple t\</tspan>
-<tspan x="10" y="1194">hreads in process gpu-process. </tspan>
+<tspan x="10" y="1466">testRunDefault - 5807 ms - [node test-case 6 of 7 passed] - testCase_buildApp_default</tspan>
 
-<tspan x="10" y="1210">[5042:0831/073836.603140:ERROR:browser_gpu_channel_host_factory.cc(125)] Failed to create channe\</tspan>
-<tspan x="10" y="1226">l.</tspan>
+<tspan x="10" y="1482">[5149:1208/093933.665908:INFO:CONSOLE(135)] "null", source: fs.js (135)</tspan>
 
-<tspan x="10" y="1242">[5042:0831/073836.605993:ERROR:browser_gpu_channel_host_factory.cc(125)] Failed to create channe\</tspan>
-<tspan x="10" y="1258">l.</tspan>
+<tspan x="10" y="1498">[5149:1208/093933.857166:INFO:CONSOLE(135)] "Error: ENOENT: no such file or directory, rename '/\</tspan>
+<tspan x="10" y="1514">tmp/npmTestPublished/node_modules/swagger-ui-lite/tmp/electron.1678d2f9aa80.d02c3dc46e06a.html' \</tspan>
+<tspan x="10" y="1530">-&gt; '/tmp/npmTestPublished/node_modules/swagger-ui-lite/tmp/electron.html'", source: fs.js (135)</tspan>
 
-<tspan x="10" y="1274">[5042:0831/073836.608908:ERROR:browser_gpu_channel_host_factory.cc(125)] Failed to create channe\</tspan>
-<tspan x="10" y="1290">l.</tspan>
+<tspan x="10" y="1546"></tspan>
 
-<tspan x="10" y="1306">[5042:0831/073836.615869:ERROR:browser_gpu_channel_host_factory.cc(125)] Failed to create channe\</tspan>
-<tspan x="10" y="1322">l.</tspan>
+<tspan x="10" y="1562">browserTest - created screenshot file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/buil\</tspan>
+<tspan x="10" y="1578">d/screenshot.npmTestPublished.browser.%2F.png</tspan>
 
-<tspan x="10" y="1338">[5042:0831/073836.616955:ERROR:browser_gpu_channel_host_factory.cc(125)] Failed to create channe\</tspan>
-<tspan x="10" y="1354">l.</tspan>
+<tspan x="10" y="1594"></tspan>
 
-<tspan x="10" y="1370">[5042:0831/073837.230720:WARNING:quota_manager.cc(1590)] No storage quota provided in QuotaSetti\</tspan>
-<tspan x="10" y="1386">ngs.</tspan>
-
-<tspan x="10" y="1402">[node test-case 7 of 8 passed] - testCase_buildApp_default</tspan>
-
-<tspan x="10" y="1418"></tspan>
-
-<tspan x="10" y="1434">browserTest - created screenshot file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/buil\</tspan>
-<tspan x="10" y="1450">d/screenshot.npmTestPublished.browser.%2F.png</tspan>
-
-<tspan x="10" y="1466"></tspan>
-
-<tspan x="10" y="1482">browserTest - created screenshot file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/buil\</tspan>
-<tspan x="10" y="1498">d/screenshot.npmTestPublished.browser.%2F.html</tspan>
-
-<tspan x="10" y="1514"></tspan>
-
-<tspan x="10" y="1530">browserTest - exit-code 0 - http://127.0.0.1:46898/assets.utility2.base.html?modeTest=1&amp;timeoutD\</tspan>
-<tspan x="10" y="1546">efault=1&amp;modeTestCase=</tspan>
-
-<tspan x="10" y="1562"></tspan>
-
-<tspan x="10" y="1578"></tspan>
-
-<tspan x="10" y="1594">browserTest - merged coverage from file /tmp/npmTestPublished/node_modules/swagger-ui-lite/tmp/c\</tspan>
-<tspan x="10" y="1610">overage.npmTestPublished.browser.%2Fassets.utility2.base.html.json</tspan>
-
-<tspan x="10" y="1626"></tspan>
+<tspan x="10" y="1610">browserTest - created screenshot file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/buil\</tspan>
+<tspan x="10" y="1626">d/screenshot.npmTestPublished.browser.%2F.html</tspan>
 
 <tspan x="10" y="1642"></tspan>
 
-<tspan x="10" y="1658">browserTest - merged test-report from file /tmp/npmTestPublished/node_modules/swagger-ui-lite/tm\</tspan>
-<tspan x="10" y="1674">p/test-report.npmTestPublished.browser.%2Fassets.utility2.base.html.json</tspan>
+<tspan x="10" y="1658">browserTest - created screenshot file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/buil\</tspan>
+<tspan x="10" y="1674">d/screenshot.npmTestPublished.browser.%2F.png</tspan>
 
 <tspan x="10" y="1690"></tspan>
 
-<tspan x="10" y="1706">[node test-case 8 of 8 passed] - testCase_webpage_default</tspan>
+<tspan x="10" y="1706">browserTest - created screenshot file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/buil\</tspan>
+<tspan x="10" y="1722">d/screenshot.npmTestPublished.browser.%2F.html</tspan>
 
-<tspan x="10" y="1722">------------------------|-----------|-----------|-----------|-----------|</tspan>
-
-<tspan x="10" y="1738">File                    |   % Stmts |% Branches |   % Funcs |   % Lines |</tspan>
+<tspan x="10" y="1738">testRunDefault - 7752 ms - [node test-case 7 of 7 passed] - testCase_webpage_default</tspan>
 
 <tspan x="10" y="1754">------------------------|-----------|-----------|-----------|-----------|</tspan>
 
-<tspan x="10" y="1770">   swagger-ui-lite/     |       100 |       100 |       100 |       100 |</tspan>
+<tspan x="10" y="1770">File                    |   % Stmts |% Branches |   % Funcs |   % Lines |</tspan>
 
-<tspan x="10" y="1786">      example.js        |       100 |       100 |       100 |       100 |</tspan>
+<tspan x="10" y="1786">------------------------|-----------|-----------|-----------|-----------|</tspan>
 
-<tspan x="10" y="1802">      lib.swagger_ui.js |       100 |       100 |       100 |       100 |</tspan>
+<tspan x="10" y="1802">   swagger-ui-lite/     |       100 |       100 |       100 |       100 |</tspan>
 
-<tspan x="10" y="1818">      test.js           |       100 |       100 |       100 |       100 |</tspan>
+<tspan x="10" y="1818">      example.js        |       100 |       100 |       100 |       100 |</tspan>
 
-<tspan x="10" y="1834">------------------------|-----------|-----------|-----------|-----------|</tspan>
+<tspan x="10" y="1834">      lib.swagger_ui.js |       100 |       100 |       100 |       100 |</tspan>
 
-<tspan x="10" y="1850">All files               |       100 |       100 |       100 |       100 |</tspan>
+<tspan x="10" y="1850">      test.js           |       100 |       100 |       100 |       100 |</tspan>
 
 <tspan x="10" y="1866">------------------------|-----------|-----------|-----------|-----------|</tspan>
 
-<tspan x="10" y="1882"></tspan>
+<tspan x="10" y="1882">All files               |       100 |       100 |       100 |       100 |</tspan>
 
-<tspan x="10" y="1898">created coverage file /tmp/npmTestPublished/node_modules/swagger-ui-lite/tmp/build/coverage.html\</tspan>
-<tspan x="10" y="1914">/index.html</tspan>
+<tspan x="10" y="1898">------------------------|-----------|-----------|-----------|-----------|</tspan>
 
-<tspan x="10" y="1930"></tspan>
+<tspan x="10" y="1914"></tspan>
 
-<tspan x="10" y="1946">-------------------------------------------------------</tspan>
+<tspan x="10" y="1930">created coverage file /tmp/npmTestPublished/node_modules/swagger-ui-lite/tmp/build/coverage.html\</tspan>
+<tspan x="10" y="1946">/index.html</tspan>
 
-<tspan x="10" y="1962">| test-report - npmTestPublished - browser - /assets.utility2.base.html - Mozilla/5.0 (X11; Linu\</tspan>
-<tspan x="10" y="1978">x x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Electron/1.7.16 Safari/537\</tspan>
-<tspan x="10" y="1994">.36 - 2018-08-31T07:38:36.914Z</tspan>
+<tspan x="10" y="1962"></tspan>
 
-<tspan x="10" y="2010">|       9 ms            0 failed        3 passed      |</tspan>
+<tspan x="10" y="1978">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="2026">-------------------------------------------------------</tspan>
+<tspan x="10" y="1994">| test-report - npmTestPublished - browser - /assets.utility2.base.html - Mozilla/5.0 (X11; Linu\</tspan>
+<tspan x="10" y="2010">x x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Electron/2.0.14 Safari/537\</tspan>
+<tspan x="10" y="2026">.36 - 2018-12-08T09:39:28.171Z</tspan>
 
-<tspan x="10" y="2042">| test-report - npmTestPublished - node - linux v10.9.0 - 2018-08-31T07:38:34.795Z</tspan>
+<tspan x="10" y="2042">|    1005 ms            0 failed        3 passed      |</tspan>
 
-<tspan x="10" y="2058">|    7388 ms            0 failed        8 passed      |</tspan>
+<tspan x="10" y="2058">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="2074">-------------------------------------------------------</tspan>
+<tspan x="10" y="2074">| test-report - npmTestPublished - node - linux v11.4.0 - 2018-12-08T09:39:25.962Z</tspan>
 
-<tspan x="10" y="2090"></tspan>
+<tspan x="10" y="2090">|    7753 ms            0 failed        7 passed      |</tspan>
 
-<tspan x="10" y="2106">created test-report file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/test-report\</tspan>
-<tspan x="10" y="2122">.html</tspan>
+<tspan x="10" y="2106">-------------------------------------------------------</tspan>
 
-<tspan x="10" y="2138"></tspan>
+<tspan x="10" y="2122"></tspan>
 
-<tspan x="10" y="2154"></tspan>
+<tspan x="10" y="2138">created test-report file /home/travis/build/kaizhu256/node-swagger-ui-lite/tmp/build/test-report\</tspan>
+<tspan x="10" y="2154">.html</tspan>
 
-<tspan x="10" y="2170">npmTestPublished - 0 failed tests</tspan>
+<tspan x="10" y="2170"></tspan>
 
 <tspan x="10" y="2186"></tspan>
 
-<tspan x="10" y="2202"></tspan>
+<tspan x="10" y="2202">npmTestPublished - 0 failed tests</tspan>
 
-<tspan x="10" y="2218">[MODE_BUILD=npmTestPublished] - 2018-08-31T07:38:43.624Z - EXIT_CODE - 0</tspan>
+<tspan x="10" y="2218"></tspan>
+
+<tspan x="10" y="2234"></tspan>
+
+<tspan x="10" y="2250">[MODE_BUILD=npmTestPublished] - 2018-12-08T09:39:36.133Z - EXIT_CODE - 0</tspan>
 
 </text>
 </svg>

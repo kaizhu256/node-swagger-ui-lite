@@ -48,7 +48,7 @@
 }
 </style>
 <h1>api documentation for
-    <a href="https://github.com/kaizhu256/node-swagger-ui-lite">swagger-ui-lite (2018.8.11)</a>
+    <a href="https://github.com/kaizhu256/node-swagger-ui-lite">swagger-ui-lite (2018.12.8)</a>
 </h1>
 <h4>this zero-dependency package will provide a rollup, single-script version of the swagger-ui client (v2.1.5), with a working web-demo</h4>
 <div class="apidocSectionDiv"><a href="#apidoc.tableOfContents" id="apidoc.tableOfContents"><h1>table of contents</h1></a><ol>
@@ -64,6 +64,33 @@
     </ol></li>
 
     <li class="apidocModuleLi"><a href="#apidoc.module.swagger-ui-lite">module swagger-ui-lite</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.swagger-ui-lite.assertThrow">
+            function <span class="apidocSignatureSpan">swagger-ui-lite.</span>assertThrow
+            <span class="apidocSignatureSpan">(passed, message)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.swagger-ui-lite.functionOrNop">
+            function <span class="apidocSignatureSpan">swagger-ui-lite.</span>functionOrNop
+            <span class="apidocSignatureSpan">(fnc)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.swagger-ui-lite.identity">
+            function <span class="apidocSignatureSpan">swagger-ui-lite.</span>identity
+            <span class="apidocSignatureSpan">(value)</span>
+            </a>
+
+        </li>
 
         <li>
 
@@ -89,6 +116,12 @@
         <li>
 
             <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">swagger-ui-lite.</span>swagger_ui</span>
+
+        </li>
+
+        <li>
+
+            <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">swagger-ui-lite.</span>timerTimeoutAjaxProgressHide</span>
 
         </li>
 
@@ -718,6 +751,83 @@
 
 
     <h2>
+        <a href="#apidoc.element.swagger-ui-lite.assertThrow" id="apidoc.element.swagger-ui-lite.assertThrow">
+        function <span class="apidocSignatureSpan">swagger-ui-lite.</span>assertThrow
+        <span class="apidocSignatureSpan">(passed, message)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">assertThrow = function (passed, message) {
+<span class="apidocCodeCommentSpan">/*
+ * this function will throw the error &lt;message&gt; if &lt;passed&gt; is falsy
+ */
+</span>    var error;
+    if (passed) {
+        return;
+    }
+    error = (
+        // ternary-condition
+        (
+            message
+            &amp;&amp; typeof message.message === "string"
+            &amp;&amp; typeof message.stack === "string"
+        )
+        // if message is an error-object, then leave it as is
+        ? message
+        : new Error(
+            typeof message === "string"
+            // if message is a string, then leave it as is
+            ? message
+            // else JSON.stringify message
+            : JSON.stringify(message, null, 4)
+        )
+    );
+    throw error;
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.swagger-ui-lite.functionOrNop" id="apidoc.element.swagger-ui-lite.functionOrNop">
+        function <span class="apidocSignatureSpan">swagger-ui-lite.</span>functionOrNop
+        <span class="apidocSignatureSpan">(fnc)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">functionOrNop = function (fnc) {
+<span class="apidocCodeCommentSpan">/*
+ * this function will if &lt;fnc&gt; exists,
+ * them return &lt;fnc&gt;,
+ * else return &lt;nop&gt;
+ */
+</span>    return fnc || local.nop;
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.swagger-ui-lite.identity" id="apidoc.element.swagger-ui-lite.identity">
+        function <span class="apidocSignatureSpan">swagger-ui-lite.</span>identity
+        <span class="apidocSignatureSpan">(value)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">identity = function (value) {
+<span class="apidocCodeCommentSpan">/*
+ * this function will return &lt;value&gt;
+ */
+</span>    return value;
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
         <a href="#apidoc.element.swagger-ui-lite.nop" id="apidoc.element.swagger-ui-lite.nop">
         function <span class="apidocSignatureSpan">swagger-ui-lite.</span>nop
         <span class="apidocSignatureSpan">()</span>
@@ -732,6 +842,8 @@
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
+
+
 
 
 

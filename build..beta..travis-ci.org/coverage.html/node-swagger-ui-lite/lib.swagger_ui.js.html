@@ -4,19 +4,19 @@
     <title>Code coverage report for node-swagger-ui-lite/lib.swagger_ui.js</title>
     <meta charset="utf-8">
 <style>
-/* jslint-utility2 */
+/* jslint utility2:true */
 /*csslint
     box-model: false,
     important: false,
     qualified-headings: false,
 */
-/* jslint-ignore-begin */
+/* csslint ignore:start */
 *,
 *:after,
 *:before {
     box-sizing: border-box;
 }
-/* jslint-ignore-end */
+/* csslint ignore:end */
 .x-istanbul {
     font-family: Helvetica Neue, Helvetica,Arial;
     font-size: 10pt;
@@ -247,9 +247,10 @@
         return;
     }
     window.domOnEventSelectAllWithinPre = function (event) {
-        var range, selection;
+        var range;
+        var selection;
         if (event &&
-                event.code === "KeyA" &&
+                event.key === "a" &&
                 (event.ctrlKey || event.metaKey) &&
                 event.target.closest("pre")) {
             range = document.createRange();
@@ -265,7 +266,7 @@
 </script>
 <div class="header high">
     <h1 style="font-weight: bold;">
-        <a href="https://github.com/kaizhu256/node-swagger-ui-lite">swagger-ui-lite (2018.8.11)</a>
+        <a href="https://github.com/kaizhu256/node-swagger-ui-lite">swagger-ui-lite (2018.12.8)</a>
     </h1>
     <h1>Code coverage report for <span class="entity">node-swagger-ui-lite/lib.swagger_ui.js</span></h1>
     <table class="tableHeader">
@@ -279,11 +280,11 @@
     </tr>
     </thead>
     <tbody>
-        <td>branches: 1<br>statements: 8<br>functions: 2</td>
-        <td>100%<br>(69 / 69)</td>
-        <td>100%<br>(23 / 23)</td>
-        <td>100%<br>(7 / 7)</td>
-        <td>100%<br>(69 / 69)</td>
+        <td>branches: 19<br>statements: 19<br>functions: 5</td>
+        <td>100%<br>(79 / 79)</td>
+        <td>100%<br>(32 / 32)</td>
+        <td>100%<br>(11 / 11)</td>
+        <td>100%<br>(79 / 79)</td>
     </tbody>
     </table>
     <div class="path"><a href="../index.html">All files</a> &#187; <a href="index.html">node-swagger-ui-lite/</a> &#187; lib.swagger_ui.js</div>
@@ -427,7 +428,65 @@
 135
 136
 137
-138</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -439,115 +498,168 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-yes">1</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2</span>
-<span class="cline-any cline-yes">2</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -559,153 +671,216 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js" tabIndex="0">/* istanbul instrument in package swagger_ui */
-/* jslint-utility2 */
-/*jslint
-    bitwise: true,
-    browser: true,
-    maxerr: 4,
-    maxlen: 100,
-    node: true,
-    nomen: true,
-    regexp: true,
-    stupid: true
-*/
-(function () {
-    'use strict';
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js" tabIndex="0">//#!/usr/bin/env node
+/*
+ * lib.swagger_ui.js (2018.12.8)
+ * https://github.com/kaizhu256/node-swagger-ui-lite
+ * this zero-dependency package will provide a rollup, single-script version of the swagger-ui client (v2.1.5), with a working web-demo
+ *
+ */
+&nbsp;
+&nbsp;
+&nbsp;
+/* istanbul instrument in package swagger_ui */
+/* istanbul ignore next */
+/* jslint utility2:true */
+(function (globalThis) {
+    "use strict";
+    var consoleError;
     var local;
-&nbsp;
-&nbsp;
-&nbsp;
-    // run shared js-env code - init-before
-    /* istanbul ignore next */
+    // init globalThis
     (function () {
-        // init debug_inline
-        (function () {
-            var consoleError, context, key;
-            context = (typeof window === "object" &amp;&amp; window) || global;
-            key = "debug_inline".replace("_i", "I");
-            <span class="skip-if-branch" title="else path not taken" >E</span>if (context[key]) {
-                return;
-            }
-<span class="cstat-skip" title="statement not covered" >            consoleError = console.error;</span>
-<span class="cstat-skip" title="statement not covered" >            context[key] = <span class="fstat-skip" title="function not covered" >function (arg0) {</span></span>
-            /*
-             * this function will both print arg0 to stderr and return it
-             */
-                // debug arguments
-<span class="cstat-skip" title="statement not covered" >                context["_" + key + "Arguments"] = arguments;</span>
-<span class="cstat-skip" title="statement not covered" >                consoleError("\n\n" + key);</span>
-<span class="cstat-skip" title="statement not covered" >                consoleError.apply(console, arguments);</span>
-<span class="cstat-skip" title="statement not covered" >                consoleError("\n");</span>
-                // return arg0 for inspection
-<span class="cstat-skip" title="statement not covered" >                return arg0;</span>
-            };
-        }());
-        // init local
-        local = {};
-        // init isBrowser
-        local.isBrowser = typeof window === "object" &amp;&amp;
-            typeof window.XMLHttpRequest === "function" &amp;&amp;
-            window.document &amp;&amp;
-            typeof window.document.querySelectorAll === "function";
-        // init global
-        local.global = local.isBrowser
-            ? window
-            : global;
-        // re-init local
-        local = local.global.utility2_rollup ||
-            // local.global.utility2_rollup_old || require('./assets.utility2.rollup.js') ||
-            local;
-        // init nop
-        local.nop = <span class="fstat-skip" title="function not covered" >function () {</span>
+        try {
+            globalThis = Function("return this")(); // jslint ignore:line
+        } catch (ignore) {}
+    }());
+    globalThis.globalThis = globalThis;
+    // init debug_inline
+    <span class="skip-if-branch" title="if path not taken" >I</span>if (!globalThis["debug\u0049nline"]) {
+<span class="cstat-skip" title="statement not covered" >        consoleError = console.error;</span>
+<span class="cstat-skip" title="statement not covered" >        globalThis["debug\u0049nline"] = <span class="fstat-skip" title="function not covered" >function () {</span></span>
         /*
-         * this function will do nothing
+         * this function will both print &lt;arguments&gt; to stderr
+         * and return &lt;arguments&gt;[0]
          */
-<span class="cstat-skip" title="statement not covered" >            return;</span>
+<span class="cstat-skip" title="statement not covered" >            var argList;</span>
+<span class="cstat-skip" title="statement not covered" >            argList = Array.from(arguments); </span>// jslint ignore:line
+            // debug arguments
+<span class="cstat-skip" title="statement not covered" >            globalThis["debug\u0049nlineArguments"] = argList;</span>
+<span class="cstat-skip" title="statement not covered" >            consoleError("\n\ndebug\u0049nline");</span>
+<span class="cstat-skip" title="statement not covered" >            consoleError.apply(console, argList);</span>
+<span class="cstat-skip" title="statement not covered" >            consoleError("\n");</span>
+            // return arg0 for inspection
+<span class="cstat-skip" title="statement not covered" >            return argList[0];</span>
         };
-        // init exports
-        if (local.isBrowser) {
-            local.global.utility2_swagger_ui = local;
-        } else {
-            // require builtins
-            // local.assert = require('assert');
-            local.buffer = require('buffer');
-            local.child_process = require('child_process');
-            local.cluster = require('cluster');
-            local.console = require('console');
-            local.constants = require('constants');
-            local.crypto = require('crypto');
-            local.dgram = require('dgram');
-            local.dns = require('dns');
-            local.domain = require('domain');
-            local.events = require('events');
-            local.fs = require('fs');
-            local.http = require('http');
-            local.https = require('https');
-            local.module = require('module');
-            local.net = require('net');
-            local.os = require('os');
-            local.path = require('path');
-            local.process = require('process');
-            local.punycode = require('punycode');
-            local.querystring = require('querystring');
-            local.readline = require('readline');
-            local.repl = require('repl');
-            local.stream = require('stream');
-            local.string_decoder = require('string_decoder');
-            local.timers = require('timers');
-            local.tls = require('tls');
-            local.tty = require('tty');
-            local.url = require('url');
-            local.util = require('util');
-            local.v8 = require('v8');
-            local.vm = require('vm');
-            local.zlib = require('zlib');
-            module.exports = local;
-            module.exports.__dirname = __dirname;
+    }
+    // init local
+    local = {};
+    local.local = local;
+    globalThis.globalLocal = local;
+    // init isBrowser
+    local.isBrowser = (
+        typeof window === "object"
+        &amp;&amp; <span class="branch-1 cbranch-skip" title="branch not covered" >window === globalThis</span>
+        &amp;&amp; <span class="branch-2 cbranch-skip" title="branch not covered" >typeof window.XMLHttpRequest === "function"</span>
+        &amp;&amp; <span class="branch-3 cbranch-skip" title="branch not covered" >window.document</span>
+        &amp;&amp; <span class="branch-4 cbranch-skip" title="branch not covered" >typeof window.document.querySelectorAll === "function"</span>
+    );
+    // init function
+    local.assertThrow = <span class="fstat-skip" title="function not covered" >function (passed, message) {</span>
+    /*
+     * this function will throw the error &lt;message&gt; if &lt;passed&gt; is falsy
+     */
+<span class="cstat-skip" title="statement not covered" >        var error;</span>
+<span class="cstat-skip" title="statement not covered" >        if (passed) {</span>
+<span class="cstat-skip" title="statement not covered" >            return;</span>
         }
-        // init lib main
-        local.local = local.swagger_ui = local;
+<span class="cstat-skip" title="statement not covered" >        error = (</span>
+            // ternary-condition
+            (
+                message
+                &amp;&amp; typeof message.message === "string"
+                &amp;&amp; typeof message.stack === "string"
+            )
+            // if message is an error-object, then leave it as is
+            ? message
+            : new Error(
+                typeof message === "string"
+                // if message is a string, then leave it as is
+                ? message
+                // else JSON.stringify message
+                : JSON.stringify(message, null, 4)
+            )
+        );
+<span class="cstat-skip" title="statement not covered" >        throw error;</span>
+    };
+    local.functionOrNop = <span class="fstat-skip" title="function not covered" >function (fnc) {</span>
+    /*
+     * this function will if &lt;fnc&gt; exists,
+     * them return &lt;fnc&gt;,
+     * else return &lt;nop&gt;
+     */
+<span class="cstat-skip" title="statement not covered" >        return fnc || local.nop;</span>
+    };
+    local.identity = <span class="fstat-skip" title="function not covered" >function (value) {</span>
+    /*
+     * this function will return &lt;value&gt;
+     */
+<span class="cstat-skip" title="statement not covered" >        return value;</span>
+    };
+    local.nop = <span class="fstat-skip" title="function not covered" >function () {</span>
+    /*
+     * this function will do nothing
+     */
+<span class="cstat-skip" title="statement not covered" >        return;</span>
+    };
+    // require builtin
+    <span class="skip-if-branch" title="else path not taken" >E</span>if (!local.isBrowser) {
+        local.assert = require("assert");
+        local.buffer = require("buffer");
+        local.child_process = require("child_process");
+        local.cluster = require("cluster");
+        local.crypto = require("crypto");
+        local.dgram = require("dgram");
+        local.dns = require("dns");
+        local.domain = require("domain");
+        local.events = require("events");
+        local.fs = require("fs");
+        local.http = require("http");
+        local.https = require("https");
+        local.net = require("net");
+        local.os = require("os");
+        local.path = require("path");
+        local.querystring = require("querystring");
+        local.readline = require("readline");
+        local.repl = require("repl");
+        local.stream = require("stream");
+        local.string_decoder = require("string_decoder");
+        local.timers = require("timers");
+        local.tls = require("tls");
+        local.tty = require("tty");
+        local.url = require("url");
+        local.util = require("util");
+        local.vm = require("vm");
+        local.zlib = require("zlib");
+    }
+}(this));
 &nbsp;
 &nbsp;
 &nbsp;
-        /* validateLineSortedReset */
-        return;
-    }());
+(function (local) {
+"use strict";
 &nbsp;
 &nbsp;
 &nbsp;
-    // run node js-env code - init-after
-    /* istanbul ignore next */
-    (function () {
-        if (local.isBrowser) {
-            return;
+/* istanbul ignore next */
+// run shared js-env code - init-before
+(function () {
+// init local
+local = (
+    globalThis.utility2_rollup
+    // || globalThis.utility2_rollup_old
+    // || require("./assets.utility2.rollup.js")
+    || globalThis.globalLocal
+);
+// init exports
+<span class="skip-if-branch" title="if path not taken" >I</span>if (local.isBrowser) {
+<span class="cstat-skip" title="statement not covered" >    globalThis.utility2_swagger_ui = local;</span>
+} else {
+    module.exports = local;
+    module.exports.__dirname = __dirname;
+}
+// init lib main
+local.swagger_ui = local;
+&nbsp;
+&nbsp;
+&nbsp;
+/* validateLineSortedReset */
+return;
+}());
+&nbsp;
+&nbsp;
+&nbsp;
+// run node js-env code - init-after
+/* istanbul ignore next */
+(function () {
+    <span class="skip-if-branch" title="if path not taken" >I</span>if (local.isBrowser) {
+<span class="cstat-skip" title="statement not covered" >        return;</span>
+    }
+    // init assets
+    local.assetsDict = local.assetsDict || {};
+    local.fs.readdirSync(local.__dirname).forEach(function (file) {
+        file = "/" + file;
+        if (file.indexOf("/assets.") === 0) {
+            local.assetsDict[file] = (
+                local.assetsDict[file] || local.fs.readFileSync(local.__dirname + file, "utf8")
+            );
         }
-        // init assets
-        local.assetsDict = local.assetsDict || {};
-        local.fs.readdirSync(local.__dirname).forEach(function (file) {
-            file = '/' + file;
-            if (file.indexOf('/assets.') === 0) {
-                local.assetsDict[file] = local.assetsDict[file] ||
-                    local.fs.readFileSync(local.__dirname + file, 'utf8');
-            }
-        });
-        local.assetsDict['/assets.swagger_ui.html'] =
-            local.assetsDict['/assets.index.template.html'];
-    }());
+    });
+    local.assetsDict["/assets.swagger_ui.html"] = (
+        local.assetsDict["/assets.index.template.html"]
+    );
+}());
+&nbsp;
+&nbsp;
+&nbsp;
 }());
 &nbsp;
 &nbsp;</pre></td></tr>
 </table></pre>
 </div>
 <div class="footer">
-    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Sat Aug 11 2018 14:24:18 GMT+0000 (Coordinated Universal Time)</div>
+    <div class="meta">Generated by <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a> at Sat, 08 Dec 2018 09:40:33 GMT</div>
 </div>
 </body>
 </html>
