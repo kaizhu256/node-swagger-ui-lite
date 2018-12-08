@@ -17,8 +17,29 @@
         } catch (ignore) {}
     }());
     globalThis.globalThis = globalThis;
+    // init debug_inline
+    if (!globalThis["debug\u0049nline"]) {
+        consoleError = console.error;
+        globalThis["debug\u0049nline"] = function () {
+        /*
+         * this function will both print <arguments> to stderr
+         * and return <arguments>[0]
+         */
+            var argList;
+            argList = Array.from(arguments); // jslint ignore:line
+            // debug arguments
+            globalThis["debug\u0049nlineArguments"] = argList;
+            consoleError("\n\ndebug\u0049nline");
+            consoleError.apply(console, argList);
+            consoleError("\n");
+            // return arg0 for inspection
+            return argList[0];
+        };
+    }
     // init local
     local = {};
+    local.local = local;
+    globalThis.globalLocal = local;
     // init isBrowser
     local.isBrowser = (
         typeof window === "object"
@@ -27,7 +48,6 @@
         && window.document
         && typeof window.document.querySelectorAll === "function"
     );
-    globalThis.globalLocal = local;
     // init function
     local.assertThrow = function (passed, message) {
     /*
@@ -38,7 +58,7 @@
             return;
         }
         error = (
-            // ternary-operator
+            // ternary-condition
             (
                 message
                 && typeof message.message === "string"
@@ -76,24 +96,35 @@
      */
         return;
     };
-    // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
-        consoleError = console.error;
-        globalThis["debug\u0049nline"] = function () {
-        /*
-         * this function will both print <arguments> to stderr
-         * and return <arguments>[0]
-         */
-            var argList;
-            argList = Array.from(arguments); // jslint ignore:line
-            // debug arguments
-            globalThis["debug\u0049nlineArguments"] = argList;
-            consoleError("\n\ndebug\u0049nline");
-            consoleError.apply(console, argList);
-            consoleError("\n");
-            // return arg0 for inspection
-            return argList[0];
-        };
+    // require builtin
+    if (!local.isBrowser) {
+        local.assert = require("assert");
+        local.buffer = require("buffer");
+        local.child_process = require("child_process");
+        local.cluster = require("cluster");
+        local.crypto = require("crypto");
+        local.dgram = require("dgram");
+        local.dns = require("dns");
+        local.domain = require("domain");
+        local.events = require("events");
+        local.fs = require("fs");
+        local.http = require("http");
+        local.https = require("https");
+        local.net = require("net");
+        local.os = require("os");
+        local.path = require("path");
+        local.querystring = require("querystring");
+        local.readline = require("readline");
+        local.repl = require("repl");
+        local.stream = require("stream");
+        local.string_decoder = require("string_decoder");
+        local.timers = require("timers");
+        local.tls = require("tls");
+        local.tty = require("tty");
+        local.url = require("url");
+        local.util = require("util");
+        local.vm = require("vm");
+        local.zlib = require("zlib");
     }
 }(this));
 
@@ -138,8 +169,29 @@
         } catch (ignore) {}
     }());
     globalThis.globalThis = globalThis;
+    // init debug_inline
+    if (!globalThis["debug\u0049nline"]) {
+        consoleError = console.error;
+        globalThis["debug\u0049nline"] = function () {
+        /*
+         * this function will both print <arguments> to stderr
+         * and return <arguments>[0]
+         */
+            var argList;
+            argList = Array.from(arguments); // jslint ignore:line
+            // debug arguments
+            globalThis["debug\u0049nlineArguments"] = argList;
+            consoleError("\n\ndebug\u0049nline");
+            consoleError.apply(console, argList);
+            consoleError("\n");
+            // return arg0 for inspection
+            return argList[0];
+        };
+    }
     // init local
     local = {};
+    local.local = local;
+    globalThis.globalLocal = local;
     // init isBrowser
     local.isBrowser = (
         typeof window === "object"
@@ -148,7 +200,6 @@
         && window.document
         && typeof window.document.querySelectorAll === "function"
     );
-    globalThis.globalLocal = local;
     // init function
     local.assertThrow = function (passed, message) {
     /*
@@ -159,7 +210,7 @@
             return;
         }
         error = (
-            // ternary-operator
+            // ternary-condition
             (
                 message
                 && typeof message.message === "string"
@@ -197,24 +248,35 @@
      */
         return;
     };
-    // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
-        consoleError = console.error;
-        globalThis["debug\u0049nline"] = function () {
-        /*
-         * this function will both print <arguments> to stderr
-         * and return <arguments>[0]
-         */
-            var argList;
-            argList = Array.from(arguments); // jslint ignore:line
-            // debug arguments
-            globalThis["debug\u0049nlineArguments"] = argList;
-            consoleError("\n\ndebug\u0049nline");
-            consoleError.apply(console, argList);
-            consoleError("\n");
-            // return arg0 for inspection
-            return argList[0];
-        };
+    // require builtin
+    if (!local.isBrowser) {
+        local.assert = require("assert");
+        local.buffer = require("buffer");
+        local.child_process = require("child_process");
+        local.cluster = require("cluster");
+        local.crypto = require("crypto");
+        local.dgram = require("dgram");
+        local.dns = require("dns");
+        local.domain = require("domain");
+        local.events = require("events");
+        local.fs = require("fs");
+        local.http = require("http");
+        local.https = require("https");
+        local.net = require("net");
+        local.os = require("os");
+        local.path = require("path");
+        local.querystring = require("querystring");
+        local.readline = require("readline");
+        local.repl = require("repl");
+        local.stream = require("stream");
+        local.string_decoder = require("string_decoder");
+        local.timers = require("timers");
+        local.tls = require("tls");
+        local.tty = require("tty");
+        local.url = require("url");
+        local.util = require("util");
+        local.vm = require("vm");
+        local.zlib = require("zlib");
     }
 }(this));
 
@@ -239,39 +301,10 @@ local = (
 if (local.isBrowser) {
     globalThis.utility2_apidoc = local;
 } else {
-    // require builtins
-    local.assert = require("assert");
-    local.buffer = require("buffer");
-    local.child_process = require("child_process");
-    local.cluster = require("cluster");
-    local.crypto = require("crypto");
-    local.dgram = require("dgram");
-    local.dns = require("dns");
-    local.domain = require("domain");
-    local.events = require("events");
-    local.fs = require("fs");
-    local.http = require("http");
-    local.https = require("https");
-    local.net = require("net");
-    local.os = require("os");
-    local.path = require("path");
-    local.querystring = require("querystring");
-    local.readline = require("readline");
-    local.repl = require("repl");
-    local.stream = require("stream");
-    local.string_decoder = require("string_decoder");
-    local.timers = require("timers");
-    local.tls = require("tls");
-    local.tty = require("tty");
-    local.url = require("url");
-    local.util = require("util");
-    local.vm = require("vm");
-    local.zlib = require("zlib");
     module.exports = local;
     module.exports.__dirname = __dirname;
 }
 // init lib main
-local.local = local;
 local.apidoc = local;
 
 
@@ -1476,8 +1509,29 @@ if (module === require.main && !globalThis.utility2_rollup) {
         } catch (ignore) {}
     }());
     globalThis.globalThis = globalThis;
+    // init debug_inline
+    if (!globalThis["debug\u0049nline"]) {
+        consoleError = console.error;
+        globalThis["debug\u0049nline"] = function () {
+        /*
+         * this function will both print <arguments> to stderr
+         * and return <arguments>[0]
+         */
+            var argList;
+            argList = Array.from(arguments); // jslint ignore:line
+            // debug arguments
+            globalThis["debug\u0049nlineArguments"] = argList;
+            consoleError("\n\ndebug\u0049nline");
+            consoleError.apply(console, argList);
+            consoleError("\n");
+            // return arg0 for inspection
+            return argList[0];
+        };
+    }
     // init local
     local = {};
+    local.local = local;
+    globalThis.globalLocal = local;
     // init isBrowser
     local.isBrowser = (
         typeof window === "object"
@@ -1486,7 +1540,6 @@ if (module === require.main && !globalThis.utility2_rollup) {
         && window.document
         && typeof window.document.querySelectorAll === "function"
     );
-    globalThis.globalLocal = local;
     // init function
     local.assertThrow = function (passed, message) {
     /*
@@ -1497,7 +1550,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
             return;
         }
         error = (
-            // ternary-operator
+            // ternary-condition
             (
                 message
                 && typeof message.message === "string"
@@ -1535,24 +1588,35 @@ if (module === require.main && !globalThis.utility2_rollup) {
      */
         return;
     };
-    // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
-        consoleError = console.error;
-        globalThis["debug\u0049nline"] = function () {
-        /*
-         * this function will both print <arguments> to stderr
-         * and return <arguments>[0]
-         */
-            var argList;
-            argList = Array.from(arguments); // jslint ignore:line
-            // debug arguments
-            globalThis["debug\u0049nlineArguments"] = argList;
-            consoleError("\n\ndebug\u0049nline");
-            consoleError.apply(console, argList);
-            consoleError("\n");
-            // return arg0 for inspection
-            return argList[0];
-        };
+    // require builtin
+    if (!local.isBrowser) {
+        local.assert = require("assert");
+        local.buffer = require("buffer");
+        local.child_process = require("child_process");
+        local.cluster = require("cluster");
+        local.crypto = require("crypto");
+        local.dgram = require("dgram");
+        local.dns = require("dns");
+        local.domain = require("domain");
+        local.events = require("events");
+        local.fs = require("fs");
+        local.http = require("http");
+        local.https = require("https");
+        local.net = require("net");
+        local.os = require("os");
+        local.path = require("path");
+        local.querystring = require("querystring");
+        local.readline = require("readline");
+        local.repl = require("repl");
+        local.stream = require("stream");
+        local.string_decoder = require("string_decoder");
+        local.timers = require("timers");
+        local.tls = require("tls");
+        local.tty = require("tty");
+        local.url = require("url");
+        local.util = require("util");
+        local.vm = require("vm");
+        local.zlib = require("zlib");
     }
 }(this));
 
@@ -1577,39 +1641,10 @@ local = (
 if (local.isBrowser) {
     globalThis.utility2_db = local;
 } else {
-    // require builtins
-    local.assert = require("assert");
-    local.buffer = require("buffer");
-    local.child_process = require("child_process");
-    local.cluster = require("cluster");
-    local.crypto = require("crypto");
-    local.dgram = require("dgram");
-    local.dns = require("dns");
-    local.domain = require("domain");
-    local.events = require("events");
-    local.fs = require("fs");
-    local.http = require("http");
-    local.https = require("https");
-    local.net = require("net");
-    local.os = require("os");
-    local.path = require("path");
-    local.querystring = require("querystring");
-    local.readline = require("readline");
-    local.repl = require("repl");
-    local.stream = require("stream");
-    local.string_decoder = require("string_decoder");
-    local.timers = require("timers");
-    local.tls = require("tls");
-    local.tty = require("tty");
-    local.url = require("url");
-    local.util = require("util");
-    local.vm = require("vm");
-    local.zlib = require("zlib");
     module.exports = local;
     module.exports.__dirname = __dirname;
 }
 // init lib main
-local.local = local;
 local.db = local;
 
 
@@ -1839,14 +1874,13 @@ local.jsonStringifyOrdered = function (obj, replacer, space) {
         return tmp;
     };
     circularSet = new Set();
-    return JSON.stringify(
+    return JSON.stringify((
+        // ternary-condition
         (typeof obj === "object" && obj)
         // recurse
         ? JSON.parse(stringify(obj))
-        : obj,
-        replacer,
-        space
-    );
+        : obj
+    ), replacer, space);
 };
 
 local.listShuffle = function (list) {
@@ -3881,8 +3915,29 @@ if (module === require.main && !globalThis.utility2_rollup) {
         } catch (ignore) {}
     }());
     globalThis.globalThis = globalThis;
+    // init debug_inline
+    if (!globalThis["debug\u0049nline"]) {
+        consoleError = console.error;
+        globalThis["debug\u0049nline"] = function () {
+        /*
+         * this function will both print <arguments> to stderr
+         * and return <arguments>[0]
+         */
+            var argList;
+            argList = Array.from(arguments); // jslint ignore:line
+            // debug arguments
+            globalThis["debug\u0049nlineArguments"] = argList;
+            consoleError("\n\ndebug\u0049nline");
+            consoleError.apply(console, argList);
+            consoleError("\n");
+            // return arg0 for inspection
+            return argList[0];
+        };
+    }
     // init local
     local = {};
+    local.local = local;
+    globalThis.globalLocal = local;
     // init isBrowser
     local.isBrowser = (
         typeof window === "object"
@@ -3891,7 +3946,6 @@ if (module === require.main && !globalThis.utility2_rollup) {
         && window.document
         && typeof window.document.querySelectorAll === "function"
     );
-    globalThis.globalLocal = local;
     // init function
     local.assertThrow = function (passed, message) {
     /*
@@ -3902,7 +3956,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
             return;
         }
         error = (
-            // ternary-operator
+            // ternary-condition
             (
                 message
                 && typeof message.message === "string"
@@ -3940,24 +3994,35 @@ if (module === require.main && !globalThis.utility2_rollup) {
      */
         return;
     };
-    // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
-        consoleError = console.error;
-        globalThis["debug\u0049nline"] = function () {
-        /*
-         * this function will both print <arguments> to stderr
-         * and return <arguments>[0]
-         */
-            var argList;
-            argList = Array.from(arguments); // jslint ignore:line
-            // debug arguments
-            globalThis["debug\u0049nlineArguments"] = argList;
-            consoleError("\n\ndebug\u0049nline");
-            consoleError.apply(console, argList);
-            consoleError("\n");
-            // return arg0 for inspection
-            return argList[0];
-        };
+    // require builtin
+    if (!local.isBrowser) {
+        local.assert = require("assert");
+        local.buffer = require("buffer");
+        local.child_process = require("child_process");
+        local.cluster = require("cluster");
+        local.crypto = require("crypto");
+        local.dgram = require("dgram");
+        local.dns = require("dns");
+        local.domain = require("domain");
+        local.events = require("events");
+        local.fs = require("fs");
+        local.http = require("http");
+        local.https = require("https");
+        local.net = require("net");
+        local.os = require("os");
+        local.path = require("path");
+        local.querystring = require("querystring");
+        local.readline = require("readline");
+        local.repl = require("repl");
+        local.stream = require("stream");
+        local.string_decoder = require("string_decoder");
+        local.timers = require("timers");
+        local.tls = require("tls");
+        local.tty = require("tty");
+        local.url = require("url");
+        local.util = require("util");
+        local.vm = require("vm");
+        local.zlib = require("zlib");
     }
 }(this));
 
@@ -3982,39 +4047,10 @@ local = (
 if (local.isBrowser) {
     globalThis.utility2_github_crud = local;
 } else {
-    // require builtins
-    local.assert = require("assert");
-    local.buffer = require("buffer");
-    local.child_process = require("child_process");
-    local.cluster = require("cluster");
-    local.crypto = require("crypto");
-    local.dgram = require("dgram");
-    local.dns = require("dns");
-    local.domain = require("domain");
-    local.events = require("events");
-    local.fs = require("fs");
-    local.http = require("http");
-    local.https = require("https");
-    local.net = require("net");
-    local.os = require("os");
-    local.path = require("path");
-    local.querystring = require("querystring");
-    local.readline = require("readline");
-    local.repl = require("repl");
-    local.stream = require("stream");
-    local.string_decoder = require("string_decoder");
-    local.timers = require("timers");
-    local.tls = require("tls");
-    local.tty = require("tty");
-    local.url = require("url");
-    local.util = require("util");
-    local.vm = require("vm");
-    local.zlib = require("zlib");
     module.exports = local;
     module.exports.__dirname = __dirname;
 }
 // init lib main
-local.local = local;
 local.github_crud = local;
 
 
@@ -4103,7 +4139,7 @@ local.ajax = function (options, onError) {
             if (xhr.error) {
                 xhr.error.statusCode = xhr.statusCode;
                 tmp = (
-                    // ternary-operator
+                    // ternary-condition
                     (
                         local.isBrowser
                         ? "browser"
@@ -4952,10 +4988,13 @@ local.githubCrudContentPutFile = function (options, onError) {
                 message: options.message,
                 // resolve file in url
                 url: (
-                    /\/$/
-                ).test(options.url)
-                ? options.url + local.path.basename(options.file)
-                : options.url
+                    // ternary-condition
+                    (
+                        /\/$/
+                    ).test(options.url)
+                    ? options.url + local.path.basename(options.file)
+                    : options.url
+                )
             }, options.onNext);
             break;
         default:
@@ -5224,8 +5263,29 @@ if (module === require.main && !globalThis.utility2_rollup) {
         } catch (ignore) {}
     }());
     globalThis.globalThis = globalThis;
+    // init debug_inline
+    if (!globalThis["debug\u0049nline"]) {
+        consoleError = console.error;
+        globalThis["debug\u0049nline"] = function () {
+        /*
+         * this function will both print <arguments> to stderr
+         * and return <arguments>[0]
+         */
+            var argList;
+            argList = Array.from(arguments); // jslint ignore:line
+            // debug arguments
+            globalThis["debug\u0049nlineArguments"] = argList;
+            consoleError("\n\ndebug\u0049nline");
+            consoleError.apply(console, argList);
+            consoleError("\n");
+            // return arg0 for inspection
+            return argList[0];
+        };
+    }
     // init local
     local = {};
+    local.local = local;
+    globalThis.globalLocal = local;
     // init isBrowser
     local.isBrowser = (
         typeof window === "object"
@@ -5234,7 +5294,6 @@ if (module === require.main && !globalThis.utility2_rollup) {
         && window.document
         && typeof window.document.querySelectorAll === "function"
     );
-    globalThis.globalLocal = local;
     // init function
     local.assertThrow = function (passed, message) {
     /*
@@ -5245,7 +5304,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
             return;
         }
         error = (
-            // ternary-operator
+            // ternary-condition
             (
                 message
                 && typeof message.message === "string"
@@ -5283,24 +5342,35 @@ if (module === require.main && !globalThis.utility2_rollup) {
      */
         return;
     };
-    // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
-        consoleError = console.error;
-        globalThis["debug\u0049nline"] = function () {
-        /*
-         * this function will both print <arguments> to stderr
-         * and return <arguments>[0]
-         */
-            var argList;
-            argList = Array.from(arguments); // jslint ignore:line
-            // debug arguments
-            globalThis["debug\u0049nlineArguments"] = argList;
-            consoleError("\n\ndebug\u0049nline");
-            consoleError.apply(console, argList);
-            consoleError("\n");
-            // return arg0 for inspection
-            return argList[0];
-        };
+    // require builtin
+    if (!local.isBrowser) {
+        local.assert = require("assert");
+        local.buffer = require("buffer");
+        local.child_process = require("child_process");
+        local.cluster = require("cluster");
+        local.crypto = require("crypto");
+        local.dgram = require("dgram");
+        local.dns = require("dns");
+        local.domain = require("domain");
+        local.events = require("events");
+        local.fs = require("fs");
+        local.http = require("http");
+        local.https = require("https");
+        local.net = require("net");
+        local.os = require("os");
+        local.path = require("path");
+        local.querystring = require("querystring");
+        local.readline = require("readline");
+        local.repl = require("repl");
+        local.stream = require("stream");
+        local.string_decoder = require("string_decoder");
+        local.timers = require("timers");
+        local.tls = require("tls");
+        local.tty = require("tty");
+        local.url = require("url");
+        local.util = require("util");
+        local.vm = require("vm");
+        local.zlib = require("zlib");
     }
 }(this));
 
@@ -5325,39 +5395,10 @@ local = (
 if (local.isBrowser) {
     globalThis.utility2_istanbul = local;
 } else {
-    // require builtins
-    local.assert = require("assert");
-    local.buffer = require("buffer");
-    local.child_process = require("child_process");
-    local.cluster = require("cluster");
-    local.crypto = require("crypto");
-    local.dgram = require("dgram");
-    local.dns = require("dns");
-    local.domain = require("domain");
-    local.events = require("events");
-    local.fs = require("fs");
-    local.http = require("http");
-    local.https = require("https");
-    local.net = require("net");
-    local.os = require("os");
-    local.path = require("path");
-    local.querystring = require("querystring");
-    local.readline = require("readline");
-    local.repl = require("repl");
-    local.stream = require("stream");
-    local.string_decoder = require("string_decoder");
-    local.timers = require("timers");
-    local.tls = require("tls");
-    local.tty = require("tty");
-    local.url = require("url");
-    local.util = require("util");
-    local.vm = require("vm");
-    local.zlib = require("zlib");
     module.exports = local;
     module.exports.__dirname = __dirname;
 }
 // init lib main
-local.local = local;
 local.istanbul = local;
 
 
@@ -5759,21 +5800,24 @@ local.instrumentInPackage = function (code, file) {
  * exists in the code
  */
     return (
-        process.env.npm_config_mode_coverage
-        && code.indexOf("/* istanbul ignore all */\n") < 0 && (
-            process.env.npm_config_mode_coverage === "all"
-            || code.indexOf(
-                "/* istanbul instrument in package "
-                + process.env.npm_package_nameLib + " */\n"
-            ) >= 0
-            || code.indexOf(
-                "/* istanbul instrument in package "
-                + process.env.npm_config_mode_coverage + " */\n"
-            ) >= 0
+        // ternary-condition
+        (
+            process.env.npm_config_mode_coverage
+            && code.indexOf("/* istanbul ignore all */\n") < 0 && (
+                process.env.npm_config_mode_coverage === "all"
+                || code.indexOf(
+                    "/* istanbul instrument in package "
+                    + process.env.npm_package_nameLib + " */\n"
+                ) >= 0
+                || code.indexOf(
+                    "/* istanbul instrument in package "
+                    + process.env.npm_config_mode_coverage + " */\n"
+                ) >= 0
+            )
         )
-    )
-    ? local.instrumentSync(code, file)
-    : code;
+        ? local.instrumentSync(code, file)
+        : code
+    );
 };
 
 local.instrumentSync = function (code, file) {
@@ -8253,8 +8297,29 @@ if (module === require.main && !globalThis.utility2_rollup) {
         } catch (ignore) {}
     }());
     globalThis.globalThis = globalThis;
+    // init debug_inline
+    if (!globalThis["debug\u0049nline"]) {
+        consoleError = console.error;
+        globalThis["debug\u0049nline"] = function () {
+        /*
+         * this function will both print <arguments> to stderr
+         * and return <arguments>[0]
+         */
+            var argList;
+            argList = Array.from(arguments); // jslint ignore:line
+            // debug arguments
+            globalThis["debug\u0049nlineArguments"] = argList;
+            consoleError("\n\ndebug\u0049nline");
+            consoleError.apply(console, argList);
+            consoleError("\n");
+            // return arg0 for inspection
+            return argList[0];
+        };
+    }
     // init local
     local = {};
+    local.local = local;
+    globalThis.globalLocal = local;
     // init isBrowser
     local.isBrowser = (
         typeof window === "object"
@@ -8263,7 +8328,6 @@ if (module === require.main && !globalThis.utility2_rollup) {
         && window.document
         && typeof window.document.querySelectorAll === "function"
     );
-    globalThis.globalLocal = local;
     // init function
     local.assertThrow = function (passed, message) {
     /*
@@ -8274,7 +8338,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
             return;
         }
         error = (
-            // ternary-operator
+            // ternary-condition
             (
                 message
                 && typeof message.message === "string"
@@ -8312,24 +8376,35 @@ if (module === require.main && !globalThis.utility2_rollup) {
      */
         return;
     };
-    // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
-        consoleError = console.error;
-        globalThis["debug\u0049nline"] = function () {
-        /*
-         * this function will both print <arguments> to stderr
-         * and return <arguments>[0]
-         */
-            var argList;
-            argList = Array.from(arguments); // jslint ignore:line
-            // debug arguments
-            globalThis["debug\u0049nlineArguments"] = argList;
-            consoleError("\n\ndebug\u0049nline");
-            consoleError.apply(console, argList);
-            consoleError("\n");
-            // return arg0 for inspection
-            return argList[0];
-        };
+    // require builtin
+    if (!local.isBrowser) {
+        local.assert = require("assert");
+        local.buffer = require("buffer");
+        local.child_process = require("child_process");
+        local.cluster = require("cluster");
+        local.crypto = require("crypto");
+        local.dgram = require("dgram");
+        local.dns = require("dns");
+        local.domain = require("domain");
+        local.events = require("events");
+        local.fs = require("fs");
+        local.http = require("http");
+        local.https = require("https");
+        local.net = require("net");
+        local.os = require("os");
+        local.path = require("path");
+        local.querystring = require("querystring");
+        local.readline = require("readline");
+        local.repl = require("repl");
+        local.stream = require("stream");
+        local.string_decoder = require("string_decoder");
+        local.timers = require("timers");
+        local.tls = require("tls");
+        local.tty = require("tty");
+        local.url = require("url");
+        local.util = require("util");
+        local.vm = require("vm");
+        local.zlib = require("zlib");
     }
 }(this));
 
@@ -8354,39 +8429,10 @@ local = (
 if (local.isBrowser) {
     globalThis.utility2_jslint = local;
 } else {
-    // require builtins
-    local.assert = require("assert");
-    local.buffer = require("buffer");
-    local.child_process = require("child_process");
-    local.cluster = require("cluster");
-    local.crypto = require("crypto");
-    local.dgram = require("dgram");
-    local.dns = require("dns");
-    local.domain = require("domain");
-    local.events = require("events");
-    local.fs = require("fs");
-    local.http = require("http");
-    local.https = require("https");
-    local.net = require("net");
-    local.os = require("os");
-    local.path = require("path");
-    local.querystring = require("querystring");
-    local.readline = require("readline");
-    local.repl = require("repl");
-    local.stream = require("stream");
-    local.string_decoder = require("string_decoder");
-    local.timers = require("timers");
-    local.tls = require("tls");
-    local.tty = require("tty");
-    local.url = require("url");
-    local.util = require("util");
-    local.vm = require("vm");
-    local.zlib = require("zlib");
     module.exports = local;
     module.exports.__dirname = __dirname;
 }
 // init lib main
-local.local = local;
 local.jslint = local;
 
 
@@ -8605,14 +8651,13 @@ local.jsonStringifyOrdered = function (obj, replacer, space) {
         return tmp;
     };
     circularSet = new Set();
-    return JSON.stringify(
+    return JSON.stringify((
+        // ternary-condition
         (typeof obj === "object" && obj)
         // recurse
         ? JSON.parse(stringify(obj))
-        : obj,
-        replacer,
-        space
-    );
+        : obj
+    ), replacer, space);
 };
 }());
 
@@ -10046,14 +10091,14 @@ local.CSSLint = CSSLint;
 
 
 // jslint-hack - var
-var jslint;
+var jslint_extra;
 var jslint_result;
 var line_ignore;
 var lines_extra;
 /*
 file JSLint/jslint.js - es6
-2018-10-26T15:59:47Z - shGithubDateCommitted https://github.com/douglascrockford/JSLint/commits/813d1fb157076ef9df1d773a084c971705e57a84
-https://github.com/douglascrockford/JSLint/blob/813d1fb157076ef9df1d773a084c971705e57a84/jslint.js
+2018-11-14T03:04:33Z - shGithubDateCommitted https://github.com/douglascrockford/JSLint/commits/de413767154641f490d6e96185e525255cca5f7e
+https://github.com/douglascrockford/JSLint/blob/de413767154641f490d6e96185e525255cca5f7e/jslint.js
 node -e '
 "use strict";
 process.argv[1].replace((
@@ -10142,28 +10187,26 @@ console.log(process.argv[2]);
 +        // jslint-hack - unexpected_a
 +        warn("unexpected_a", right, null, null, left, right);
 
--                const mislaid = (
--                    stack.length > 0
--                    ? stack[stack.length - 1].right
--                    : undefined
+-                warn(
+-                    (
+-                        (
+-                            thing.id === "(string)"
+-                            && thing.value === "use strict"
+-                        )
+-                        ? "unexpected_a"
+-                        : "unexpected_expression_a"
+-                    ),
+-                    thing
 -                );
--                if (!open && mislaid !== undefined) {
--                    warn(
--                        "expected_a_next_at_b",
--                        mislaid,
--                        artifact(mislaid.id),
--                        margin + 4 + fudge
--                    );
--                } else if (right.from !== margin + 8) {
--                    expected_at(margin + 8);
--                }
-+                // jslint-hack - expected_space_a_b
-+                warn(
-+                    "expected_space_a_b",
-+                    right,
-+                    artifact(left),
-+                    artifact(right)
-+                );
++                warn((
++                    // jslint-hack - ternary-condition
++                    (
++                        thing.id === "(string)"
++                        && thing.value === "use strict"
++                    )
++                    ? "unexpected_a"
++                    : "unexpected_expression_a"
++                ), thing);
 
 -                        margin += 4;
 +                        // jslint-hack - conditional-margin
@@ -10199,13 +10242,13 @@ console.log(process.argv[2]);
 +        e.early_stop = true;
 
 ' \
-"$(curl https://raw.githubusercontent.com/douglascrockford/JSLint/813d1fb157076ef9df1d773a084c971705e57a84/jslint.js)" > /tmp/aa.js; utility2-jslint autofix /tmp/aa.js
+"$(curl https://raw.githubusercontent.com/douglascrockford/JSLint/de413767154641f490d6e96185e525255cca5f7e/jslint.js)" > /tmp/aa.js; utility2-jslint autofix /tmp/aa.js
 */
 /* jslint utility2:true */
 var next_line_extra = null;
 var warn_at_extra = null;
 // jslint.js
-// 2018-10-26
+// 2018-11-13
 // Copyright (c) 2015 Douglas Crockford  (www.JSLint.com)
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -10312,21 +10355,21 @@ var warn_at_extra = null;
     missing_m, module, multivar, naked_block, name, names, nested_comment, new,
     node, not_label_a, nr, nud, number_isNaN, ok, open, opening, option,
     out_of_scope_a, parameters, parent, pop, property, push, quote,
-    redefinition_a_b, replace, required_a_optional_b, reserved_a, right, role,
-    search, shebang, signature, single, slice, some, sort, split, startsWith,
-    statement, stop, strict, subscript_a, switch, test, this, thru, toString,
-    todo_comment, tokens, too_long, too_many_digits, tree, try, type, u,
-    unclosed_comment, unclosed_mega, unclosed_string, undeclared_a,
-    unexpected_a, unexpected_a_after_b, unexpected_a_before_b,
-    unexpected_at_top_level_a, unexpected_char_a, unexpected_comment,
-    unexpected_directive_a, unexpected_expression_a, unexpected_label_a,
-    unexpected_parens, unexpected_space_a_b, unexpected_statement_a,
-    unexpected_trailing_space, unexpected_typeof_a, uninitialized_a,
-    unreachable_a, unregistered_property_a, unsafe, unused_a, use_double,
-    use_open, use_spaces, use_strict, used, value, var_loop, var_switch,
-    variable, warning, warnings, weird_condition_a, weird_expression_a,
-    weird_loop, weird_relation_a, white, wrap_condition, wrap_immediate,
-    wrap_parameter, wrap_regexp, wrap_unary, wrapped, writable, y
+    redefinition_a_b, replace, required_a_optional_b, reserved_a, role, search,
+    shebang, signature, single, slice, some, sort, split, startsWith, statement,
+    stop, strict, subscript_a, switch, test, this, thru, toString, todo_comment,
+    tokens, too_long, too_many_digits, tree, try, type, u, unclosed_comment,
+    unclosed_mega, unclosed_string, undeclared_a, unexpected_a,
+    unexpected_a_after_b, unexpected_a_before_b, unexpected_at_top_level_a,
+    unexpected_char_a, unexpected_comment, unexpected_directive_a,
+    unexpected_expression_a, unexpected_label_a, unexpected_parens,
+    unexpected_space_a_b, unexpected_statement_a, unexpected_trailing_space,
+    unexpected_typeof_a, uninitialized_a, unreachable_a,
+    unregistered_property_a, unsafe, unused_a, use_double, use_open, use_spaces,
+    use_strict, used, value, var_loop, var_switch, variable, warning, warnings,
+    weird_condition_a, weird_expression_a, weird_loop, weird_relation_a, white,
+    wrap_condition, wrap_immediate, wrap_parameter, wrap_regexp, wrap_unary,
+    wrapped, writable, y
 */
 
 function empty() {
@@ -10856,7 +10899,6 @@ function tokenize(source) {
         if (
             !option.long
             //!! && whole_line.length > 80
-            // jslint-hack - 100
             && whole_line.length > (
                 option.utility2
                 ? 100
@@ -12586,6 +12628,9 @@ function ternary(id1, id2) {
         token.arity = "ternary";
         the_token.arity = "ternary";
         the_token.expression = [left, second, expression(10)];
+        if (next_token.id !== ")") {
+            warn("use_open", the_token);
+        }
         return the_token;
     };
     return the_symbol;
@@ -14042,12 +14087,15 @@ function walk_statement(thing) {
                 thing.arity !== "statement"
                 && thing.arity !== "assignment"
             ) {
-                warn(
-                    (thing.id === "(string)" && thing.value === "use strict")
+                warn((
+                    // jslint-hack - ternary-condition
+                    (
+                        thing.id === "(string)"
+                        && thing.value === "use strict"
+                    )
                     ? "unexpected_a"
-                    : "unexpected_expression_a",
-                    thing
-                );
+                    : "unexpected_expression_a"
+                ), thing);
             }
             walk_statement(thing.block);
             walk_statement(thing.else);
@@ -14840,7 +14888,7 @@ function whitage() {
     }
 
     function one_space() {
-        if (left.line === right.line) {
+        if (left.line === right.line || !open) {
             if (left.thru + 1 !== right.from && nr_comments_skipped === 0) {
                 warn(
                     "expected_space_a_b",
@@ -14850,19 +14898,9 @@ function whitage() {
                 );
             }
         } else {
-            if (free) {
-                // jslint-hack - expected_at
-                if (right.from !== margin) {
-                    expected_at(margin);
-                }
-            } else {
-                // jslint-hack - expected_space_a_b
-                warn(
-                    "expected_space_a_b",
-                    right,
-                    artifact(left),
-                    artifact(right)
-                );
+            // jslint-hack - expected_at
+            if (right.from !== margin) {
+                expected_at(margin);
             }
         }
     }
@@ -15210,7 +15248,7 @@ var jslint0 = Object.freeze(function (
     }
     return {
         directives,
-        edition: "2018-10-26",
+        edition: "2018-11-13",
         exports,
         froms,
         functions,
@@ -15239,68 +15277,48 @@ var jslint0 = Object.freeze(function (
 file none
 */
 // jslint-hack - extra
-jslint = function (source, option, global_array) {
+jslint_extra = function (source, option, global_array) {
 /*
  * this function will run with extra-features inside jslint-function jslint()
  */
-    var ii;
-    var jj;
-    var source0;
-    option = option || {};
-    // autofix
-    if (option.autofix && !option.autofix_subroutine) {
-        option.autofix_subroutine = true;
-        return jslint(source, option, global_array);
-    }
     // init
-    ii = 0;
-    source = source || "";
-    while (true) {
-        ii += 1;
-        line_ignore = null;
-        lines = (
-            Array.isArray(source)
-            ? source
-            : source.split(rx_crlf)
-        );
-        jj = 0;
-        lines_extra = [];
-        while (jj < lines.length) {
-            lines_extra.push({});
-            jj += 1;
-        }
-        jslint_result = jslint0(source, option, global_array);
-        source0 = source;
-        source = "";
-        jj = 0;
-        while (jj < lines.length) {
-            source += (lines_extra[jj].source_autofix || lines[jj]) + "\n";
-            jj += 1;
-        }
-        source = source.slice(0, -1)
-        // expected_space_a_b: "Expected one space between '{a}' and '{b}'.",
-        // unexpected_space_a_b: "Unexpected space between '{a}' and '{b}'.",
-        .replace((
-            /\s+?\u0000/g
-        ), "\u0000")
-        .replace((
-            /(\n\u0020+)(.*?)\n\u0020*?(\/\/.*?)\u0000/g
-        ), "$1$3$1$2\u0000")
-        .replace((
-            /\u0000expected_space_a_b\u0000/g
-        ), " ")
-        .replace((
-            /\u0000unexpected_space_a_b\u0000/g
-        ), "");
-        if (ii >= 10 || jslint_result.stop || source === source0) {
-            break;
-        }
-    }
+    line_ignore = null;
+    lines = (
+        // ternary-condition
+        Array.isArray(source)
+        ? source
+        : source.split(rx_crlf)
+    );
+    lines_extra = lines.map(function () {
+        return {};
+    });
+    // jslint
+    jslint_result = jslint0(lines, option, global_array);
+    // autofix
+    source = lines_extra
+    .map(function (element, ii) {
+        return element.source_autofix || lines[ii];
+    })
+    .join("\n")
+    // expected_space_a_b: "Expected one space between '{a}' and '{b}'.",
+    // unexpected_space_a_b: "Unexpected space between '{a}' and '{b}'.",
+    .replace((
+        /\s+?\u0000/g
+    ), "\u0000")
+    .replace((
+        /(\n\u0020+)(.*?)\n\u0020*?(\/\/.*?)\u0000/g
+    ), "$1$3$1$2\u0000")
+    .replace((
+        /\u0000expected_space_a_b\u0000/g
+    ), " ")
+    .replace((
+        /\u0000unexpected_space_a_b\u0000/g
+    ), "");
     jslint_result.lines_extra = lines_extra;
     jslint_result.source_autofix = source;
     return jslint_result;
 };
-local.jslintEs6 = jslint;
+local.jslint_extra = jslint_extra;
 next_line_extra = function (source_line, line) {
 /*
  * this function will run with extra-features inside jslint-function next_line()
@@ -15491,11 +15509,6 @@ warn_at_extra = function (warning, warnings) {
 
 // run shared js-env code - function
 (function () {
-var jslint;
-jslint = local.jslintEs6;
-
-
-
 local.csslintUtility2 = function (code) {
 /*
  * this function will csslint <code> with utility2-specific rules
@@ -15629,6 +15642,7 @@ local.jslintAndPrint = function (code, file, options) {
 /*
  * this function will jslint / csslint <code> and print any errors to stderr
  */
+    var code0;
     var code2;
     var dataList;
     var ii;
@@ -15912,11 +15926,13 @@ local.jslintAndPrint = function (code, file, options) {
         .replace((
             /\/_\/[\w\s]*(\S)/g
         ), function (match0, match1) {
-            return match1 === ")"
-            ? match0
-            : match0.replace((
-                /\/_\/\w*/
-            ), "($&)");
+            return (
+                match1 === ")"
+                ? match0
+                : match0.replace((
+                    /\/_\/\w*/
+                ), "($&)")
+            );
         })
         .replace((
             /\((\/_\/\w*)\)/g
@@ -16070,7 +16086,16 @@ local.jslintAndPrint = function (code, file, options) {
             return dataList.shift().data;
         });
         // autofix - jslint
-        Object.assign(options, jslint(code2, options));
+        ii = 0;
+        while (true) {
+            ii += 1;
+            code0 = code2;
+            Object.assign(options, local.jslint_extra(code2, options));
+            code2 = options.source_autofix;
+            if (ii >= 10 || options.stop || code0 === code2) {
+                break;
+            }
+        }
         // mux - code2, dataList.</_/> -> code2
         code2 = code2
         .replace((
@@ -16079,9 +16104,6 @@ local.jslintAndPrint = function (code, file, options) {
             return dataList.shift().data;
         });
         code = code2;
-        if (!options.utility2) {
-            break;
-        }
         // autofix - sort const, let, var
         code = code.replace((
             /(?:^\u0020*?(?:const|let|var)\u0020[\w$]*?;.*?\n)+/gm
@@ -16168,12 +16190,12 @@ local.jslintAndPrint = function (code, file, options) {
             break;
         default:
             // jslint
-            Object.assign(options, jslint(
-                code,
+            Object.assign(options, local.jslint_extra(code, (
+                // ternary-condition
                 options.fileType === ".json"
                 ? {}
                 : options
-            ));
+            )));
             options.fileType = (
                 options.json
                 ? ".json"
@@ -16543,8 +16565,29 @@ if (module === require.main && !globalThis.utility2_rollup) {
         } catch (ignore) {}
     }());
     globalThis.globalThis = globalThis;
+    // init debug_inline
+    if (!globalThis["debug\u0049nline"]) {
+        consoleError = console.error;
+        globalThis["debug\u0049nline"] = function () {
+        /*
+         * this function will both print <arguments> to stderr
+         * and return <arguments>[0]
+         */
+            var argList;
+            argList = Array.from(arguments); // jslint ignore:line
+            // debug arguments
+            globalThis["debug\u0049nlineArguments"] = argList;
+            consoleError("\n\ndebug\u0049nline");
+            consoleError.apply(console, argList);
+            consoleError("\n");
+            // return arg0 for inspection
+            return argList[0];
+        };
+    }
     // init local
     local = {};
+    local.local = local;
+    globalThis.globalLocal = local;
     // init isBrowser
     local.isBrowser = (
         typeof window === "object"
@@ -16553,7 +16596,6 @@ if (module === require.main && !globalThis.utility2_rollup) {
         && window.document
         && typeof window.document.querySelectorAll === "function"
     );
-    globalThis.globalLocal = local;
     // init function
     local.assertThrow = function (passed, message) {
     /*
@@ -16564,7 +16606,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
             return;
         }
         error = (
-            // ternary-operator
+            // ternary-condition
             (
                 message
                 && typeof message.message === "string"
@@ -16602,24 +16644,35 @@ if (module === require.main && !globalThis.utility2_rollup) {
      */
         return;
     };
-    // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
-        consoleError = console.error;
-        globalThis["debug\u0049nline"] = function () {
-        /*
-         * this function will both print <arguments> to stderr
-         * and return <arguments>[0]
-         */
-            var argList;
-            argList = Array.from(arguments); // jslint ignore:line
-            // debug arguments
-            globalThis["debug\u0049nlineArguments"] = argList;
-            consoleError("\n\ndebug\u0049nline");
-            consoleError.apply(console, argList);
-            consoleError("\n");
-            // return arg0 for inspection
-            return argList[0];
-        };
+    // require builtin
+    if (!local.isBrowser) {
+        local.assert = require("assert");
+        local.buffer = require("buffer");
+        local.child_process = require("child_process");
+        local.cluster = require("cluster");
+        local.crypto = require("crypto");
+        local.dgram = require("dgram");
+        local.dns = require("dns");
+        local.domain = require("domain");
+        local.events = require("events");
+        local.fs = require("fs");
+        local.http = require("http");
+        local.https = require("https");
+        local.net = require("net");
+        local.os = require("os");
+        local.path = require("path");
+        local.querystring = require("querystring");
+        local.readline = require("readline");
+        local.repl = require("repl");
+        local.stream = require("stream");
+        local.string_decoder = require("string_decoder");
+        local.timers = require("timers");
+        local.tls = require("tls");
+        local.tty = require("tty");
+        local.url = require("url");
+        local.util = require("util");
+        local.vm = require("vm");
+        local.zlib = require("zlib");
     }
 }(this));
 
@@ -16644,39 +16697,10 @@ local = (
 if (local.isBrowser) {
     globalThis.utility2_marked = local;
 } else {
-    // require builtins
-    local.assert = require("assert");
-    local.buffer = require("buffer");
-    local.child_process = require("child_process");
-    local.cluster = require("cluster");
-    local.crypto = require("crypto");
-    local.dgram = require("dgram");
-    local.dns = require("dns");
-    local.domain = require("domain");
-    local.events = require("events");
-    local.fs = require("fs");
-    local.http = require("http");
-    local.https = require("https");
-    local.net = require("net");
-    local.os = require("os");
-    local.path = require("path");
-    local.querystring = require("querystring");
-    local.readline = require("readline");
-    local.repl = require("repl");
-    local.stream = require("stream");
-    local.string_decoder = require("string_decoder");
-    local.timers = require("timers");
-    local.tls = require("tls");
-    local.tty = require("tty");
-    local.url = require("url");
-    local.util = require("util");
-    local.vm = require("vm");
-    local.zlib = require("zlib");
     module.exports = local;
     module.exports.__dirname = __dirname;
 }
 // init lib main
-local.local = local;
 local.marked = local;
 
 
@@ -16915,8 +16939,29 @@ if (local.isBrowser) {
         } catch (ignore) {}
     }());
     globalThis.globalThis = globalThis;
+    // init debug_inline
+    if (!globalThis["debug\u0049nline"]) {
+        consoleError = console.error;
+        globalThis["debug\u0049nline"] = function () {
+        /*
+         * this function will both print <arguments> to stderr
+         * and return <arguments>[0]
+         */
+            var argList;
+            argList = Array.from(arguments); // jslint ignore:line
+            // debug arguments
+            globalThis["debug\u0049nlineArguments"] = argList;
+            consoleError("\n\ndebug\u0049nline");
+            consoleError.apply(console, argList);
+            consoleError("\n");
+            // return arg0 for inspection
+            return argList[0];
+        };
+    }
     // init local
     local = {};
+    local.local = local;
+    globalThis.globalLocal = local;
     // init isBrowser
     local.isBrowser = (
         typeof window === "object"
@@ -16925,7 +16970,6 @@ if (local.isBrowser) {
         && window.document
         && typeof window.document.querySelectorAll === "function"
     );
-    globalThis.globalLocal = local;
     // init function
     local.assertThrow = function (passed, message) {
     /*
@@ -16936,7 +16980,7 @@ if (local.isBrowser) {
             return;
         }
         error = (
-            // ternary-operator
+            // ternary-condition
             (
                 message
                 && typeof message.message === "string"
@@ -16974,24 +17018,35 @@ if (local.isBrowser) {
      */
         return;
     };
-    // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
-        consoleError = console.error;
-        globalThis["debug\u0049nline"] = function () {
-        /*
-         * this function will both print <arguments> to stderr
-         * and return <arguments>[0]
-         */
-            var argList;
-            argList = Array.from(arguments); // jslint ignore:line
-            // debug arguments
-            globalThis["debug\u0049nlineArguments"] = argList;
-            consoleError("\n\ndebug\u0049nline");
-            consoleError.apply(console, argList);
-            consoleError("\n");
-            // return arg0 for inspection
-            return argList[0];
-        };
+    // require builtin
+    if (!local.isBrowser) {
+        local.assert = require("assert");
+        local.buffer = require("buffer");
+        local.child_process = require("child_process");
+        local.cluster = require("cluster");
+        local.crypto = require("crypto");
+        local.dgram = require("dgram");
+        local.dns = require("dns");
+        local.domain = require("domain");
+        local.events = require("events");
+        local.fs = require("fs");
+        local.http = require("http");
+        local.https = require("https");
+        local.net = require("net");
+        local.os = require("os");
+        local.path = require("path");
+        local.querystring = require("querystring");
+        local.readline = require("readline");
+        local.repl = require("repl");
+        local.stream = require("stream");
+        local.string_decoder = require("string_decoder");
+        local.timers = require("timers");
+        local.tls = require("tls");
+        local.tty = require("tty");
+        local.url = require("url");
+        local.util = require("util");
+        local.vm = require("vm");
+        local.zlib = require("zlib");
     }
 }(this));
 
@@ -17016,39 +17071,10 @@ local = (
 if (local.isBrowser) {
     globalThis.utility2_sjcl = local;
 } else {
-    // require builtins
-    local.assert = require("assert");
-    local.buffer = require("buffer");
-    local.child_process = require("child_process");
-    local.cluster = require("cluster");
-    local.crypto = require("crypto");
-    local.dgram = require("dgram");
-    local.dns = require("dns");
-    local.domain = require("domain");
-    local.events = require("events");
-    local.fs = require("fs");
-    local.http = require("http");
-    local.https = require("https");
-    local.net = require("net");
-    local.os = require("os");
-    local.path = require("path");
-    local.querystring = require("querystring");
-    local.readline = require("readline");
-    local.repl = require("repl");
-    local.stream = require("stream");
-    local.string_decoder = require("string_decoder");
-    local.timers = require("timers");
-    local.tls = require("tls");
-    local.tty = require("tty");
-    local.url = require("url");
-    local.util = require("util");
-    local.vm = require("vm");
-    local.zlib = require("zlib");
     module.exports = local;
     module.exports.__dirname = __dirname;
 }
 // init lib main
-local.local = local;
 local.sjcl = local;
 
 
@@ -17516,8 +17542,29 @@ if (local.isBrowser) {
         } catch (ignore) {}
     }());
     globalThis.globalThis = globalThis;
+    // init debug_inline
+    if (!globalThis["debug\u0049nline"]) {
+        consoleError = console.error;
+        globalThis["debug\u0049nline"] = function () {
+        /*
+         * this function will both print <arguments> to stderr
+         * and return <arguments>[0]
+         */
+            var argList;
+            argList = Array.from(arguments); // jslint ignore:line
+            // debug arguments
+            globalThis["debug\u0049nlineArguments"] = argList;
+            consoleError("\n\ndebug\u0049nline");
+            consoleError.apply(console, argList);
+            consoleError("\n");
+            // return arg0 for inspection
+            return argList[0];
+        };
+    }
     // init local
     local = {};
+    local.local = local;
+    globalThis.globalLocal = local;
     // init isBrowser
     local.isBrowser = (
         typeof window === "object"
@@ -17526,7 +17573,6 @@ if (local.isBrowser) {
         && window.document
         && typeof window.document.querySelectorAll === "function"
     );
-    globalThis.globalLocal = local;
     // init function
     local.assertThrow = function (passed, message) {
     /*
@@ -17537,7 +17583,7 @@ if (local.isBrowser) {
             return;
         }
         error = (
-            // ternary-operator
+            // ternary-condition
             (
                 message
                 && typeof message.message === "string"
@@ -17575,24 +17621,35 @@ if (local.isBrowser) {
      */
         return;
     };
-    // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
-        consoleError = console.error;
-        globalThis["debug\u0049nline"] = function () {
-        /*
-         * this function will both print <arguments> to stderr
-         * and return <arguments>[0]
-         */
-            var argList;
-            argList = Array.from(arguments); // jslint ignore:line
-            // debug arguments
-            globalThis["debug\u0049nlineArguments"] = argList;
-            consoleError("\n\ndebug\u0049nline");
-            consoleError.apply(console, argList);
-            consoleError("\n");
-            // return arg0 for inspection
-            return argList[0];
-        };
+    // require builtin
+    if (!local.isBrowser) {
+        local.assert = require("assert");
+        local.buffer = require("buffer");
+        local.child_process = require("child_process");
+        local.cluster = require("cluster");
+        local.crypto = require("crypto");
+        local.dgram = require("dgram");
+        local.dns = require("dns");
+        local.domain = require("domain");
+        local.events = require("events");
+        local.fs = require("fs");
+        local.http = require("http");
+        local.https = require("https");
+        local.net = require("net");
+        local.os = require("os");
+        local.path = require("path");
+        local.querystring = require("querystring");
+        local.readline = require("readline");
+        local.repl = require("repl");
+        local.stream = require("stream");
+        local.string_decoder = require("string_decoder");
+        local.timers = require("timers");
+        local.tls = require("tls");
+        local.tty = require("tty");
+        local.url = require("url");
+        local.util = require("util");
+        local.vm = require("vm");
+        local.zlib = require("zlib");
     }
 }(this));
 
@@ -17617,39 +17674,10 @@ local = (
 if (local.isBrowser) {
     globalThis.utility2_uglifyjs = local;
 } else {
-    // require builtins
-    local.assert = require("assert");
-    local.buffer = require("buffer");
-    local.child_process = require("child_process");
-    local.cluster = require("cluster");
-    local.crypto = require("crypto");
-    local.dgram = require("dgram");
-    local.dns = require("dns");
-    local.domain = require("domain");
-    local.events = require("events");
-    local.fs = require("fs");
-    local.http = require("http");
-    local.https = require("https");
-    local.net = require("net");
-    local.os = require("os");
-    local.path = require("path");
-    local.querystring = require("querystring");
-    local.readline = require("readline");
-    local.repl = require("repl");
-    local.stream = require("stream");
-    local.string_decoder = require("string_decoder");
-    local.timers = require("timers");
-    local.tls = require("tls");
-    local.tty = require("tty");
-    local.url = require("url");
-    local.util = require("util");
-    local.vm = require("vm");
-    local.zlib = require("zlib");
     module.exports = local;
     module.exports.__dirname = __dirname;
 }
 // init lib main
-local.local = local;
 local.uglifyjs = local;
 
 
@@ -18563,8 +18591,29 @@ if (module === require.main && !globalThis.utility2_rollup) {
         } catch (ignore) {}
     }());
     globalThis.globalThis = globalThis;
+    // init debug_inline
+    if (!globalThis["debug\u0049nline"]) {
+        consoleError = console.error;
+        globalThis["debug\u0049nline"] = function () {
+        /*
+         * this function will both print <arguments> to stderr
+         * and return <arguments>[0]
+         */
+            var argList;
+            argList = Array.from(arguments); // jslint ignore:line
+            // debug arguments
+            globalThis["debug\u0049nlineArguments"] = argList;
+            consoleError("\n\ndebug\u0049nline");
+            consoleError.apply(console, argList);
+            consoleError("\n");
+            // return arg0 for inspection
+            return argList[0];
+        };
+    }
     // init local
     local = {};
+    local.local = local;
+    globalThis.globalLocal = local;
     // init isBrowser
     local.isBrowser = (
         typeof window === "object"
@@ -18573,7 +18622,6 @@ if (module === require.main && !globalThis.utility2_rollup) {
         && window.document
         && typeof window.document.querySelectorAll === "function"
     );
-    globalThis.globalLocal = local;
     // init function
     local.assertThrow = function (passed, message) {
     /*
@@ -18584,7 +18632,7 @@ if (module === require.main && !globalThis.utility2_rollup) {
             return;
         }
         error = (
-            // ternary-operator
+            // ternary-condition
             (
                 message
                 && typeof message.message === "string"
@@ -18622,24 +18670,35 @@ if (module === require.main && !globalThis.utility2_rollup) {
      */
         return;
     };
-    // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
-        consoleError = console.error;
-        globalThis["debug\u0049nline"] = function () {
-        /*
-         * this function will both print <arguments> to stderr
-         * and return <arguments>[0]
-         */
-            var argList;
-            argList = Array.from(arguments); // jslint ignore:line
-            // debug arguments
-            globalThis["debug\u0049nlineArguments"] = argList;
-            consoleError("\n\ndebug\u0049nline");
-            consoleError.apply(console, argList);
-            consoleError("\n");
-            // return arg0 for inspection
-            return argList[0];
-        };
+    // require builtin
+    if (!local.isBrowser) {
+        local.assert = require("assert");
+        local.buffer = require("buffer");
+        local.child_process = require("child_process");
+        local.cluster = require("cluster");
+        local.crypto = require("crypto");
+        local.dgram = require("dgram");
+        local.dns = require("dns");
+        local.domain = require("domain");
+        local.events = require("events");
+        local.fs = require("fs");
+        local.http = require("http");
+        local.https = require("https");
+        local.net = require("net");
+        local.os = require("os");
+        local.path = require("path");
+        local.querystring = require("querystring");
+        local.readline = require("readline");
+        local.repl = require("repl");
+        local.stream = require("stream");
+        local.string_decoder = require("string_decoder");
+        local.timers = require("timers");
+        local.tls = require("tls");
+        local.tty = require("tty");
+        local.url = require("url");
+        local.util = require("util");
+        local.vm = require("vm");
+        local.zlib = require("zlib");
     }
 }(this));
 
@@ -18664,39 +18723,10 @@ local = (
 if (local.isBrowser) {
     globalThis.utility2_utility2 = local;
 } else {
-    // require builtins
-    local.assert = require("assert");
-    local.buffer = require("buffer");
-    local.child_process = require("child_process");
-    local.cluster = require("cluster");
-    local.crypto = require("crypto");
-    local.dgram = require("dgram");
-    local.dns = require("dns");
-    local.domain = require("domain");
-    local.events = require("events");
-    local.fs = require("fs");
-    local.http = require("http");
-    local.https = require("https");
-    local.net = require("net");
-    local.os = require("os");
-    local.path = require("path");
-    local.querystring = require("querystring");
-    local.readline = require("readline");
-    local.repl = require("repl");
-    local.stream = require("stream");
-    local.string_decoder = require("string_decoder");
-    local.timers = require("timers");
-    local.tls = require("tls");
-    local.tty = require("tty");
-    local.url = require("url");
-    local.util = require("util");
-    local.vm = require("vm");
-    local.zlib = require("zlib");
     module.exports = local;
     module.exports.__dirname = __dirname;
 }
 // init lib main
-local.local = local;
 local.utility2 = local;
 
 
@@ -18721,7 +18751,12 @@ globalThis.utility2 = local;
             ? globalThis["utility2_" + key]
             : require("./lib." + key + ".js")
         );
-    } catch (ignore) {}
+    } catch (errorCaught) {
+        local.assertThrow(
+            errorCaught.code === "MODULE_NOT_FOUND",
+            errorCaught
+        );
+    }
     local[key] = local[key] || {};
 });
 // init assets and templates
@@ -19048,8 +19083,29 @@ local.assetsDict["/assets.example.begin.js"] = '\
         } catch (ignore) {}\n\
     }());\n\
     globalThis.globalThis = globalThis;\n\
+    // init debug_inline\n\
+    if (!globalThis["debug\\u0049nline"]) {\n\
+        consoleError = console.error;\n\
+        globalThis["debug\\u0049nline"] = function () {\n\
+        /*\n\
+         * this function will both print <arguments> to stderr\n\
+         * and return <arguments>[0]\n\
+         */\n\
+            var argList;\n\
+            argList = Array.from(arguments); // jslint ignore:line\n\
+            // debug arguments\n\
+            globalThis["debug\\u0049nlineArguments"] = argList;\n\
+            consoleError("\\n\\ndebug\\u0049nline");\n\
+            consoleError.apply(console, argList);\n\
+            consoleError("\\n");\n\
+            // return arg0 for inspection\n\
+            return argList[0];\n\
+        };\n\
+    }\n\
     // init local\n\
     local = {};\n\
+    local.local = local;\n\
+    globalThis.globalLocal = local;\n\
     // init isBrowser\n\
     local.isBrowser = (\n\
         typeof window === "object"\n\
@@ -19058,7 +19114,6 @@ local.assetsDict["/assets.example.begin.js"] = '\
         && window.document\n\
         && typeof window.document.querySelectorAll === "function"\n\
     );\n\
-    globalThis.globalLocal = local;\n\
     // init function\n\
     local.assertThrow = function (passed, message) {\n\
     /*\n\
@@ -19069,7 +19124,7 @@ local.assetsDict["/assets.example.begin.js"] = '\
             return;\n\
         }\n\
         error = (\n\
-            // ternary-operator\n\
+            // ternary-condition\n\
             (\n\
                 message\n\
                 && typeof message.message === "string"\n\
@@ -19107,24 +19162,35 @@ local.assetsDict["/assets.example.begin.js"] = '\
      */\n\
         return;\n\
     };\n\
-    // init debug_inline\n\
-    if (!globalThis["debug\\u0049nline"]) {\n\
-        consoleError = console.error;\n\
-        globalThis["debug\\u0049nline"] = function () {\n\
-        /*\n\
-         * this function will both print <arguments> to stderr\n\
-         * and return <arguments>[0]\n\
-         */\n\
-            var argList;\n\
-            argList = Array.from(arguments); // jslint ignore:line\n\
-            // debug arguments\n\
-            globalThis["debug\\u0049nlineArguments"] = argList;\n\
-            consoleError("\\n\\ndebug\\u0049nline");\n\
-            consoleError.apply(console, argList);\n\
-            consoleError("\\n");\n\
-            // return arg0 for inspection\n\
-            return argList[0];\n\
-        };\n\
+    // require builtin\n\
+    if (!local.isBrowser) {\n\
+        local.assert = require("assert");\n\
+        local.buffer = require("buffer");\n\
+        local.child_process = require("child_process");\n\
+        local.cluster = require("cluster");\n\
+        local.crypto = require("crypto");\n\
+        local.dgram = require("dgram");\n\
+        local.dns = require("dns");\n\
+        local.domain = require("domain");\n\
+        local.events = require("events");\n\
+        local.fs = require("fs");\n\
+        local.http = require("http");\n\
+        local.https = require("https");\n\
+        local.net = require("net");\n\
+        local.os = require("os");\n\
+        local.path = require("path");\n\
+        local.querystring = require("querystring");\n\
+        local.readline = require("readline");\n\
+        local.repl = require("repl");\n\
+        local.stream = require("stream");\n\
+        local.string_decoder = require("string_decoder");\n\
+        local.timers = require("timers");\n\
+        local.tls = require("tls");\n\
+        local.tty = require("tty");\n\
+        local.url = require("url");\n\
+        local.util = require("util");\n\
+        local.vm = require("vm");\n\
+        local.zlib = require("zlib");\n\
     }\n\
 }(this));\n\
 '
@@ -19321,34 +19387,6 @@ if (local.isBrowser) {\n\
 }\n\
 // init exports\n\
 module.exports = local;\n\
-// require builtins\n\
-local.assert = require("assert");\n\
-local.buffer = require("buffer");\n\
-local.child_process = require("child_process");\n\
-local.cluster = require("cluster");\n\
-local.crypto = require("crypto");\n\
-local.dgram = require("dgram");\n\
-local.dns = require("dns");\n\
-local.domain = require("domain");\n\
-local.events = require("events");\n\
-local.fs = require("fs");\n\
-local.http = require("http");\n\
-local.https = require("https");\n\
-local.net = require("net");\n\
-local.os = require("os");\n\
-local.path = require("path");\n\
-local.querystring = require("querystring");\n\
-local.readline = require("readline");\n\
-local.repl = require("repl");\n\
-local.stream = require("stream");\n\
-local.string_decoder = require("string_decoder");\n\
-local.timers = require("timers");\n\
-local.tls = require("tls");\n\
-local.tty = require("tty");\n\
-local.url = require("url");\n\
-local.util = require("util");\n\
-local.vm = require("vm");\n\
-local.zlib = require("zlib");\n\
 /* validateLineSortedReset */\n\
 // init assets\n\
 local.assetsDict = local.assetsDict || {};\n\
@@ -19473,39 +19511,10 @@ local = (\n\
 if (local.isBrowser) {\n\
     globalThis.utility2_my_app = local;\n\
 } else {\n\
-    // require builtins\n\
-    local.assert = require(\"assert\");\n\
-    local.buffer = require("buffer");\n\
-    local.child_process = require("child_process");\n\
-    local.cluster = require("cluster");\n\
-    local.crypto = require("crypto");\n\
-    local.dgram = require("dgram");\n\
-    local.dns = require("dns");\n\
-    local.domain = require("domain");\n\
-    local.events = require("events");\n\
-    local.fs = require("fs");\n\
-    local.http = require("http");\n\
-    local.https = require("https");\n\
-    local.net = require("net");\n\
-    local.os = require("os");\n\
-    local.path = require("path");\n\
-    local.querystring = require("querystring");\n\
-    local.readline = require("readline");\n\
-    local.repl = require("repl");\n\
-    local.stream = require("stream");\n\
-    local.string_decoder = require("string_decoder");\n\
-    local.timers = require("timers");\n\
-    local.tls = require("tls");\n\
-    local.tty = require("tty");\n\
-    local.url = require("url");\n\
-    local.util = require("util");\n\
-    local.vm = require("vm");\n\
-    local.zlib = require("zlib");\n\
     module.exports = local;\n\
     module.exports.__dirname = __dirname;\n\
 }\n\
 // init lib main\n\
-local.local = local;\n\
 local.my_app = local;\n\
 \n\
 \n\
@@ -19741,100 +19750,6 @@ shBuildCi\n\
 \n\
 # misc\n\
 - this package was created with [utility2](https://github.com/kaizhu256/node-utility2)\n\
-';
-
-
-
-local.assetsDict["/assets.readmeCustomOrg.npmdoc.template.md"] = '\
-# npmdoc-{{env.npm_package_name}}\n\
-\n\
-#### basic api documentation for \
-{{#if env.npm_package_homepage}} \
-[{{env.npm_package_name}} ({{env.npm_package_version}})]({{env.npm_package_homepage}}) \
-{{#unless env.npm_package_homepage}} \
-{{env.npm_package_name}} ({{env.npm_package_version}}) \
-{{/if env.npm_package_homepage}} \
-[![travis-ci.org build-status](https://api.travis-ci.org/npmdoc/node-npmdoc-{{env.npm_package_name}}.svg)](https://travis-ci.org/npmdoc/node-npmdoc-{{env.npm_package_name}})\n\
-\n\
-#### {{env.npm_package_description}}\n\
-\n\
-[![NPM](https://nodei.co/npm/{{env.npm_package_name}}.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/{{env.npm_package_name}})\n\
-\n\
-- [https://npmdoc.github.io/node-npmdoc-{{env.npm_package_name}}/build/apidoc.html](https://npmdoc.github.io/node-npmdoc-{{env.npm_package_name}}/build/apidoc.html)\n\
-\n\
-[![apidoc](https://npmdoc.github.io/node-npmdoc-{{env.npm_package_name}}/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://npmdoc.github.io/node-npmdoc-{{env.npm_package_name}}/build/apidoc.html)\n\
-\n\
-![npmPackageListing](https://npmdoc.github.io/node-npmdoc-{{env.npm_package_name}}/build/screenshot.npmPackageListing.svg)\n\
-\n\
-![npmPackageDependencyTree](https://npmdoc.github.io/node-npmdoc-{{env.npm_package_name}}/build/screenshot.npmPackageDependencyTree.svg)\n\
-\n\
-\n\
-\n\
-# package.json\n\
-\n\
-```json\n\
-\n\
-{{packageJson jsonStringify4 markdownSafe}}\n\
-```\n\
-\n\
-\n\
-\n\
-# misc\n\
-- this document was created with [utility2](https://github.com/kaizhu256/node-utility2)\n\
-';
-
-
-
-local.assetsDict["/assets.readmeCustomOrg.npmtest.template.md"] = '\
-# npmtest-{{env.npm_package_name}}\n\
-\n\
-#### basic test coverage for \
-{{#if env.npm_package_homepage}} \
-[{{env.npm_package_name}} ({{env.npm_package_version}})]({{env.npm_package_homepage}}) \
-{{#unless env.npm_package_homepage}} \
-{{env.npm_package_name}} ({{env.npm_package_version}}) \
-{{/if env.npm_package_homepage}} \
-[![travis-ci.org build-status](https://api.travis-ci.org/npmtest/node-npmtest-{{env.npm_package_name}}.svg)](https://travis-ci.org/npmtest/node-npmtest-{{env.npm_package_name}})\n\
-\n\
-#### {{env.npm_package_description}}\n\
-\n\
-[![NPM](https://nodei.co/npm/{{env.npm_package_name}}.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/{{env.npm_package_name}})\n\
-\n\
-| git-branch : | [alpha](https://github.com/npmtest/node-npmtest-{{env.npm_package_name}}/tree/alpha)|\n\
-|--:|:--|\n\
-| coverage : | [![coverage](https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/build/coverage.badge.svg)](https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/build/coverage.html/index.html)|\n\
-| test-report : | [![test-report](https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/build/test-report.badge.svg)](https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/build/test-report.html)|\n\
-| test-server-github : | [![github.com test-server](https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/GitHub-Mark-32px.png)](https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/build/app) || build-artifacts : | [![build-artifacts](https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/glyphicons_144_folder_open.png)](https://github.com/npmtest/node-npmtest-{{env.npm_package_name}}/tree/gh-pages/build)|\n\
-\n\
-- [https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/build/coverage.html/index.html](https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/build/coverage.html/index.html)\n\
-\n\
-[![coverage](https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fcoverage.lib.html.png)](https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/build/coverage.html/index.html)\n\
-\n\
-- [https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/build/test-report.html](https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/build/test-report.html)\n\
-\n\
-[![test-report](https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Ftest-report.html.png)](https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/build/test-report.html)\n\
-\n\
-- [https://npmdoc.github.io/node-npmdoc-{{env.npm_package_name}}/build/apidoc.html](https://npmdoc.github.io/node-npmdoc-{{env.npm_package_name}}/build/apidoc.html)\n\
-\n\
-[![apidoc](https://npmdoc.github.io/node-npmdoc-{{env.npm_package_name}}/build/screenshot.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://npmdoc.github.io/node-npmdoc-{{env.npm_package_name}}/build/apidoc.html)\n\
-\n\
-![npmPackageListing](https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/build/screenshot.npmPackageListing.svg)\n\
-\n\
-![npmPackageDependencyTree](https://npmtest.github.io/node-npmtest-{{env.npm_package_name}}/build/screenshot.npmPackageDependencyTree.svg)\n\
-\n\
-\n\
-\n\
-# package.json\n\
-\n\
-```json\n\
-\n\
-{{packageJson jsonStringify4 markdownSafe}}\n\
-```\n\
-\n\
-\n\
-\n\
-# misc\n\
-- this document was created with [utility2](https://github.com/kaizhu256/node-utility2)\n\
 ';
 
 
@@ -20431,9 +20346,13 @@ local.cliDict["utility2.testReportCreate"] = function () {
  *
  * will create test-report
  */
-    local.exit(local.testReportCreate(local.tryCatchOnError(function () {
-        return require(local.env.npm_config_dir_build + "/test-report.json");
-    }, local.onErrorDefault)).testsFailed);
+    local.exit(
+        local.testReportCreate(
+            JSON.parse(local.fs.readFileSync(
+                local.env.npm_config_dir_build + "/test-report.json"
+            ))
+        ).testsFailed
+    );
 };
 }());
 
@@ -20452,7 +20371,7 @@ local.Blob = (
          */
         this.bff = local.bufferConcat(array.map(function (element) {
             return (
-                // ternary-operator
+                // ternary-condition
                 (
                     typeof element === "string"
                     || Object.prototype.toString.call(element) === "[object Uint8Array]"
@@ -20865,19 +20784,7 @@ local._testCase_buildApp_default = function (options, onError) {
     globalThis.local.testCase_buildReadme_default(options, local.onErrorThrow);
     globalThis.local.testCase_buildLib_default(options, local.onErrorThrow);
     globalThis.local.testCase_buildTest_default(options, local.onErrorThrow);
-    globalThis.local.testCase_buildCustomOrg_default(options, local.onErrorThrow);
     local.buildApp(options, onError);
-};
-
-local._testCase_buildCustomOrg_default = function (options, onError) {
-/*
- * this function will test buildCustomOrg's default handling-behavior
- */
-    if (local.isBrowser) {
-        onError(null, options);
-        return;
-    }
-    return local.buildCustomOrg({}, onError);
 };
 
 local._testCase_buildLib_default = function (options, onError) {
@@ -21023,7 +20930,7 @@ local.ajax = function (options, onError) {
             if (xhr.error) {
                 xhr.error.statusCode = xhr.statusCode;
                 tmp = (
-                    // ternary-operator
+                    // ternary-condition
                     (
                         local.isBrowser
                         ? "browser"
@@ -21315,7 +21222,7 @@ local.ajaxCrawl = function (options, onError) {
             ), "/")
             .replace("/", "//");
             options.file = (options.url + (
-                // ternary-operator
+                // ternary-condition
                 (
                     /\.(?:html?|txt|xml)$/
                 ).test(options.url)
@@ -21851,9 +21758,12 @@ local.browserTest = function (options, onError) {
                 "--enable-logging"
             ], {
                 env: data,
-                stdio: (!options.modeDebug && options.modeSilent)
-                ? "ignore"
-                : ["ignore", 1, 2],
+                stdio: (
+                    // ternary-condition
+                    (!options.modeDebug && options.modeSilent)
+                    ? "ignore"
+                    : ["ignore", 1, 2]
+                ),
                 timeout: options.timeoutDefault
             }).once("error", options.onNext).once("exit", options.onNext);
             return;
@@ -22176,7 +22086,7 @@ local.bufferRandomBytes = function (length) {
  * filled with cryptographically-strong random-values
  */
     return (
-        // ternary-operator
+        // ternary-condition
         (
             typeof window === "object"
             && window.crypto
@@ -22255,10 +22165,6 @@ local.buildApidoc = function (options, onError) {
         blacklistDict: local,
         require: local.requireInSandbox
     });
-    if (local.env.npm_package_buildCustomOrg && !options.modeForce) {
-        onError();
-        return;
-    }
     // save apidoc.html
     result = (
         local.fsReadFileOrEmptyStringSync("apidoc.html", "utf8")
@@ -22376,91 +22282,13 @@ local.buildApp = function (options, onError) {
             },
             stdio: ["ignore", 1, 2]
         })
-        .once("error", onError)
-        .once("exit", function (exitCode) {
+        .on("error", onError)
+        .on("exit", function (exitCode) {
             // validate exitCode
             local.assertThrow(!exitCode, exitCode);
             onError();
         });
     });
-};
-
-local.buildCustomOrg = function (options, onError) {
-/*
- * this function will build the customOrg
- */
-    var isDone;
-    var onError2;
-    var onParallel;
-    if (!local.env.npm_package_buildCustomOrg && !options.modeForce) {
-        onError();
-        return;
-    }
-    onError2 = function (error) {
-        local.onErrorDefault(error);
-        if (isDone) {
-            return;
-        }
-        isDone = true;
-        // try to recover from error
-        setTimeout(onError, error && local.timeoutDefault);
-    };
-    // try to recover from uncaughtException
-    process.on("uncaughtException", onError2);
-    onParallel = local.onParallel(onError2);
-    onParallel.counter += 1;
-    // build package.json
-    options.packageJson = local.fsReadFileOrEmptyStringSync("package.json", "json");
-    onParallel.counter += 1;
-    local.buildReadme({
-        dataFrom: "\n# package.json\n```json\n" + JSON.stringify(options.packageJson) + "\n```\n",
-        modeForce: true
-    }, onParallel);
-    options.packageJson = local.fsReadFileOrEmptyStringSync("package.json", "json");
-    switch (local.env.GITHUB_ORG) {
-    case "npmdoc":
-        local.objectSetOverride(options, {
-            packageJson: {
-                keywords: ["documentation", local.env.npm_package_buildCustomOrg]
-            }
-        }, 2);
-        // build apidoc.html
-        onParallel.counter += 1;
-        local.buildApidoc({
-            dir: local.env.npm_package_buildCustomOrg,
-            modeForce: true,
-            modulePathList: options.modulePathList
-        }, onParallel);
-        break;
-    case "npmtest":
-        local.objectSetOverride(options, {
-            packageJson: {
-                keywords: ["coverage", "test", local.env.npm_package_buildCustomOrg]
-            }
-        }, 2);
-        break;
-    case "scrapeitall":
-        break;
-    }
-    // build README.md
-    options.readme = local.apidocCreate({
-        dir: local.env.npm_package_buildCustomOrg,
-        modeNoApidoc: true,
-        modulePathList: options.modulePathList,
-        require: local.requireInSandbox,
-        template: local.assetsDict[
-            "/assets.readmeCustomOrg." + local.env.GITHUB_ORG + ".template.md"
-        ]
-    });
-    local.fs.writeFileSync("README.md", options.readme);
-    console.error("created customOrg file " + process.cwd() + "/README.md\n");
-    // re-build package.json
-    options.packageJson.description = options.readme.split("\n")[2].trim();
-    local.fs.writeFileSync(
-        "package.json",
-        local.jsonStringifyOrdered(options.packageJson, null, 4) + "\n"
-    );
-    onParallel();
 };
 
 local.buildLib = function (options, onError) {
@@ -22524,10 +22352,6 @@ local.buildReadme = function (options, onError) {
  * this function will build the readme in my-app-lite style
  */
     var result;
-    if (local.env.npm_package_buildCustomOrg && !options.modeForce) {
-        onError();
-        return;
-    }
     local.objectSetDefault(options, {
         customize: local.nop,
         // reset toc
@@ -23264,18 +23088,6 @@ local.domElementRender = function (template, dict) {
     return tmp.content;
 };
 
-local.domQuerySelectorAllTagNameAndPrint = function (selector) {
-/*
- * this function will print all tagName's that match the selector
- */
-    var dict;
-    dict = {};
-    Array.from(document.querySelectorAll(selector)).forEach(function (element) {
-        dict[element.tagName.toLowerCase()] = true;
-    });
-    console.log(Object.keys(dict).sort().join("\n"));
-};
-
 local.domStyleValidate = function () {
 /*
  * this function will validate the document's style
@@ -23287,7 +23099,7 @@ local.domStyleValidate = function () {
     );
     tmp = [];
     Array.from(
-        // ternary-operator
+        // ternary-condition
         (
             typeof document === "object"
             && document
@@ -23632,14 +23444,13 @@ local.jsonStringifyOrdered = function (obj, replacer, space) {
         return tmp;
     };
     circularSet = new Set();
-    return JSON.stringify(
+    return JSON.stringify((
+        // ternary-condition
         (typeof obj === "object" && obj)
         // recurse
         ? JSON.parse(stringify(obj))
-        : obj,
-        replacer,
-        space
-    );
+        : obj
+    ), replacer, space);
 };
 
 local.jwtAes256GcmDecrypt = function (token, key) {
@@ -23920,14 +23731,12 @@ local.middlewareError = function (error, request, response) {
         local.swgg.serverRespondJsonapi(request, response, error);
     }
     // statusCode [400, 600)
-    local.serverRespondDefault(
-        request,
-        response,
+    local.serverRespondDefault(request, response, (
+        // ternary-condition
         (error.statusCode >= 400 && error.statusCode < 600)
         ? error.statusCode
-        : 500,
-        error
-    );
+        : 500
+    ), error);
 };
 
 local.middlewareFileServer = function (request, response, nextMiddleware) {
@@ -24945,12 +24754,9 @@ local.requireReadme = function () {
     code = local.templateRenderMyApp(local.assetsDict["/assets.example.template.js"], {});
     local.tryCatchOnError(function () {
         tmp = (
-            !local.env.npm_package_buildCustomOrg
-            && (
-                /```\w*?(\n[\W\s]*?example\.js[\n"][\S\s]*?)\n```/
-            ).exec(
-                local.fs.readFileSync("README.md", "utf8")
-            )
+            /```\w*?(\n[\W\s]*?example\.js[\n"][\S\s]*?)\n```/
+        ).exec(
+            local.fs.readFileSync("README.md", "utf8")
         );
         code = tmp.input.slice(0, tmp.index).replace((
             /.+/g
@@ -25561,17 +25367,16 @@ local.taskCreate = function (options, onTask, onError) {
         // cleanup task
         delete local.taskOnTaskDict[options.key];
         // preserve error.message and error.stack
-        task.result = JSON.stringify([
+        task.result = JSON.stringify([(
+            // ternary-condition
             (error && error.stack)
             ? Object.assign(local.jsonCopy(error), {
                 message: error.message,
                 name: error.name,
                 stack: error.stack
             })
-            : error,
-            data,
-            meta
-        ]);
+            : error
+        ), data, meta]);
         // pass result to callbacks in onErrorList
         task.onErrorList.forEach(function (onError) {
             onError.apply(null, JSON.parse(task.result));
@@ -25906,13 +25711,16 @@ local.testMock = function (mockList, onTestCase, onError) {
         // backup mock[0] into mock[2]
         Object.keys(mock[1]).forEach(function (key) {
             mock[2][key] = (
-                typeof process === "object"
-                && process.env === mock[0]
-                && mock[0][key] === undefined
-            )
-            // handle process.env
-            ? ""
-            : mock[0][key];
+                // ternary-condition
+                (
+                    typeof process === "object"
+                    && process.env === mock[0]
+                    && mock[0][key] === undefined
+                )
+                // handle process.env
+                ? ""
+                : mock[0][key]
+            );
         });
         // override mock[0] with mock[1]
         Object.keys(mock[1]).forEach(function (key) {
@@ -26203,15 +26011,21 @@ local.testReportMerge = function (testReport1, testReport2) {
                             )
                         }, 8);
                     }),
-                    preClass: errorStackList.length
-                    ? ""
-                    : "displayNone",
+                    preClass: (
+                        // ternary-condition
+                        errorStackList.length
+                        ? ""
+                        : "displayNone"
+                    ),
                     testPlatformNumber: ii + 1
                 });
             }, 8),
-            testStatusClass: testReport.testsFailed
-            ? "testFailed"
-            : "testPassed"
+            testStatusClass: (
+                // ternary-condition
+                testReport.testsFailed
+                ? "testFailed"
+                : "testPassed"
+            )
         }, 8)
     );
 };
@@ -27267,8 +27081,29 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
         } catch (ignore) {}
     }());
     globalThis.globalThis = globalThis;
+    // init debug_inline
+    if (!globalThis["debug\u0049nline"]) {
+        consoleError = console.error;
+        globalThis["debug\u0049nline"] = function () {
+        /*
+         * this function will both print <arguments> to stderr
+         * and return <arguments>[0]
+         */
+            var argList;
+            argList = Array.from(arguments); // jslint ignore:line
+            // debug arguments
+            globalThis["debug\u0049nlineArguments"] = argList;
+            consoleError("\n\ndebug\u0049nline");
+            consoleError.apply(console, argList);
+            consoleError("\n");
+            // return arg0 for inspection
+            return argList[0];
+        };
+    }
     // init local
     local = {};
+    local.local = local;
+    globalThis.globalLocal = local;
     // init isBrowser
     local.isBrowser = (
         typeof window === "object"
@@ -27277,7 +27112,6 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
         && window.document
         && typeof window.document.querySelectorAll === "function"
     );
-    globalThis.globalLocal = local;
     // init function
     local.assertThrow = function (passed, message) {
     /*
@@ -27288,7 +27122,7 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
             return;
         }
         error = (
-            // ternary-operator
+            // ternary-condition
             (
                 message
                 && typeof message.message === "string"
@@ -27326,24 +27160,35 @@ local.assetsDict["/assets.utility2.rollup.js"] = [
      */
         return;
     };
-    // init debug_inline
-    if (!globalThis["debug\u0049nline"]) {
-        consoleError = console.error;
-        globalThis["debug\u0049nline"] = function () {
-        /*
-         * this function will both print <arguments> to stderr
-         * and return <arguments>[0]
-         */
-            var argList;
-            argList = Array.from(arguments); // jslint ignore:line
-            // debug arguments
-            globalThis["debug\u0049nlineArguments"] = argList;
-            consoleError("\n\ndebug\u0049nline");
-            consoleError.apply(console, argList);
-            consoleError("\n");
-            // return arg0 for inspection
-            return argList[0];
-        };
+    // require builtin
+    if (!local.isBrowser) {
+        local.assert = require("assert");
+        local.buffer = require("buffer");
+        local.child_process = require("child_process");
+        local.cluster = require("cluster");
+        local.crypto = require("crypto");
+        local.dgram = require("dgram");
+        local.dns = require("dns");
+        local.domain = require("domain");
+        local.events = require("events");
+        local.fs = require("fs");
+        local.http = require("http");
+        local.https = require("https");
+        local.net = require("net");
+        local.os = require("os");
+        local.path = require("path");
+        local.querystring = require("querystring");
+        local.readline = require("readline");
+        local.repl = require("repl");
+        local.stream = require("stream");
+        local.string_decoder = require("string_decoder");
+        local.timers = require("timers");
+        local.tls = require("tls");
+        local.tty = require("tty");
+        local.url = require("url");
+        local.util = require("util");
+        local.vm = require("vm");
+        local.zlib = require("zlib");
     }
 }(this));
 
@@ -27368,39 +27213,10 @@ local = (
 if (local.isBrowser) {
     globalThis.utility2_swgg = local;
 } else {
-    // require builtins
-    local.assert = require("assert");
-    local.buffer = require("buffer");
-    local.child_process = require("child_process");
-    local.cluster = require("cluster");
-    local.crypto = require("crypto");
-    local.dgram = require("dgram");
-    local.dns = require("dns");
-    local.domain = require("domain");
-    local.events = require("events");
-    local.fs = require("fs");
-    local.http = require("http");
-    local.https = require("https");
-    local.net = require("net");
-    local.os = require("os");
-    local.path = require("path");
-    local.querystring = require("querystring");
-    local.readline = require("readline");
-    local.repl = require("repl");
-    local.stream = require("stream");
-    local.string_decoder = require("string_decoder");
-    local.timers = require("timers");
-    local.tls = require("tls");
-    local.tty = require("tty");
-    local.url = require("url");
-    local.util = require("util");
-    local.vm = require("vm");
-    local.zlib = require("zlib");
     module.exports = local;
     module.exports.__dirname = __dirname;
 }
 // init lib main
-local.local = local;
 local.swgg = local;
 
 
@@ -29076,9 +28892,12 @@ local.apiAjax = function (that, options, onError) {
     })[0];
     // init options-defaults
     local.objectSetDefault(options, {
-        inForm: that._consumes0 === "multipart/form-data"
-        ? new local.FormData()
-        : "",
+        inForm: (
+            // ternary-condition
+            that._consumes0 === "multipart/form-data"
+            ? new local.FormData()
+            : ""
+        ),
         inHeader: {},
         inPath: that._path.replace((
             /#.*?$/
@@ -29086,9 +28905,12 @@ local.apiAjax = function (that, options, onError) {
         inQuery: "",
         headers: {},
         method: that._method,
-        responseType: that._consumes0.indexOf("application/octet-stream") === 0
-        ? "arraybuffer"
-        : ""
+        responseType: (
+            // ternary-condition
+            that._consumes0.indexOf("application/octet-stream") === 0
+            ? "arraybuffer"
+            : ""
+        )
     });
     // init paramDict
     that.parameters.forEach(function (schemaP) {
@@ -29104,14 +28926,18 @@ local.apiAjax = function (that, options, onError) {
                 break;
             case "multi":
                 tmp.forEach(function (value) {
-                    options[
+                    options[(
+                        // ternary-condition
                         schemaP.in === "formData"
                         ? "inForm"
                         : "inQuery"
-                    ] += "&" + encodeURIComponent(schemaP.name) + "=" + encodeURIComponent(
-                        local.schemaPItemsType(schemaP) === "string"
-                        ? value
-                        : JSON.stringify(value)
+                    )] += (
+                        "&" + encodeURIComponent(schemaP.name) + "="
+                        + encodeURIComponent(
+                            local.schemaPItemsType(schemaP) === "string"
+                            ? value
+                            : JSON.stringify(value)
+                        )
                     );
                 });
                 return;
@@ -31053,9 +30879,12 @@ local.swaggerJsonFromAjax = function (swaggerJson, options) {
     // init param in body - json-data
     isArray = Array.isArray(data);
     type = local.swaggerJsonFromPostBody(swaggerJson, {
-        data: isArray
-        ? data[0]
-        : data,
+        data: (
+            // ternary-condition
+            isArray
+            ? data[0]
+            : data
+        ),
         depth: 2,
         key: "body",
         prefix: operation.operationId,
@@ -31064,12 +30893,15 @@ local.swaggerJsonFromAjax = function (swaggerJson, options) {
     upsertSchemaP({
         in: "body",
         name: "body",
-        schema: isArray
-        ? {
-            items: type,
-            type: "array"
-        }
-        : type
+        schema: (
+            // ternary-condition
+            isArray
+            ? {
+                items: type,
+                type: "array"
+            }
+            : type
+        )
     });
     return swaggerJson;
 };
@@ -31799,9 +31631,12 @@ local.swaggerValidateDataSchema = function (options) {
         );
         local.throwSwaggerError(!test && {
             data: data,
-            errorType: schema.exclusiveMaximum
-            ? "numberExclusiveMaximum"
-            : "numberMaximum",
+            errorType: (
+                // ternary-condition
+                schema.exclusiveMaximum
+                ? "numberExclusiveMaximum"
+                : "numberMaximum"
+            ),
             prefix: options.prefix,
             schema: schema
         });
@@ -31813,9 +31648,12 @@ local.swaggerValidateDataSchema = function (options) {
         );
         local.throwSwaggerError(!test && {
             data: data,
-            errorType: schema.exclusiveMinimum
-            ? "numberExclusiveMinimum"
-            : "numberMinimum",
+            errorType: (
+                // ternary-condition
+                schema.exclusiveMinimum
+                ? "numberExclusiveMinimum"
+                : "numberMinimum"
+            ),
             prefix: options.prefix,
             schema: schema
         });
@@ -32903,13 +32741,22 @@ local.uiRenderSchemaP = function (schemaP) {
             );
             return {
                 id: local.idDomElementCreate("swgg_id_" + schemaP.name),
-                selected: schemaP.enumDefault.indexOf(element) >= 0
-                ? "selected"
-                : "",
-                type: local.schemaPItemsType(schemaP) || local.schemaPType(schemaP),
-                placeholder: typeof element === "string"
-                ? element
-                : JSON.stringify(element),
+                selected: (
+                    // ternary-condition
+                    schemaP.enumDefault.indexOf(element) >= 0
+                    ? "selected"
+                    : ""
+                ),
+                type: (
+                    local.schemaPItemsType(schemaP)
+                    || local.schemaPType(schemaP)
+                ),
+                placeholder: (
+                    // ternary-condition
+                    typeof element === "string"
+                    ? element
+                    : JSON.stringify(element)
+                ),
                 valueSelectOption: element
             };
         });
@@ -32970,13 +32817,12 @@ local.uiRenderSchemaP = function (schemaP) {
         return schemaP.schema2.properties;
     });
     if (schemaP.schema2.properties) {
-        schemaP.schemaText = JSON.stringify(
+        schemaP.schemaText = JSON.stringify((
+            // ternary-condition
             schemaP.type2 === "array"
             ? [schemaP.schema2.properties]
-            : schemaP.schema2.properties,
-            null,
-            4
-        );
+            : schemaP.schema2.properties
+        ), null, 4);
     }
     // init placeholder
     schemaP.placeholder = (
@@ -33085,7 +32931,864 @@ local.swgg.apiUpdate(
 (function (local) {
     "use strict";
 /* jslint ignore:start */
-local.assetsDict["/assets.utility2.example.js"] = "\n\
+local.assetsDict["/assets.utility2.example.js"] = "/*\n\
+example.js\n\
+\n\
+this script will demo automated browser-tests with coverage (via electron and istanbul)\n\
+\n\
+instruction\n\
+    1. save this script as example.js\n\
+    2. run the shell-command:\n\
+        $ npm install kaizhu256/node-utility2#alpha electron-lite && \\\n\
+            PATH=\"$(pwd)/node_modules/.bin:$PATH\" \\\n\
+            PORT=8081 \\\n\
+            npm_config_mode_coverage=utility2 \\\n\
+            node_modules/.bin/utility2 test example.js\n\
+    3. view test-report in ./tmp/build/test-report.html\n\
+    4. view coverage in ./tmp/build/coverage.html/index.html\n\
+*/\n\
+\n\
+\n\
+\n\
+/* istanbul instrument in package utility2 */\n\
+/* istanbul ignore next */\n\
+/* jslint utility2:true */\n\
+(function (globalThis) {\n\
+    \"use strict\";\n\
+    var consoleError;\n\
+    var local;\n\
+    // init globalThis\n\
+    (function () {\n\
+        try {\n\
+            globalThis = Function(\"return this\")(); // jslint ignore:line\n\
+        } catch (ignore) {}\n\
+    }());\n\
+    globalThis.globalThis = globalThis;\n\
+    // init debug_inline\n\
+    if (!globalThis[\"debug\\u0049nline\"]) {\n\
+        consoleError = console.error;\n\
+        globalThis[\"debug\\u0049nline\"] = function () {\n\
+        /*\n\
+         * this function will both print <arguments> to stderr\n\
+         * and return <arguments>[0]\n\
+         */\n\
+            var argList;\n\
+            argList = Array.from(arguments); // jslint ignore:line\n\
+            // debug arguments\n\
+            globalThis[\"debug\\u0049nlineArguments\"] = argList;\n\
+            consoleError(\"\\n\\ndebug\\u0049nline\");\n\
+            consoleError.apply(console, argList);\n\
+            consoleError(\"\\n\");\n\
+            // return arg0 for inspection\n\
+            return argList[0];\n\
+        };\n\
+    }\n\
+    // init local\n\
+    local = {};\n\
+    local.local = local;\n\
+    globalThis.globalLocal = local;\n\
+    // init isBrowser\n\
+    local.isBrowser = (\n\
+        typeof window === \"object\"\n\
+        && window === globalThis\n\
+        && typeof window.XMLHttpRequest === \"function\"\n\
+        && window.document\n\
+        && typeof window.document.querySelectorAll === \"function\"\n\
+    );\n\
+    // init function\n\
+    local.assertThrow = function (passed, message) {\n\
+    /*\n\
+     * this function will throw the error <message> if <passed> is falsy\n\
+     */\n\
+        var error;\n\
+        if (passed) {\n\
+            return;\n\
+        }\n\
+        error = (\n\
+            // ternary-condition\n\
+            (\n\
+                message\n\
+                && typeof message.message === \"string\"\n\
+                && typeof message.stack === \"string\"\n\
+            )\n\
+            // if message is an error-object, then leave it as is\n\
+            ? message\n\
+            : new Error(\n\
+                typeof message === \"string\"\n\
+                // if message is a string, then leave it as is\n\
+                ? message\n\
+                // else JSON.stringify message\n\
+                : JSON.stringify(message, null, 4)\n\
+            )\n\
+        );\n\
+        throw error;\n\
+    };\n\
+    local.functionOrNop = function (fnc) {\n\
+    /*\n\
+     * this function will if <fnc> exists,\n\
+     * them return <fnc>,\n\
+     * else return <nop>\n\
+     */\n\
+        return fnc || local.nop;\n\
+    };\n\
+    local.identity = function (value) {\n\
+    /*\n\
+     * this function will return <value>\n\
+     */\n\
+        return value;\n\
+    };\n\
+    local.nop = function () {\n\
+    /*\n\
+     * this function will do nothing\n\
+     */\n\
+        return;\n\
+    };\n\
+    // require builtin\n\
+    if (!local.isBrowser) {\n\
+        local.assert = require(\"assert\");\n\
+        local.buffer = require(\"buffer\");\n\
+        local.child_process = require(\"child_process\");\n\
+        local.cluster = require(\"cluster\");\n\
+        local.crypto = require(\"crypto\");\n\
+        local.dgram = require(\"dgram\");\n\
+        local.dns = require(\"dns\");\n\
+        local.domain = require(\"domain\");\n\
+        local.events = require(\"events\");\n\
+        local.fs = require(\"fs\");\n\
+        local.http = require(\"http\");\n\
+        local.https = require(\"https\");\n\
+        local.net = require(\"net\");\n\
+        local.os = require(\"os\");\n\
+        local.path = require(\"path\");\n\
+        local.querystring = require(\"querystring\");\n\
+        local.readline = require(\"readline\");\n\
+        local.repl = require(\"repl\");\n\
+        local.stream = require(\"stream\");\n\
+        local.string_decoder = require(\"string_decoder\");\n\
+        local.timers = require(\"timers\");\n\
+        local.tls = require(\"tls\");\n\
+        local.tty = require(\"tty\");\n\
+        local.url = require(\"url\");\n\
+        local.util = require(\"util\");\n\
+        local.vm = require(\"vm\");\n\
+        local.zlib = require(\"zlib\");\n\
+    }\n\
+}(this));\n\
+\n\
+\n\
+\n\
+(function (local) {\n\
+\"use strict\";\n\
+\n\
+\n\
+\n\
+// run shared js-env code - init-before\n\
+(function () {\n\
+// init local\n\
+local = (\n\
+    globalThis.utility2_rollup\n\
+    || globalThis.utility2_utility2\n\
+    || require(\"utility2\")\n\
+);\n\
+// init exports\n\
+globalThis.local = local;\n\
+// run test-server\n\
+local.testRunServer(local);\n\
+// init assets\n\
+local.assetsDict[\"/assets.hello.txt\"] = \"hello \\ud83d\\ude01\\n\";\n\
+local.assetsDict[\"/assets.index.template.html\"] = \"\";\n\
+}());\n\
+\n\
+\n\
+\n\
+// run shared js-env code - function\n\
+(function () {\n\
+local.testCase_ajax_200 = function (options, onError) {\n\
+/*\n\
+ * this function will test ajax's \"200 ok\" handling-behavior\n\
+ */\n\
+    if (!local.isBrowser) {\n\
+        onError(null, options);\n\
+        return;\n\
+    }\n\
+    options = {};\n\
+    // test ajax-path \"assets.hello.txt\"\n\
+    local.ajax({\n\
+        url: \"assets.hello.txt\"\n\
+    }, function (error, xhr) {\n\
+        local.tryCatchOnError(function () {\n\
+            // validate no error occurred\n\
+            local.assertThrow(!error, error);\n\
+            // validate data\n\
+            options.data = xhr.responseText;\n\
+            local.assertThrow(options.data === \"hello \\ud83d\\ude01\\n\", options.data);\n\
+            onError();\n\
+        }, onError);\n\
+    });\n\
+};\n\
+\n\
+local.testCase_ajax_404 = function (options, onError) {\n\
+/*\n\
+ * this function will test ajax's \"404 not found\" handling-behavior\n\
+ */\n\
+    if (!local.isBrowser) {\n\
+        onError(null, options);\n\
+        return;\n\
+    }\n\
+    options = {};\n\
+    // test ajax-path \"/undefined\"\n\
+    local.ajax({\n\
+        url: \"/undefined\"\n\
+    }, function (error) {\n\
+        local.tryCatchOnError(function () {\n\
+            // validate error occurred\n\
+            local.assertThrow(error, error);\n\
+            options.statusCode = error.statusCode;\n\
+            // validate 404 http statusCode\n\
+            local.assertThrow(options.statusCode === 404, options.statusCode);\n\
+            onError();\n\
+        }, onError);\n\
+    });\n\
+};\n\
+\n\
+local.testCase_webpage_default = function (options, onError) {\n\
+/*\n\
+ * this function will test webpage's default handling-behavior\n\
+ */\n\
+    if (local.isBrowser) {\n\
+        onError(null, options);\n\
+        return;\n\
+    }\n\
+    options = {\n\
+        modeCoverageMerge: true,\n\
+        url: local.serverLocalHost + \"?modeTest=1\"\n\
+    };\n\
+    local.browserTest(options, onError);\n\
+};\n\
+}());\n\
+\n\
+\n\
+\n\
+/* istanbul ignore next */\n\
+// run browser js-env code - init-test\n\
+(function () {\n\
+if (!local.isBrowser) {\n\
+    return;\n\
+}\n\
+local.testRunBrowser = function (event) {\n\
+    if (!event || (\n\
+        event\n\
+        && event.currentTarget\n\
+        && event.currentTarget.className\n\
+        && event.currentTarget.className.includes\n\
+        && event.currentTarget.className.includes(\"onreset\")\n\
+    )) {\n\
+        // reset output\n\
+        Array.from(document.querySelectorAll(\n\
+            \"body > .resettable\"\n\
+        )).forEach(function (element) {\n\
+            switch (element.tagName) {\n\
+            case \"INPUT\":\n\
+            case \"TEXTAREA\":\n\
+                element.value = \"\";\n\
+                break;\n\
+            default:\n\
+                element.textContent = \"\";\n\
+            }\n\
+        });\n\
+    }\n\
+    switch (event && event.currentTarget && event.currentTarget.id) {\n\
+    case \"testRunButton1\":\n\
+        // show tests\n\
+        if (document.querySelector(\"#testReportDiv1\").style.maxHeight === \"0px\") {\n\
+            local.uiAnimateSlideDown(document.querySelector(\"#testReportDiv1\"));\n\
+            document.querySelector(\"#testRunButton1\").textContent = \"hide internal test\";\n\
+            local.modeTest = 1;\n\
+            local.testRunDefault(local);\n\
+        // hide tests\n\
+        } else {\n\
+            local.uiAnimateSlideUp(document.querySelector(\"#testReportDiv1\"));\n\
+            document.querySelector(\"#testRunButton1\").textContent = \"run internal test\";\n\
+        }\n\
+        break;\n\
+    // custom-case\n\
+    case \"testRunButton2\":\n\
+        // run tests\n\
+        local.modeTest = 1;\n\
+        local.testRunDefault(local);\n\
+        break;\n\
+    default:\n\
+        if (location.href.indexOf(\"modeTest=\") >= 0) {\n\
+            return;\n\
+        }\n\
+        // jslint #inputTextareaEval1\n\
+        local.jslint.jslintAndPrint(\n\
+            document.querySelector(\"#inputTextareaEval1\").value,\n\
+            \"inputTextareaEval1.js\",\n\
+            {\n\
+                autofix: (\n\
+                    event\n\
+                    && event.currentTarget\n\
+                    && event.currentTarget.id === \"jslintAutofixButton1\"\n\
+                ),\n\
+                conditional: true\n\
+            }\n\
+        );\n\
+        if (local.jslint.jslintResult.autofix) {\n\
+            document.querySelector(\"#inputTextareaEval1\").value = (\n\
+                local.jslint.jslintResult.code\n\
+            );\n\
+        }\n\
+        document.querySelector(\"#outputJslintPre1\").textContent = (\n\
+            local.jslint.jslintResult.errorText\n\
+        ).replace((\n\
+            /\\u001b\\[\\d*m/g\n\
+        ), \"\").trim();\n\
+        // try to cleanup __coverage__\n\
+        try {\n\
+            delete globalThis.__coverage__[\"/inputTextareaEval1.js\"];\n\
+        } catch (ignore) {}\n\
+        // try to cover and eval input-code\n\
+        try {\n\
+            document.querySelector(\"#outputTextarea1\").value = (\n\
+                local.istanbul.instrumentSync(\n\
+                    document.querySelector(\"#inputTextareaEval1\").value,\n\
+                    \"/inputTextareaEval1.js\"\n\
+                )\n\
+            );\n\
+            eval( // jslint ignore:line\n\
+                document.querySelector(\"#outputTextarea1\").value.replace((\n\
+                    /^#!\\//\n\
+                ), \"// \")\n\
+            );\n\
+            document.querySelector(\"#coverageReportDiv1\").innerHTML = (\n\
+                local.istanbul.coverageReportCreate({\n\
+                    coverage: window.__coverage__\n\
+                })\n\
+            );\n\
+        } catch (errorCaught2) {\n\
+            console.error(errorCaught2);\n\
+        }\n\
+    }\n\
+};\n\
+\n\
+local.uiEventDelegate = local.uiEventDelegate || function (event) {\n\
+    // filter non-input keyup-event\n\
+    event.targetOnEvent = event.target.closest(\"[data-event]\");\n\
+    if (!event.targetOnEvent) {\n\
+        return;\n\
+    }\n\
+    // rate-limit keyup\n\
+    if (event.type === \"keyup\") {\n\
+        local.uiEventDelegateKeyupEvent = event;\n\
+        if (local.uiEventDelegateKeyupTimerTimeout !== 2) {\n\
+            local.uiEventDelegateKeyupTimerTimeout = (\n\
+                local.uiEventDelegateKeyupTimerTimeout\n\
+                || setTimeout(function () {\n\
+                    local.uiEventDelegateKeyupTimerTimeout = 2;\n\
+                    local.uiEventDelegate(local.uiEventDelegateKeyupEvent);\n\
+                }, 100)\n\
+            );\n\
+            return;\n\
+        }\n\
+        local.uiEventDelegateKeyupTimerTimeout = null;\n\
+        if (!event.target.closest(\"input, option, select, textarea\")) {\n\
+            return;\n\
+        }\n\
+    }\n\
+    switch (event.targetOnEvent.tagName) {\n\
+    case \"BUTTON\":\n\
+    case \"FORM\":\n\
+        event.preventDefault();\n\
+        break;\n\
+    }\n\
+    event.stopPropagation();\n\
+    local.uiEventListenerDict[event.targetOnEvent.dataset.event](event);\n\
+};\n\
+\n\
+local.uiEventListenerDict = local.uiEventListenerDict || {};\n\
+\n\
+local.uiEventListenerDict.testRunBrowser = local.testRunBrowser;\n\
+\n\
+// log stderr and stdout to #outputStdoutTextarea1\n\
+[\"error\", \"log\"].forEach(function (key) {\n\
+    console[key + \"_original\"] = console[key + \"_original\"] || console[key];\n\
+    console[key] = function () {\n\
+        var argList;\n\
+        var element;\n\
+        argList = Array.from(arguments); // jslint ignore:line\n\
+        console[key + \"_original\"].apply(console, argList);\n\
+        element = document.querySelector(\"#outputStdoutTextarea1\");\n\
+        if (!element) {\n\
+            return;\n\
+        }\n\
+        // append text to #outputStdoutTextarea1\n\
+        element.value += argList.map(function (arg) {\n\
+            return (\n\
+                typeof arg === \"string\"\n\
+                ? arg\n\
+                : JSON.stringify(arg, null, 4)\n\
+            );\n\
+        }).join(\" \").replace((\n\
+            /\\u001b\\[\\d*m/g\n\
+        ), \"\") + \"\\n\";\n\
+        // scroll textarea to bottom\n\
+        element.scrollTop = element.scrollHeight;\n\
+    };\n\
+});\n\
+// init event-handling\n\
+[\"Change\", \"Click\", \"Keyup\", \"Submit\"].forEach(function (eventType) {\n\
+    Array.from(document.querySelectorAll(\n\
+        \".eventDelegate\" + eventType\n\
+    )).forEach(function (element) {\n\
+        element.addEventListener(eventType.toLowerCase(), local.uiEventDelegate);\n\
+    });\n\
+});\n\
+// run tests\n\
+local.testRunBrowser();\n\
+}());\n\
+\n\
+\n\
+\n\
+/* istanbul ignore next */\n\
+// run node js-env code - init-test\n\
+(function () {\n\
+if (local.isBrowser) {\n\
+    return;\n\
+}\n\
+// init exports\n\
+module.exports = local;\n\
+/* validateLineSortedReset */\n\
+// init assets\n\
+local.assetsDict = local.assetsDict || {};\n\
+[\n\
+    \"assets.index.template.html\",\n\
+    \"assets.swgg.swagger.json\",\n\
+    \"assets.swgg.swagger.server.json\"\n\
+].forEach(function (file) {\n\
+    file = \"/\" + file;\n\
+    local.assetsDict[file] = local.assetsDict[file] || \"\";\n\
+    if (local.fs.existsSync(local.__dirname + file)) {\n\
+        local.assetsDict[file] = local.fs.readFileSync(\n\
+            local.__dirname + file,\n\
+            \"utf8\"\n\
+        );\n\
+    }\n\
+});\n\
+/* jslint ignore:start */\n\
+local.assetsDict[\"/assets.index.template.html\"] = '\\\n\
+<!doctype html>\\n\\\n\
+<html lang=\"en\">\\n\\\n\
+<head>\\n\\\n\
+<meta charset=\"utf-8\">\\n\\\n\
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\\n\\\n\
+<!-- \"assets.utility2.template.html\" -->\\n\\\n\
+<title>{{env.npm_package_name}} ({{env.npm_package_version}})</title>\\n\\\n\
+<style>\\n\\\n\
+/* jslint utility2:true */\\n\\\n\
+/*csslint\\n\\\n\
+*/\\n\\\n\
+/* csslint ignore:start */\\n\\\n\
+*,\\n\\\n\
+*:after,\\n\\\n\
+*:before {\\n\\\n\
+    box-sizing: border-box;\\n\\\n\
+}\\n\\\n\
+/* csslint ignore:end */\\n\\\n\
+@keyframes uiAnimateShake {\\n\\\n\
+    0%, 50% {\\n\\\n\
+        transform: translateX(10px);\\n\\\n\
+    }\\n\\\n\
+    25%, 75% {\\n\\\n\
+        transform: translateX(-10px);\\n\\\n\
+    }\\n\\\n\
+    100% {\\n\\\n\
+        transform: translateX(0);\\n\\\n\
+    }\\n\\\n\
+}\\n\\\n\
+@keyframes uiAnimateSpin {\\n\\\n\
+    0% {\\n\\\n\
+        transform: rotate(0deg);\\n\\\n\
+    }\\n\\\n\
+    100% {\\n\\\n\
+        transform: rotate(360deg);\\n\\\n\
+    }\\n\\\n\
+}\\n\\\n\
+a {\\n\\\n\
+    overflow-wrap: break-word;\\n\\\n\
+}\\n\\\n\
+body {\\n\\\n\
+    background: #eef;\\n\\\n\
+    font-family: Arial, Helvetica, sans-serif;\\n\\\n\
+    margin: 0 40px;\\n\\\n\
+}\\n\\\n\
+body > div,\\n\\\n\
+body > form > div,\\n\\\n\
+body > form > input,\\n\\\n\
+body > form > pre,\\n\\\n\
+body > form > textarea,\\n\\\n\
+body > form > .button,\\n\\\n\
+body > input,\\n\\\n\
+body > pre,\\n\\\n\
+body > textarea,\\n\\\n\
+body > .button {\\n\\\n\
+    margin-bottom: 20px;\\n\\\n\
+}\\n\\\n\
+body > form > input,\\n\\\n\
+body > form > .button,\\n\\\n\
+body > input,\\n\\\n\
+body > .button {\\n\\\n\
+    width: 20rem;\\n\\\n\
+}\\n\\\n\
+body > form > textarea,\\n\\\n\
+body > textarea {\\n\\\n\
+    height: 10rem;\\n\\\n\
+    width: 100%;\\n\\\n\
+}\\n\\\n\
+body > textarea[readonly] {\\n\\\n\
+    background: #ddd;\\n\\\n\
+}\\n\\\n\
+code,\\n\\\n\
+pre,\\n\\\n\
+textarea {\\n\\\n\
+    font-family: Consolas, Menlo, monospace;\\n\\\n\
+    font-size: small;\\n\\\n\
+}\\n\\\n\
+pre {\\n\\\n\
+    overflow-wrap: break-word;\\n\\\n\
+    white-space: pre-wrap;\\n\\\n\
+}\\n\\\n\
+textarea {\\n\\\n\
+    overflow: auto;\\n\\\n\
+    white-space: pre;\\n\\\n\
+}\\n\\\n\
+.button {\\n\\\n\
+    background-color: #fff;\\n\\\n\
+    border: 1px solid;\\n\\\n\
+    border-bottom-color: rgb(186, 186, 186);\\n\\\n\
+    border-left-color: rgb(209, 209, 209);\\n\\\n\
+    border-radius: 4px;\\n\\\n\
+    border-right-color: rgb(209, 209, 209);\\n\\\n\
+    border-top-color: rgb(216, 216, 216);\\n\\\n\
+    color: #00d;\\n\\\n\
+    cursor: pointer;\\n\\\n\
+    display: inline-block;\\n\\\n\
+    font-family: Arial, Helvetica, sans-serif;\\n\\\n\
+    font-size: 12px;\\n\\\n\
+    font-style: normal;\\n\\\n\
+    font-weight: normal;\\n\\\n\
+    margin: 0;\\n\\\n\
+    padding: 2px 7px 3px 7px;\\n\\\n\
+    text-align: center;\\n\\\n\
+    text-decoration: underline;\\n\\\n\
+}\\n\\\n\
+.colorError {\\n\\\n\
+    color: #d00;\\n\\\n\
+}\\n\\\n\
+.uiAnimateShake {\\n\\\n\
+    animation-duration: 500ms;\\n\\\n\
+    animation-name: uiAnimateShake;\\n\\\n\
+}\\n\\\n\
+.uiAnimateSlide {\\n\\\n\
+    overflow-y: hidden;\\n\\\n\
+    transition: max-height ease-in 250ms, min-height ease-in 250ms, padding-bottom ease-in 250ms, padding-top ease-in 250ms;\\n\\\n\
+}\\n\\\n\
+.utility2FooterDiv {\\n\\\n\
+    text-align: center;\\n\\\n\
+}\\n\\\n\
+.zeroPixel {\\n\\\n\
+    border: 0;\\n\\\n\
+    height: 0;\\n\\\n\
+    margin: 0;\\n\\\n\
+    padding: 0;\\n\\\n\
+    width: 0;\\n\\\n\
+}\\n\\\n\
+</style>\\n\\\n\
+</head>\\n\\\n\
+<body>\\n\\\n\
+<div id=\"ajaxProgressDiv1\" style=\"background: #d00; height: 2px; left: 0; margin: 0; padding: 0; position: fixed; top: 0; transition: background 500ms, width 1500ms; width: 0%; z-index: 1;\"></div>\\n\\\n\
+<div class=\"uiAnimateSpin\" style=\"animation: uiAnimateSpin 2s linear infinite; border: 5px solid #999; border-radius: 50%; border-top: 5px solid #7d7; display: none; height: 25px; vertical-align: middle; width: 25px;\"></div>\\n\\\n\
+<a class=\"zeroPixel\" download=\"db.persistence.json\" href=\"\" id=\"dbExportA1\"></a>\\n\\\n\
+<input class=\"zeroPixel\" id=\"dbImportInput1\" type=\"file\">\\n\\\n\
+<script>\\n\\\n\
+/* jslint utility2:true */\\n\\\n\
+// init domOnEventWindowOnloadTimeElapsed\\n\\\n\
+(function () {\\n\\\n\
+/*\\n\\\n\
+ * this function will measure and print the time-elapsed for window.onload\\n\\\n\
+ */\\n\\\n\
+    \"use strict\";\\n\\\n\
+    if (window.domOnEventWindowOnloadTimeElapsed) {\\n\\\n\
+        return;\\n\\\n\
+    }\\n\\\n\
+    window.domOnEventWindowOnloadTimeElapsed = Date.now() + 100;\\n\\\n\
+    window.addEventListener(\"load\", function () {\\n\\\n\
+        setTimeout(function () {\\n\\\n\
+            window.domOnEventWindowOnloadTimeElapsed = (\\n\\\n\
+                Date.now()\\n\\\n\
+                - window.domOnEventWindowOnloadTimeElapsed\\n\\\n\
+            );\\n\\\n\
+            console.error(\\n\\\n\
+                \"domOnEventWindowOnloadTimeElapsed = \"\\n\\\n\
+                + window.domOnEventWindowOnloadTimeElapsed\\n\\\n\
+            );\\n\\\n\
+        }, 100);\\n\\\n\
+    });\\n\\\n\
+}());\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+// init timerIntervalAjaxProgressUpdate\\n\\\n\
+(function () {\\n\\\n\
+/*\\n\\\n\
+ * this function will increment the ajax-progress-bar\\n\\\n\
+ * until the webpage has loaded\\n\\\n\
+ */\\n\\\n\
+    \"use strict\";\\n\\\n\
+    var ajaxProgressDiv1;\\n\\\n\
+    var ajaxProgressState;\\n\\\n\
+    var ajaxProgressUpdate;\\n\\\n\
+    if (\\n\\\n\
+        window.timerIntervalAjaxProgressUpdate\\n\\\n\
+        || !document.querySelector(\"#ajaxProgressDiv1\")\\n\\\n\
+    ) {\\n\\\n\
+        return;\\n\\\n\
+    }\\n\\\n\
+    ajaxProgressDiv1 = document.querySelector(\"#ajaxProgressDiv1\");\\n\\\n\
+    setTimeout(function () {\\n\\\n\
+        ajaxProgressDiv1.style.width = \"25%\";\\n\\\n\
+    });\\n\\\n\
+    ajaxProgressState = 0;\\n\\\n\
+    ajaxProgressUpdate = (\\n\\\n\
+        window.local\\n\\\n\
+        && window.local.ajaxProgressUpdate\\n\\\n\
+    ) || function () {\\n\\\n\
+        ajaxProgressDiv1.style.width = \"100%\";\\n\\\n\
+        setTimeout(function () {\\n\\\n\
+            ajaxProgressDiv1.style.background = \"transparent\";\\n\\\n\
+            setTimeout(function () {\\n\\\n\
+                ajaxProgressDiv1.style.width = \"0%\";\\n\\\n\
+            }, 500);\\n\\\n\
+        }, 1000);\\n\\\n\
+    };\\n\\\n\
+    window.timerIntervalAjaxProgressUpdate = setInterval(function () {\\n\\\n\
+        ajaxProgressState += 1;\\n\\\n\
+        ajaxProgressDiv1.style.width = Math.max(\\n\\\n\
+            100 - 75 * Math.exp(-0.125 * ajaxProgressState),\\n\\\n\
+            ajaxProgressDiv1.style.width.slice(0, -1) | 0\\n\\\n\
+        ) + \"%\";\\n\\\n\
+    }, 1000);\\n\\\n\
+    window.addEventListener(\"load\", function () {\\n\\\n\
+        clearInterval(window.timerIntervalAjaxProgressUpdate);\\n\\\n\
+        ajaxProgressUpdate();\\n\\\n\
+    });\\n\\\n\
+}());\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+// init domOnEventSelectAllWithinPre\\n\\\n\
+(function () {\\n\\\n\
+/*\\n\\\n\
+ * this function will limit select-all within <pre tabIndex=\"0\"> elements\\n\\\n\
+ * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse\\n\\\n\
+ */\\n\\\n\
+    \"use strict\";\\n\\\n\
+    if (window.domOnEventSelectAllWithinPre) {\\n\\\n\
+        return;\\n\\\n\
+    }\\n\\\n\
+    window.domOnEventSelectAllWithinPre = function (event) {\\n\\\n\
+        var range;\\n\\\n\
+        var selection;\\n\\\n\
+        if (\\n\\\n\
+            event\\n\\\n\
+            && event.key === \"a\"\\n\\\n\
+            && (event.ctrlKey || event.metaKey)\\n\\\n\
+            && event.target.closest(\"pre\")\\n\\\n\
+        ) {\\n\\\n\
+            range = document.createRange();\\n\\\n\
+            range.selectNodeContents(event.target.closest(\"pre\"));\\n\\\n\
+            selection = window.getSelection();\\n\\\n\
+            selection.removeAllRanges();\\n\\\n\
+            selection.addRange(range);\\n\\\n\
+            event.preventDefault();\\n\\\n\
+        }\\n\\\n\
+    };\\n\\\n\
+    document.addEventListener(\\n\\\n\
+        \"keydown\",\\n\\\n\
+        window.domOnEventSelectAllWithinPre\\n\\\n\
+    );\\n\\\n\
+}());\\n\\\n\
+</script>\\n\\\n\
+<h1>\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+    <a\\n\\\n\
+        {{#if env.npm_package_homepage}}\\n\\\n\
+        href=\"{{env.npm_package_homepage}}\"\\n\\\n\
+        {{/if env.npm_package_homepage}}\\n\\\n\
+        target=\"_blank\"\\n\\\n\
+    >\\n\\\n\
+utility2-comment -->\\n\\\n\
+        {{env.npm_package_name}} ({{env.npm_package_version}})\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+    </a>\\n\\\n\
+utility2-comment -->\\n\\\n\
+</h1>\\n\\\n\
+<h3>{{env.npm_package_description}}</h3>\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+<a class=\"button\" download href=\"assets.app.js\">download standalone app</a><br>\\n\\\n\
+<button id=\"testRunButton1\" style=\"display: none;\"></button>\\n\\\n\
+<button class=\"button eventDelegateClick onreset\" data-event=\"testRunBrowser\" id=\"testRunButton2\">run internal test</button><br>\\n\\\n\
+utility2-comment -->\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+\\n\\\n\
+<label>edit or paste script below to cover and test</label>\\n\\\n\
+<textarea class=\"eventDelegateKeyup onreset\" data-event=\"testRunBrowser\" id=\"inputTextareaEval1\">\\n\\\n\
+// remove comment below to disable jslint\\n\\\n\
+/*jslint browser, devel*/\\n\\\n\
+/*global window*/\\n\\\n\
+(function () {\\n\\\n\
+    \"use strict\";\\n\\\n\
+    var testCaseDict;\\n\\\n\
+    testCaseDict = {};\\n\\\n\
+    testCaseDict.modeTest = 1;\\n\\\n\
+\\n\\\n\
+    // comment this testCase to disable the failed error demo\\n\\\n\
+    testCaseDict.testCase_failed_error_demo = function (options, onError) {\\n\\\n\
+    /*\\n\\\n\
+     * this function will demo a failed error test\\n\\\n\
+     */\\n\\\n\
+        // jslint-hack\\n\\\n\
+        window.utility2.nop(options);\\n\\\n\
+        onError(new Error(\"this is a failed error demo\"));\\n\\\n\
+    };\\n\\\n\
+\\n\\\n\
+    testCaseDict.testCase_passed_ajax_demo = function (options, onError) {\\n\\\n\
+    /*\\n\\\n\
+     * this function will demo a passed ajax test\\n\\\n\
+     */\\n\\\n\
+        var data;\\n\\\n\
+        options = {url: \"/\"};\\n\\\n\
+        // test ajax request for main-page \"/\"\\n\\\n\
+        window.utility2.ajax(options, function (error, xhr) {\\n\\\n\
+            try {\\n\\\n\
+                // validate no error occurred\\n\\\n\
+                console.assert(!error, error);\\n\\\n\
+                // validate \"200 ok\" status\\n\\\n\
+                console.assert(xhr.statusCode === 200, xhr.statusCode);\\n\\\n\
+                // validate non-empty data\\n\\\n\
+                data = xhr.responseText;\\n\\\n\
+                console.assert(data && data.length > 0, data);\\n\\\n\
+                onError();\\n\\\n\
+            } catch (errorCaught) {\\n\\\n\
+                onError(errorCaught);\\n\\\n\
+            }\\n\\\n\
+        });\\n\\\n\
+    };\\n\\\n\
+\\n\\\n\
+    window.utility2.testRunDefault(testCaseDict);\\n\\\n\
+}());\\n\\\n\
+</textarea>\\n\\\n\
+<button class=\"button eventDelegateClick onreset\" data-event=\"testRunBrowser\" id=\"jslintAutofixButton1\">jslint autofix</button><br>\\n\\\n\
+<pre class= \"colorError\" id=\"outputJslintPre1\" tabindex=\"0\"></pre>\\n\\\n\
+<label>instrumented-code</label>\\n\\\n\
+<textarea class=\"resettable\" id=\"outputTextarea1\" readonly></textarea>\\n\\\n\
+<label>stderr and stdout</label>\\n\\\n\
+<textarea class=\"resettable\" id=\"outputStdoutTextarea1\" readonly></textarea>\\n\\\n\
+<div class=\"resettable\" id=\"testReportDiv1\"></div>\\n\\\n\
+<div class=\"resettable\" id=\"coverageReportDiv1\"></div>\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+{{#if isRollup}}\\n\\\n\
+<script src=\"assets.app.js\"></script>\\n\\\n\
+{{#unless isRollup}}\\n\\\n\
+utility2-comment -->\\n\\\n\
+<script src=\"assets.utility2.lib.istanbul.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.jslint.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.jslint2.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.db.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.marked.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.sjcl.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.lib.uglifyjs.js\"></script>\\n\\\n\
+<script src=\"assets.utility2.js\"></script>\\n\\\n\
+<script>window.utility2_onReadyBefore.counter += 1;</script>\\n\\\n\
+<script src=\"jsonp.utility2.stateInit?callback=window.utility2.stateInit\"></script>\\n\\\n\
+<script src=\"assets.example.js\"></script>\\n\\\n\
+<script src=\"assets.test.js\"></script>\\n\\\n\
+<script>window.utility2_onReadyBefore();</script>\\n\\\n\
+<!-- utility2-comment\\n\\\n\
+{{/if isRollup}}\\n\\\n\
+utility2-comment -->\\n\\\n\
+<div class=\"utility2FooterDiv\">\\n\\\n\
+    [ this app was created with\\n\\\n\
+    <a href=\"https://github.com/kaizhu256/node-utility2\" target=\"_blank\">utility2</a>\\n\\\n\
+    ]\\n\\\n\
+</div>\\n\\\n\
+</body>\\n\\\n\
+</html>\\n\\\n\
+';\n\
+/* jslint ignore:end */\n\
+/* validateLineSortedReset */\n\
+/* jslint ignore:start */\n\
+local.assetsDict[\"/assets.utility2.js\"] =\n\
+    local.assetsDict[\"/assets.utility2.js\"] ||\n\
+    local.fs.readFileSync(local.__dirname + \"/lib.utility2.js\", \"utf8\"\n\
+).replace((/^#!\\//), \"// \");\n\
+/* jslint ignore:end */\n\
+/* validateLineSortedReset */\n\
+local.assetsDict[\"/\"] = local.assetsDict[\"/assets.index.template.html\"]\n\
+.replace((\n\
+    /\\{\\{env\\.(\\w+?)\\}\\}/g\n\
+), function (match0, match1) {\n\
+    switch (match1) {\n\
+    case \"npm_package_description\":\n\
+        return \"the greatest app in the world!\";\n\
+    case \"npm_package_name\":\n\
+        return \"utility2\";\n\
+    case \"npm_package_nameLib\":\n\
+        return \"utility2\";\n\
+    case \"npm_package_version\":\n\
+        return \"0.0.1\";\n\
+    default:\n\
+        return match0;\n\
+    }\n\
+});\n\
+local.assetsDict[\"/assets.example.html\"] = local.assetsDict[\"/\"];\n\
+local.assetsDict[\"/index.html\"] = local.assetsDict[\"/\"];\n\
+// init cli\n\
+if (module !== require.main || globalThis.utility2_rollup) {\n\
+    return;\n\
+}\n\
+/* validateLineSortedReset */\n\
+local.assetsDict[\"/assets.example.js\"] = (\n\
+    local.assetsDict[\"/assets.example.js\"]\n\
+    || local.fs.readFileSync(__filename, \"utf8\")\n\
+);\n\
+local.assetsDict[\"/favicon.ico\"] = local.assetsDict[\"/favicon.ico\"] || \"\";\n\
+// if $npm_config_timeout_exit exists,\n\
+// then exit this process after $npm_config_timeout_exit ms\n\
+if (Number(process.env.npm_config_timeout_exit)) {\n\
+    setTimeout(process.exit, Number(process.env.npm_config_timeout_exit));\n\
+}\n\
+// start server\n\
+if (globalThis.utility2_serverHttp1) {\n\
+    return;\n\
+}\n\
+process.env.PORT = process.env.PORT || \"8081\";\n\
+console.error(\"server starting on port \" + process.env.PORT);\n\
+local.http.createServer(function (request, response) {\n\
+    request.urlParsed = local.url.parse(request.url);\n\
+    if (local.assetsDict[request.urlParsed.pathname] !== undefined) {\n\
+        response.end(local.assetsDict[request.urlParsed.pathname]);\n\
+        return;\n\
+    }\n\
+    response.statusCode = 404;\n\
+    response.end();\n\
+}).listen(process.env.PORT);\n\
+}());\n\
+\n\
+\n\
+\n\
+}());\n\
 "
 /* jslint ignore:end */
     return local;
@@ -33458,8 +34161,29 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
         } catch (ignore) {}\n\
     }());\n\
     globalThis.globalThis = globalThis;\n\
+    // init debug_inline\n\
+    if (!globalThis[\"debug\\u0049nline\"]) {\n\
+        consoleError = console.error;\n\
+        globalThis[\"debug\\u0049nline\"] = function () {\n\
+        /*\n\
+         * this function will both print <arguments> to stderr\n\
+         * and return <arguments>[0]\n\
+         */\n\
+            var argList;\n\
+            argList = Array.from(arguments); // jslint ignore:line\n\
+            // debug arguments\n\
+            globalThis[\"debug\\u0049nlineArguments\"] = argList;\n\
+            consoleError(\"\\n\\ndebug\\u0049nline\");\n\
+            consoleError.apply(console, argList);\n\
+            consoleError(\"\\n\");\n\
+            // return arg0 for inspection\n\
+            return argList[0];\n\
+        };\n\
+    }\n\
     // init local\n\
     local = {};\n\
+    local.local = local;\n\
+    globalThis.globalLocal = local;\n\
     // init isBrowser\n\
     local.isBrowser = (\n\
         typeof window === \"object\"\n\
@@ -33468,7 +34192,6 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
         && window.document\n\
         && typeof window.document.querySelectorAll === \"function\"\n\
     );\n\
-    globalThis.globalLocal = local;\n\
     // init function\n\
     local.assertThrow = function (passed, message) {\n\
     /*\n\
@@ -33479,7 +34202,7 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
             return;\n\
         }\n\
         error = (\n\
-            // ternary-operator\n\
+            // ternary-condition\n\
             (\n\
                 message\n\
                 && typeof message.message === \"string\"\n\
@@ -33517,24 +34240,35 @@ local.assetsDict["/assets.utility2.test.js"] = "/* istanbul instrument in packag
      */\n\
         return;\n\
     };\n\
-    // init debug_inline\n\
-    if (!globalThis[\"debug\\u0049nline\"]) {\n\
-        consoleError = console.error;\n\
-        globalThis[\"debug\\u0049nline\"] = function () {\n\
-        /*\n\
-         * this function will both print <arguments> to stderr\n\
-         * and return <arguments>[0]\n\
-         */\n\
-            var argList;\n\
-            argList = Array.from(arguments); // jslint ignore:line\n\
-            // debug arguments\n\
-            globalThis[\"debug\\u0049nlineArguments\"] = argList;\n\
-            consoleError(\"\\n\\ndebug\\u0049nline\");\n\
-            consoleError.apply(console, argList);\n\
-            consoleError(\"\\n\");\n\
-            // return arg0 for inspection\n\
-            return argList[0];\n\
-        };\n\
+    // require builtin\n\
+    if (!local.isBrowser) {\n\
+        local.assert = require(\"assert\");\n\
+        local.buffer = require(\"buffer\");\n\
+        local.child_process = require(\"child_process\");\n\
+        local.cluster = require(\"cluster\");\n\
+        local.crypto = require(\"crypto\");\n\
+        local.dgram = require(\"dgram\");\n\
+        local.dns = require(\"dns\");\n\
+        local.domain = require(\"domain\");\n\
+        local.events = require(\"events\");\n\
+        local.fs = require(\"fs\");\n\
+        local.http = require(\"http\");\n\
+        local.https = require(\"https\");\n\
+        local.net = require(\"net\");\n\
+        local.os = require(\"os\");\n\
+        local.path = require(\"path\");\n\
+        local.querystring = require(\"querystring\");\n\
+        local.readline = require(\"readline\");\n\
+        local.repl = require(\"repl\");\n\
+        local.stream = require(\"stream\");\n\
+        local.string_decoder = require(\"string_decoder\");\n\
+        local.timers = require(\"timers\");\n\
+        local.tls = require(\"tls\");\n\
+        local.tty = require(\"tty\");\n\
+        local.url = require(\"url\");\n\
+        local.util = require(\"util\");\n\
+        local.vm = require(\"vm\");\n\
+        local.zlib = require(\"zlib\");\n\
     }\n\
 }(this));\n\
 \n\
@@ -33861,11 +34595,14 @@ local.testCase_ajax_post = function (options, onError) {\n\
         responseType = responseType.element;\n\
         onParallel.counter += 1;\n\
         local.ajax({\n\
-            data: responseType === \"arraybuffer\"\n\
-            // test POST buffer-data handling-behavior\n\
-            ? local.bufferCreate(\"aa\")\n\
-            // test POST string-data handling-behavior\n\
-            : \"aa\",\n\
+            data: (\n\
+                // ternary-condition\n\
+                responseType === \"arraybuffer\"\n\
+                // test POST buffer-data handling-behavior\n\
+                ? local.bufferCreate(\"aa\")\n\
+                // test POST string-data handling-behavior\n\
+                : \"aa\"\n\
+            ),\n\
             method: \"POST\",\n\
             // test nodejs response handling-behavior\n\
             responseType: responseType,\n\
@@ -33947,9 +34684,12 @@ local.testCase_ajax_standalone = function (options, onError) {\n\
             onParallel.counter += 1;\n\
             local.ajax({\n\
                 responseType: responseType,\n\
-                url: local.isBrowser\n\
-                ? location.href\n\
-                : local.serverLocalHost\n\
+                url: (\n\
+                    // ternary-condition\n\
+                    local.isBrowser\n\
+                    ? location.href\n\
+                    : local.serverLocalHost\n\
+                )\n\
             }, function (error, xhr) {\n\
                 // validate statusCode\n\
                 local.assertJsonEqual(xhr.statusCode, 200);\n\
@@ -34388,14 +35128,6 @@ local.testCase_buildApidoc_default = function (options, onError) {\n\
     ], function (onError) {\n\
         local.buildApidoc(null, onError);\n\
     }, local.onErrorThrow);\n\
-    // test $npm_package_buildCustomOrg handling-behavior\n\
-    local.testMock([\n\
-        [local.env, {\n\
-            npm_package_buildCustomOrg: \"electron-lite\"\n\
-        }]\n\
-    ], function (onError) {\n\
-        local.buildApidoc({}, onError);\n\
-    }, local.onErrorThrow);\n\
     local.buildApidoc({\n\
         blacklistDict: {}\n\
     }, onError);\n\
@@ -34442,48 +35174,6 @@ local.testCase_buildApp_default = function (options, onError) {\n\
             url: \"/assets.utility2.rollup.js\"\n\
         }]\n\
     }, onError);\n\
-};\n\
-\n\
-local.testCase_buildCustomOrg_default = function (options, onError) {\n\
-/*\n\
- * this function will test buildCustomOrg's default handling-behavior\n\
- */\n\
-    if (local.isBrowser) {\n\
-        onError(null, options);\n\
-        return;\n\
-    }\n\
-    local.testMock([\n\
-        [local.env, {\n\
-            GITHUB_ORG: \"\",\n\
-            npm_package_buildCustomOrg: \"electron-lite\"\n\
-        }],\n\
-        [local.fs, {\n\
-            writeFileSync: local.nop\n\
-        }],\n\
-        [globalThis, {\n\
-            setTimeout: function (onError) {\n\
-                onError(null, options);\n\
-            }\n\
-        }],\n\
-        [process, {\n\
-            on: function (options, onError) {\n\
-                // test error handling-behavior\n\
-                onError(local.errorDefault, options);\n\
-            }\n\
-        }]\n\
-    ], function (onError) {\n\
-        // test npmdoc handling-behavior\n\
-        local.env.GITHUB_ORG = \"npmdoc\";\n\
-        local.buildCustomOrg({}, local.onErrorThrow);\n\
-        // test npmtest handling-behavior\n\
-        local.env.GITHUB_ORG = \"npmtest\";\n\
-        local.buildCustomOrg({}, local.onErrorThrow);\n\
-        // test scrapeitall handling-behavior\n\
-        local.env.GITHUB_ORG = \"scrapeitall\";\n\
-        local.buildCustomOrg({}, local.onErrorThrow);\n\
-        onError(null, options);\n\
-    }, local.onErrorThrow);\n\
-    local.buildCustomOrg({}, onError);\n\
 };\n\
 \n\
 local.testCase_buildLib_default = function (options, onError) {\n\
@@ -34539,42 +35229,9 @@ local.testCase_buildReadme_default = function (options, onError) {\n\
         return;\n\
     }\n\
     options = {};\n\
-    options.customize = function () {\n\
-        options.dataFrom = options.dataFrom\n\
-        // test shDeployCustom handling-behavior\n\
-        .replace(\"# shDeployCustom\", \"  shDeployCustom\")\n\
-        // test no-assets.index.template.html handling-behavior\n\
-        .replace(\"assets.utility2.template.html\", \"\");\n\
-        local.env.npm_package_private = \"\";\n\
-    };\n\
     // test shNpmTestPublished handling-behavior\n\
     options.dataFrom = local.fs.readFileSync(\"README.md\", \"utf8\")\n\
     .replace(\"#\\u0021! shNpmTestPublished\", \"shNpmTestPublished\");\n\
-    local.testMock([\n\
-        [local, {\n\
-            fsWriteFileWithMkdirpSync: local.nop\n\
-        }],\n\
-        [local.env, {\n\
-            npm_package_buildCustomOrg: \"\",\n\
-            npm_package_private: \"1\",\n\
-            npm_package_name: \"undefined\"\n\
-        }],\n\
-        [local.assetsDict, {\n\
-            // test no-assets.utility2.template.html handling-behavior\n\
-            \"/assets.index.template.html\": \"\",\n\
-            // test customize example.js handling-behavior\n\
-            \"/index.html\": \"\"\n\
-        }]\n\
-    ], function (onError) {\n\
-        local.buildReadme(options, onError);\n\
-        // test $npm_package_buildCustomOrg handling-behavior\n\
-        local.env.npm_package_buildCustomOrg = \"aa\";\n\
-        options.dataFrom = options.dataFrom\n\
-        // test no-shNpmTestPublished handling-behavior\n\
-        .replace(\"  shNpmTestPublished\", \"# shNpmTestPublished\");\n\
-        local.buildReadme(options, onError);\n\
-        onError(null, options);\n\
-    }, local.onErrorThrow);\n\
     options = {};\n\
     options.customize = function () {\n\
         // search-and-replace - customize dataTo\n\
@@ -34613,19 +35270,16 @@ local.testCase_buildXxx_default = function (options, onError) {\n\
             },\n\
             browserTest: local.nop,\n\
             buildApidoc: local.nop,\n\
-            buildCustomOrg: local.nop,\n\
             buildLib: local.nop,\n\
             buildReadme: local.nop,\n\
             buildTest: local.nop,\n\
             testCase_buildReadme_default: local.nop,\n\
             testCase_buildLib_default: local.nop,\n\
-            testCase_buildTest_default: local.nop,\n\
-            testCase_buildCustomOrg_default: local.nop\n\
+            testCase_buildTest_default: local.nop\n\
         }]\n\
     ], function (onError) {\n\
         local._testCase_buildApidoc_default(null, local.nop);\n\
         local._testCase_buildApp_default(null, local.nop);\n\
-        local._testCase_buildCustomOrg_default(null, local.nop);\n\
         local._testCase_buildLib_default(null, local.nop);\n\
         local._testCase_buildReadme_default(null, local.nop);\n\
         local._testCase_buildTest_default(null, local.nop);\n\
@@ -34869,18 +35523,6 @@ local.testCase_domElementRender_default = function (options, onError) {\n\
     local.assertJsonEqual(local.domElementRender(\"<div>{{value}}</div>\", {\n\
         value: \"aa\"\n\
     }).children[0].outerHTML, \"<div>aa</div>\");\n\
-    onError(null, options);\n\
-};\n\
-\n\
-local.testCase_domQuerySelectorAllTagNameAndPrint_default = function (options, onError) {\n\
-/*\n\
- * this function will test domQuerySelectorAllTagNameAndPrint's default handling-behavior\n\
- */\n\
-    if (!local.isBrowser) {\n\
-        onError(null, options);\n\
-        return;\n\
-    }\n\
-    local.domQuerySelectorAllTagNameAndPrint(\"body\");\n\
     onError(null, options);\n\
 };\n\
 \n\
