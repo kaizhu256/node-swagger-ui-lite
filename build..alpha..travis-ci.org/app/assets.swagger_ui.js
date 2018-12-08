@@ -1,6 +1,6 @@
 // usr/bin/env node
 /*
- * lib.swagger_ui.js (2018.8.11)
+ * lib.swagger_ui.js (2018.12.8)
  * https://github.com/kaizhu256/node-swagger-ui-lite
  * this zero-dependency package will provide a rollup, single-script version of the swagger-ui client (v2.1.5), with a working web-demo
  *
