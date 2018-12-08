@@ -1,136 +1,194 @@
+#!/usr/bin/env node
+/*
+ * lib.swagger_ui.js (2018.12.8)
+ * https://github.com/kaizhu256/node-swagger-ui-lite
+ * this zero-dependency package will provide a rollup, single-script version of the swagger-ui client (v2.1.5), with a working web-demo
+ *
+ */
+
+
+
 /* istanbul instrument in package swagger_ui */
-/* jslint-utility2 */
-/*jslint
-    bitwise: true,
-    browser: true,
-    maxerr: 4,
-    maxlen: 100,
-    node: true,
-    nomen: true,
-    regexp: true,
-    stupid: true
-*/
-(function () {
-    'use strict';
+/* istanbul ignore next */
+/* jslint utility2:true */
+(function (globalThis) {
+    "use strict";
+    var consoleError;
     var local;
-
-
-
-    // run shared js-env code - init-before
-    /* istanbul ignore next */
+    // init globalThis
     (function () {
-        // init debug_inline
-        (function () {
-            var consoleError, context, key;
-            context = (typeof window === "object" && window) || global;
-            key = "debug_inline".replace("_i", "I");
-            if (context[key]) {
-                return;
-            }
-            consoleError = console.error;
-            context[key] = function (arg0) {
-            /*
-             * this function will both print arg0 to stderr and return it
-             */
-                // debug arguments
-                context["_" + key + "Arguments"] = arguments;
-                consoleError("\n\n" + key);
-                consoleError.apply(console, arguments);
-                consoleError("\n");
-                // return arg0 for inspection
-                return arg0;
-            };
-        }());
-        // init local
-        local = {};
-        // init isBrowser
-        local.isBrowser = typeof window === "object" &&
-            typeof window.XMLHttpRequest === "function" &&
-            window.document &&
-            typeof window.document.querySelectorAll === "function";
-        // init global
-        local.global = local.isBrowser
-            ? window
-            : global;
-        // re-init local
-        local = local.global.utility2_rollup ||
-            // local.global.utility2_rollup_old || require('./assets.utility2.rollup.js') ||
-            local;
-        // init nop
-        local.nop = function () {
+        try {
+            globalThis = Function("return this")(); // jslint ignore:line
+        } catch (ignore) {}
+    }());
+    globalThis.globalThis = globalThis;
+    // init debug_inline
+    if (!globalThis["debug\u0049nline"]) {
+        consoleError = console.error;
+        globalThis["debug\u0049nline"] = function () {
         /*
-         * this function will do nothing
+         * this function will both print <arguments> to stderr
+         * and return <arguments>[0]
          */
-            return;
+            var argList;
+            argList = Array.from(arguments); // jslint ignore:line
+            // debug arguments
+            globalThis["debug\u0049nlineArguments"] = argList;
+            consoleError("\n\ndebug\u0049nline");
+            consoleError.apply(console, argList);
+            consoleError("\n");
+            // return arg0 for inspection
+            return argList[0];
         };
-        // init exports
-        if (local.isBrowser) {
-            local.global.utility2_swagger_ui = local;
-        } else {
-            // require builtins
-            // local.assert = require('assert');
-            local.buffer = require('buffer');
-            local.child_process = require('child_process');
-            local.cluster = require('cluster');
-            local.console = require('console');
-            local.constants = require('constants');
-            local.crypto = require('crypto');
-            local.dgram = require('dgram');
-            local.dns = require('dns');
-            local.domain = require('domain');
-            local.events = require('events');
-            local.fs = require('fs');
-            local.http = require('http');
-            local.https = require('https');
-            local.module = require('module');
-            local.net = require('net');
-            local.os = require('os');
-            local.path = require('path');
-            local.process = require('process');
-            local.punycode = require('punycode');
-            local.querystring = require('querystring');
-            local.readline = require('readline');
-            local.repl = require('repl');
-            local.stream = require('stream');
-            local.string_decoder = require('string_decoder');
-            local.timers = require('timers');
-            local.tls = require('tls');
-            local.tty = require('tty');
-            local.url = require('url');
-            local.util = require('util');
-            local.v8 = require('v8');
-            local.vm = require('vm');
-            local.zlib = require('zlib');
-            module.exports = local;
-            module.exports.__dirname = __dirname;
-        }
-        // init lib main
-        local.local = local.swagger_ui = local;
-
-
-
-        /* validateLineSortedReset */
-        return;
-    }());
-
-
-
-    // run node js-env code - init-after
-    /* istanbul ignore next */
-    (function () {
-        if (local.isBrowser) {
+    }
+    // init local
+    local = {};
+    local.local = local;
+    globalThis.globalLocal = local;
+    // init isBrowser
+    local.isBrowser = (
+        typeof window === "object"
+        && window === globalThis
+        && typeof window.XMLHttpRequest === "function"
+        && window.document
+        && typeof window.document.querySelectorAll === "function"
+    );
+    // init function
+    local.assertThrow = function (passed, message) {
+    /*
+     * this function will throw the error <message> if <passed> is falsy
+     */
+        var error;
+        if (passed) {
             return;
         }
-        // init assets
-        local.assetsDict = local.assetsDict || {};
-        local.fs.readdirSync(local.__dirname).forEach(function (file) {
-            file = '/' + file;
-            if (file.indexOf('/assets.') === 0) {
-                local.assetsDict[file] = local.assetsDict[file] ||
-                    local.fs.readFileSync(local.__dirname + file, 'utf8');
-            }
-        });
-        local.assetsDict['/assets.swagger_ui.html'] =
-            local.assetsDict['/assets.index.template.html'];
-    }());
+        error = (
+            // ternary-condition
+            (
+                message
+                && typeof message.message === "string"
+                && typeof message.stack === "string"
+            )
+            // if message is an error-object, then leave it as is
+            ? message
+            : new Error(
+                typeof message === "string"
+                // if message is a string, then leave it as is
+                ? message
+                // else JSON.stringify message
+                : JSON.stringify(message, null, 4)
+            )
+        );
+        throw error;
+    };
+    local.functionOrNop = function (fnc) {
+    /*
+     * this function will if <fnc> exists,
+     * them return <fnc>,
+     * else return <nop>
+     */
+        return fnc || local.nop;
+    };
+    local.identity = function (value) {
+    /*
+     * this function will return <value>
+     */
+        return value;
+    };
+    local.nop = function () {
+    /*
+     * this function will do nothing
+     */
+        return;
+    };
+    // require builtin
+    if (!local.isBrowser) {
+        local.assert = require("assert");
+        local.buffer = require("buffer");
+        local.child_process = require("child_process");
+        local.cluster = require("cluster");
+        local.crypto = require("crypto");
+        local.dgram = require("dgram");
+        local.dns = require("dns");
+        local.domain = require("domain");
+        local.events = require("events");
+        local.fs = require("fs");
+        local.http = require("http");
+        local.https = require("https");
+        local.net = require("net");
+        local.os = require("os");
+        local.path = require("path");
+        local.querystring = require("querystring");
+        local.readline = require("readline");
+        local.repl = require("repl");
+        local.stream = require("stream");
+        local.string_decoder = require("string_decoder");
+        local.timers = require("timers");
+        local.tls = require("tls");
+        local.tty = require("tty");
+        local.url = require("url");
+        local.util = require("util");
+        local.vm = require("vm");
+        local.zlib = require("zlib");
+    }
+}(this));
+
+
+
+(function (local) {
+"use strict";
+
+
+
+/* istanbul ignore next */
+// run shared js-env code - init-before
+(function () {
+// init local
+local = (
+    globalThis.utility2_rollup
+    // || globalThis.utility2_rollup_old
+    // || require("./assets.utility2.rollup.js")
+    || globalThis.globalLocal
+);
+// init exports
+if (local.isBrowser) {
+    globalThis.utility2_swagger_ui = local;
+} else {
+    module.exports = local;
+    module.exports.__dirname = __dirname;
+}
+// init lib main
+local.swagger_ui = local;
+
+
+
+/* validateLineSortedReset */
+return;
+}());
+
+
+
+// run node js-env code - init-after
+/* istanbul ignore next */
+(function () {
+    if (local.isBrowser) {
+        return;
+    }
+    // init assets
+    local.assetsDict = local.assetsDict || {};
+    local.fs.readdirSync(local.__dirname).forEach(function (file) {
+        file = "/" + file;
+        if (file.indexOf("/assets.") === 0) {
+            local.assetsDict[file] = (
+                local.assetsDict[file] || local.fs.readFileSync(local.__dirname + file, "utf8")
+            );
+        }
+    });
+    local.assetsDict["/assets.swagger_ui.html"] = (
+        local.assetsDict["/assets.index.template.html"]
+    );
+}());
+
+
+
 }());
